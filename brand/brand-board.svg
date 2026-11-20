@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="620" viewBox="0 0 680 620" role="img"><title>Hyard Records brand board</title>
+<style>@import url('https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800;125,900&amp;family=JetBrains+Mono:wght@400&amp;display=swap'); .x{font-family:'Archivo',sans-serif;font-stretch:125%;font-weight:900} .m{font-family:'JetBrains Mono',monospace}</style>
+<defs><clipPath id="c"><rect x="0" y="0" width="680" height="620" rx="16"/></clipPath><path id="arc" d="M 44 236 A 128 128 0 0 1 300 236"/></defs>
+<g clip-path="url(#c)">
+<rect width="680" height="620" fill="#000"/>
+<g fill="none" stroke="#fff" stroke-width="1.6">
+<circle cx="172" cy="236" r="92" stroke-width="2.4"/>
+<g transform="rotate(-28 172 236)"><ellipse cx="172" cy="236" rx="92" ry="26"/><ellipse cx="172" cy="236" rx="92" ry="58"/><ellipse cx="172" cy="236" rx="30" ry="92"/><ellipse cx="172" cy="236" rx="66" ry="92"/></g>
+<g transform="rotate(38 172 236)"><ellipse cx="172" cy="236" rx="92" ry="40"/><ellipse cx="172" cy="236" rx="48" ry="92"/></g>
+</g>
+<text class="x" fill="#fff" font-size="27" letter-spacing="1"><textPath href="#arc" startOffset="50%" text-anchor="middle">HYARD RECORDS</textPath></text>
+<text class="x" x="172" y="372" fill="#fff" font-size="13" text-anchor="middle" letter-spacing="1">EST 2024</text>
+<line x1="340" y1="40" x2="340" y2="390" stroke="#222"/>
+<g fill="none" stroke="#fff" stroke-width="1"><circle cx="392" cy="76" r="22" stroke-width="1.6"/><g transform="rotate(-28 392 76)"><ellipse cx="392" cy="76" rx="22" ry="7"/><ellipse cx="392" cy="76" rx="8" ry="22"/><ellipse cx="392" cy="76" rx="16" ry="22"/></g></g>
+<text class="x" x="426" y="74" fill="#fff" font-size="22">HYARD</text>
+<text class="x" x="427" y="94" fill="#fff" font-size="11" letter-spacing="5">RECORDS</text>
+<text class="m" x="370" y="140" fill="#777" font-size="11" letter-spacing="2">palette</text>
+<rect x="370" y="152" width="62" height="62" fill="#000" stroke="#444"/>
+<rect x="440" y="152" width="62" height="62" fill="#fff"/>
+<rect x="510" y="152" width="62" height="62" fill="#1A1A1A"/>
+<rect x="580" y="152" width="62" height="62" fill="#8A8A8A"/>
+<g class="m" font-size="11"><text x="374" y="208" fill="#fff">#000</text><text x="444" y="208" fill="#000">#FFF</text><text x="514" y="208" fill="#fff">#1A1A1A</text><text x="584" y="208" fill="#000">#8A8A8A</text></g>
+<text class="m" x="370" y="250" fill="#777" font-size="11" letter-spacing="2">type</text>
+<text class="x" x="370" y="286" fill="#fff" font-size="26">AaBb 2024</text>
+<text class="m" x="370" y="306" fill="#777" font-size="11">display: wide black grotesk, caps</text>
+<text class="m" x="370" y="330" fill="#fff" font-size="13">Track 01 / 128 BPM / Am</text>
+<text class="m" x="370" y="350" fill="#777" font-size="11">detail: monospace, small</text>
+<line x1="40" y1="410" x2="640" y2="410" stroke="#222"/>
+<text class="m" x="40" y="440" fill="#777" font-size="11" letter-spacing="2">roster</text>
+<g class="x" fill="#fff" font-size="30"><text x="40" y="490">RAVE SAINT</text><text x="40" y="536">NICK.</text></g>
+<text class="m" x="40" y="580" fill="#777" font-size="11">techno / rave</text>
+<rect x="400" y="432" width="240" height="152" fill="#fff"/>
+<g fill="none" stroke="#000" stroke-width="1.2"><circle cx="600" cy="560" r="80" stroke-width="2"/><g transform="rotate(-28 600 560)"><ellipse cx="600" cy="560" rx="80" ry="24"/><ellipse cx="600" cy="560" rx="80" ry="50"/><ellipse cx="600" cy="560" rx="26" ry="80"/><ellipse cx="600" cy="560" rx="56" ry="80"/></g></g>
+<text class="m" x="416" y="456" fill="#000" font-size="11" letter-spacing="2">HYD-001</text>
+<text class="x" x="416" y="492" fill="#000" font-size="19">MASS</text>
+<text class="x" x="416" y="516" fill="#000" font-size="19">HYPNOSIS</text>
+<text class="m" x="416" y="540" fill="#000" font-size="12">Rave Saint</text>
+</g>
+</svg>

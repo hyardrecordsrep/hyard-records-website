@@ -1,0 +1,44 @@
+name: Publish site to GitHub Pages
+
+# Publishes on every push to main, and again after the daily Spotify sync
+# (pushes made by the sync's own token don't start other workflows by themselves).
+on:
+  push:
+    branches: [main]
+  workflow_run:
+    workflows: ["Sync releases from Spotify"]
+    types: [completed]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Leave tooling out of the published site
+        run: rm -rf .github scripts brand FEATURES-TODO.md .gitignore
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

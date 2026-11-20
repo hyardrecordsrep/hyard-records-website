@@ -1,0 +1,17 @@
+{
+  "_howTo": "Add one object per event to the events list. Dates are YYYY-MM-DD; time is optional (24h, local). Upcoming and past are sorted automatically. artists uses the slugs from artists.json (blurfnes, rave-saint, nick). status can be on-sale, sold-out, free or announced. Remove nothing: past events move to the archive by themselves.",
+  "_example": {
+    "date": "2027-03-14",
+    "time": "23:00",
+    "title": "Hyard Records Night",
+    "venue": "Venue name",
+    "city": "Zagreb",
+    "country": "Croatia",
+    "artists": ["blurfnes", "rave-saint"],
+    "status": "on-sale",
+    "ticketUrl": "https://example.com/tickets",
+    "infoUrl": "https://instagram.com/hyardrecords",
+    "note": "Label showcase, 4 hours"
+  },
+  "events": []
+}

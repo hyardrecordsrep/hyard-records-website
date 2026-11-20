@@ -1,0 +1,1012 @@
+{
+  "label": "Hyard Records",
+  "syncedAt": null,
+  "source": "spotify-public-pages",
+  "releases": [
+    {
+      "catalog": "HYD-003",
+      "spotifyId": "4o08pRb2nnGtCVa3xEqood",
+      "title": "Speed of Sound (Minimal Remix)",
+      "type": "Single",
+      "artists": [
+        "Blurfnes"
+      ],
+      "artistIds": [
+        "4wik1BSfL1Vh3rOHdGxsCt"
+      ],
+      "releaseDate": "2026-09-25",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/4o08pRb2nnGtCVa3xEqood-300.jpg",
+      "coverLarge": "assets/covers/spotify/4o08pRb2nnGtCVa3xEqood-640.jpg",
+      "url": "https://open.spotify.com/album/4o08pRb2nnGtCVa3xEqood",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Speed of Sound - Minimal Remix",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 394960,
+          "spotifyId": "2UiacntWDputclDdQfoYFx",
+          "url": "https://open.spotify.com/track/2UiacntWDputclDdQfoYFx"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-004",
+      "spotifyId": "4Dv7XB3YIC1sLZXKv07Yfh",
+      "title": "Eternal",
+      "type": "Single",
+      "artists": [
+        "Blurfnes"
+      ],
+      "artistIds": [
+        "4wik1BSfL1Vh3rOHdGxsCt"
+      ],
+      "releaseDate": "2026-09-01",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/4Dv7XB3YIC1sLZXKv07Yfh-300.jpg",
+      "coverLarge": "assets/covers/spotify/4Dv7XB3YIC1sLZXKv07Yfh-640.jpg",
+      "url": "https://open.spotify.com/album/4Dv7XB3YIC1sLZXKv07Yfh",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Eternal",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 284005,
+          "spotifyId": "4RYXwu9NxeXx0YFKdYgkYa",
+          "url": "https://open.spotify.com/track/4RYXwu9NxeXx0YFKdYgkYa"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-005",
+      "spotifyId": "54CE8pD8hIKWmRWszlKHtm",
+      "title": "Maximus",
+      "type": "Single",
+      "artists": [
+        "Blurfnes"
+      ],
+      "artistIds": [
+        "4wik1BSfL1Vh3rOHdGxsCt"
+      ],
+      "releaseDate": "2026-08-11",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/54CE8pD8hIKWmRWszlKHtm-300.jpg",
+      "coverLarge": "assets/covers/spotify/54CE8pD8hIKWmRWszlKHtm-640.jpg",
+      "url": "https://open.spotify.com/album/54CE8pD8hIKWmRWszlKHtm",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Maximus",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 224307,
+          "spotifyId": "4x6xwSFOTthtVG3tERzp0i",
+          "url": "https://open.spotify.com/track/4x6xwSFOTthtVG3tERzp0i"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-006",
+      "spotifyId": "3Itnj0J4LI55gWWbzY0xZZ",
+      "title": "Miss the Way / Don't Go",
+      "type": "Single",
+      "artists": [
+        "Blurfnes"
+      ],
+      "artistIds": [
+        "4wik1BSfL1Vh3rOHdGxsCt"
+      ],
+      "releaseDate": "2026-07-24",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/3Itnj0J4LI55gWWbzY0xZZ-300.jpg",
+      "coverLarge": "assets/covers/spotify/3Itnj0J4LI55gWWbzY0xZZ-640.jpg",
+      "url": "https://open.spotify.com/album/3Itnj0J4LI55gWWbzY0xZZ",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Miss the Way",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 188571,
+          "spotifyId": "4s4M24efCP55qghbZ729tF",
+          "url": "https://open.spotify.com/track/4s4M24efCP55qghbZ729tF"
+        },
+        {
+          "number": 2,
+          "title": "Don't Go",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 196363,
+          "spotifyId": "6lIrQ4sf6nAfTVxf2kH4rg",
+          "url": "https://open.spotify.com/track/6lIrQ4sf6nAfTVxf2kH4rg"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-007",
+      "spotifyId": "62CGIwpPsPGZu7mnxIsE5k",
+      "title": "The End",
+      "type": "Single",
+      "artists": [
+        "Blurfnes"
+      ],
+      "artistIds": [
+        "4wik1BSfL1Vh3rOHdGxsCt"
+      ],
+      "releaseDate": "2026-05-29",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/62CGIwpPsPGZu7mnxIsE5k-300.jpg",
+      "coverLarge": "assets/covers/spotify/62CGIwpPsPGZu7mnxIsE5k-640.jpg",
+      "url": "https://open.spotify.com/album/62CGIwpPsPGZu7mnxIsE5k",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "The End",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 224000,
+          "spotifyId": "3H4l3DKewHIIWhTQPbzHXD",
+          "url": "https://open.spotify.com/track/3H4l3DKewHIIWhTQPbzHXD"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-008",
+      "spotifyId": "2eNNaOIvBBX1qgo4OgBI5Y",
+      "title": "Envision",
+      "type": "EP",
+      "artists": [
+        "Blurfnes"
+      ],
+      "artistIds": [
+        "4wik1BSfL1Vh3rOHdGxsCt"
+      ],
+      "releaseDate": "2026-05-22",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/2eNNaOIvBBX1qgo4OgBI5Y-300.jpg",
+      "coverLarge": "assets/covers/spotify/2eNNaOIvBBX1qgo4OgBI5Y-640.jpg",
+      "url": "https://open.spotify.com/album/2eNNaOIvBBX1qgo4OgBI5Y",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Do It All",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 220800,
+          "spotifyId": "322RNAVJA12K5EfdTS4IXc",
+          "url": "https://open.spotify.com/track/322RNAVJA12K5EfdTS4IXc"
+        },
+        {
+          "number": 2,
+          "title": "Pretty",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 170571,
+          "spotifyId": "3xBSmf6Gi3Aj8EJCBPI9Vh",
+          "url": "https://open.spotify.com/track/3xBSmf6Gi3Aj8EJCBPI9Vh"
+        },
+        {
+          "number": 3,
+          "title": "Midnight Motion",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 180465,
+          "spotifyId": "1RNYmJTzdSDjPoAwRapC7y",
+          "url": "https://open.spotify.com/track/1RNYmJTzdSDjPoAwRapC7y"
+        },
+        {
+          "number": 4,
+          "title": "What You Can Do",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 251612,
+          "spotifyId": "6WuN4LNe2knjkQtSXPGFuk",
+          "url": "https://open.spotify.com/track/6WuN4LNe2knjkQtSXPGFuk"
+        },
+        {
+          "number": 5,
+          "title": "You and I",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 173114,
+          "spotifyId": "29UQiwdPkgYoiVI4Gb6gnx",
+          "url": "https://open.spotify.com/track/29UQiwdPkgYoiVI4Gb6gnx"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-009",
+      "spotifyId": "30I0URZRVOOvAzEf2JrG2L",
+      "title": "Give Me Techno (Remix)",
+      "type": "Single",
+      "artists": [
+        "Rave Saint",
+        "Blurfnes"
+      ],
+      "artistIds": [
+        "52FisLP1SHHdWWk5LBF9Ll",
+        "4wik1BSfL1Vh3rOHdGxsCt"
+      ],
+      "releaseDate": "2026-05-20",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/30I0URZRVOOvAzEf2JrG2L-300.jpg",
+      "coverLarge": "assets/covers/spotify/30I0URZRVOOvAzEf2JrG2L-640.jpg",
+      "url": "https://open.spotify.com/album/30I0URZRVOOvAzEf2JrG2L",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Give Me Techno - Remix",
+          "artists": [
+            "Rave Saint",
+            "Blurfnes"
+          ],
+          "durationMs": 249483,
+          "spotifyId": "6Wg53B5LPcpI5BCYSGga6L",
+          "url": "https://open.spotify.com/track/6Wg53B5LPcpI5BCYSGga6L"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-010",
+      "spotifyId": "6ZxBlL2Mi5v0GcW7LKS2FA",
+      "title": "Inhale (Blurfnes Remix)",
+      "type": "Single",
+      "artists": [
+        "Blurfnes",
+        "Rave Saint"
+      ],
+      "artistIds": [
+        "4wik1BSfL1Vh3rOHdGxsCt",
+        "52FisLP1SHHdWWk5LBF9Ll"
+      ],
+      "releaseDate": "2026-05-15",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/6ZxBlL2Mi5v0GcW7LKS2FA-300.jpg",
+      "coverLarge": "assets/covers/spotify/6ZxBlL2Mi5v0GcW7LKS2FA-640.jpg",
+      "url": "https://open.spotify.com/album/6ZxBlL2Mi5v0GcW7LKS2FA",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Inhale - Blurfnes Remix",
+          "artists": [
+            "Blurfnes",
+            "Rave Saint"
+          ],
+          "durationMs": 217500,
+          "spotifyId": "6un1dpnUALxhaPb7YN1jYf",
+          "url": "https://open.spotify.com/track/6un1dpnUALxhaPb7YN1jYf"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-001",
+      "spotifyId": "1C7b83Es1R7lO8VbFIOv2L",
+      "title": "Mass Hypnosis",
+      "type": "Single",
+      "artists": [
+        "Rave Saint"
+      ],
+      "artistIds": [
+        "52FisLP1SHHdWWk5LBF9Ll"
+      ],
+      "releaseDate": "2026-05-13",
+      "label": "Hyard Records",
+      "cover": "assets/covers/mass-hypnosis.jpg",
+      "coverLarge": "assets/covers/mass-hypnosis.jpg",
+      "url": "https://open.spotify.com/album/1C7b83Es1R7lO8VbFIOv2L",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Mass Hypnosis",
+          "artists": [
+            "Rave Saint"
+          ],
+          "durationMs": 254129,
+          "spotifyId": "3HWJ3zfr0Gs6OtyK4mu3nu",
+          "url": "https://open.spotify.com/track/3HWJ3zfr0Gs6OtyK4mu3nu"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-011",
+      "spotifyId": "0ayUZmcSc7szGRFiYHOmzo",
+      "title": "Metacol",
+      "type": "Single",
+      "artists": [
+        "Blurfnes"
+      ],
+      "artistIds": [
+        "4wik1BSfL1Vh3rOHdGxsCt"
+      ],
+      "releaseDate": "2026-05-08",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/0ayUZmcSc7szGRFiYHOmzo-300.jpg",
+      "coverLarge": "assets/covers/spotify/0ayUZmcSc7szGRFiYHOmzo-640.jpg",
+      "url": "https://open.spotify.com/album/0ayUZmcSc7szGRFiYHOmzo",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Metacol",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 227200,
+          "spotifyId": "4t1Odlh2xh3sIUWPfqsnoo",
+          "url": "https://open.spotify.com/track/4t1Odlh2xh3sIUWPfqsnoo"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-012",
+      "spotifyId": "3huvj5vT556O9EV9PhWFBJ",
+      "title": "Love Me Hard",
+      "type": "Single",
+      "artists": [
+        "Blurfnes"
+      ],
+      "artistIds": [
+        "4wik1BSfL1Vh3rOHdGxsCt"
+      ],
+      "releaseDate": "2026-05-01",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/3huvj5vT556O9EV9PhWFBJ-300.jpg",
+      "coverLarge": "assets/covers/spotify/3huvj5vT556O9EV9PhWFBJ-640.jpg",
+      "url": "https://open.spotify.com/album/3huvj5vT556O9EV9PhWFBJ",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Love Me Hard",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 302290,
+          "spotifyId": "1c7rhA0XFwVfwRzpMhnQk8",
+          "url": "https://open.spotify.com/track/1c7rhA0XFwVfwRzpMhnQk8"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-013",
+      "spotifyId": "5n985HHpBDuFPOdACmR02w",
+      "title": "Speed of Sound",
+      "type": "Single",
+      "artists": [
+        "Blurfnes"
+      ],
+      "artistIds": [
+        "4wik1BSfL1Vh3rOHdGxsCt"
+      ],
+      "releaseDate": "2026-04-24",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/5n985HHpBDuFPOdACmR02w-300.jpg",
+      "coverLarge": "assets/covers/spotify/5n985HHpBDuFPOdACmR02w-640.jpg",
+      "url": "https://open.spotify.com/album/5n985HHpBDuFPOdACmR02w",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Speed of Sound",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 295748,
+          "spotifyId": "2NSQ8tayBM51jRTv1WtTCy",
+          "url": "https://open.spotify.com/track/2NSQ8tayBM51jRTv1WtTCy"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-014",
+      "spotifyId": "2YWSpsqCU0TZ0t3FvWdmzB",
+      "title": "No Time To Waste (2026 Remaster)",
+      "type": "Single",
+      "artists": [
+        "Blurfnes"
+      ],
+      "artistIds": [
+        "4wik1BSfL1Vh3rOHdGxsCt"
+      ],
+      "releaseDate": "2026-04-16",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/2YWSpsqCU0TZ0t3FvWdmzB-300.jpg",
+      "coverLarge": "assets/covers/spotify/2YWSpsqCU0TZ0t3FvWdmzB-640.jpg",
+      "url": "https://open.spotify.com/album/2YWSpsqCU0TZ0t3FvWdmzB",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "No Time To Waste - 2026 Remaster",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 224032,
+          "spotifyId": "3wqEtWcXi0nWR3rQLvaItI",
+          "url": "https://open.spotify.com/track/3wqEtWcXi0nWR3rQLvaItI"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-015",
+      "spotifyId": "12u0IyEO8Ji511kLThrxYK",
+      "title": "Disturbance",
+      "type": "Single",
+      "artists": [
+        "Blurfnes"
+      ],
+      "artistIds": [
+        "4wik1BSfL1Vh3rOHdGxsCt"
+      ],
+      "releaseDate": "2026-04-10",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/12u0IyEO8Ji511kLThrxYK-300.jpg",
+      "coverLarge": "assets/covers/spotify/12u0IyEO8Ji511kLThrxYK-640.jpg",
+      "url": "https://open.spotify.com/album/12u0IyEO8Ji511kLThrxYK",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Disturbance",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 464640,
+          "spotifyId": "67IoJHCEtNQVQ4VkWjKaOi",
+          "url": "https://open.spotify.com/track/67IoJHCEtNQVQ4VkWjKaOi"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-016",
+      "spotifyId": "3toqBYkHqaWuhIenm4V8mH",
+      "title": "Give Me Techno",
+      "type": "Single",
+      "artists": [
+        "Blurfnes",
+        "Rave Saint"
+      ],
+      "artistIds": [
+        "4wik1BSfL1Vh3rOHdGxsCt",
+        "52FisLP1SHHdWWk5LBF9Ll"
+      ],
+      "releaseDate": "2026-04-03",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/3toqBYkHqaWuhIenm4V8mH-300.jpg",
+      "coverLarge": "assets/covers/spotify/3toqBYkHqaWuhIenm4V8mH-640.jpg",
+      "url": "https://open.spotify.com/album/3toqBYkHqaWuhIenm4V8mH",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Give Me Techno",
+          "artists": [
+            "Blurfnes",
+            "Rave Saint"
+          ],
+          "durationMs": 232258,
+          "spotifyId": "1VQAtwKVHFBvYAmwEXfF9U",
+          "url": "https://open.spotify.com/track/1VQAtwKVHFBvYAmwEXfF9U"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-017",
+      "spotifyId": "5sC27mciBaK1wUbxusYyBD",
+      "title": "Ramiro",
+      "type": "EP",
+      "artists": [
+        "Blurfnes"
+      ],
+      "artistIds": [
+        "4wik1BSfL1Vh3rOHdGxsCt"
+      ],
+      "releaseDate": "2026-03-27",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/5sC27mciBaK1wUbxusYyBD-300.jpg",
+      "coverLarge": "assets/covers/spotify/5sC27mciBaK1wUbxusYyBD-640.jpg",
+      "url": "https://open.spotify.com/album/5sC27mciBaK1wUbxusYyBD",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Ramiro",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 368120,
+          "spotifyId": "7LLLFdoUN3dVGv3ry7IfwI",
+          "url": "https://open.spotify.com/track/7LLLFdoUN3dVGv3ry7IfwI"
+        },
+        {
+          "number": 2,
+          "title": "Ramiro - Radio Edit",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 207299,
+          "spotifyId": "7lkn0pn3GAXa51gm8OYCoN",
+          "url": "https://open.spotify.com/track/7lkn0pn3GAXa51gm8OYCoN"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-020",
+      "spotifyId": "6XLDXVVJQPc6ilXOS9ZyOw",
+      "title": "Antarctica",
+      "type": "EP",
+      "artists": [
+        "Rave Saint",
+        "Blurfnes"
+      ],
+      "artistIds": [
+        "52FisLP1SHHdWWk5LBF9Ll",
+        "4wik1BSfL1Vh3rOHdGxsCt"
+      ],
+      "releaseDate": "2026-03-20",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/6XLDXVVJQPc6ilXOS9ZyOw-300.jpg",
+      "coverLarge": "assets/covers/spotify/6XLDXVVJQPc6ilXOS9ZyOw-640.jpg",
+      "url": "https://open.spotify.com/album/6XLDXVVJQPc6ilXOS9ZyOw",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Antarctica",
+          "artists": [
+            "Rave Saint",
+            "Blurfnes"
+          ],
+          "durationMs": 294661,
+          "spotifyId": "4PqtO33lKeasV7WNLAz2W6",
+          "url": "https://open.spotify.com/track/4PqtO33lKeasV7WNLAz2W6"
+        },
+        {
+          "number": 2,
+          "title": "Antarctica - Techno Remix",
+          "artists": [
+            "Rave Saint",
+            "Blurfnes"
+          ],
+          "durationMs": 222857,
+          "spotifyId": "01OzfQ3YyBeMPA6qclsFCu",
+          "url": "https://open.spotify.com/track/01OzfQ3YyBeMPA6qclsFCu"
+        },
+        {
+          "number": 3,
+          "title": "Antarctica - Club MIX",
+          "artists": [
+            "Rave Saint",
+            "Blurfnes"
+          ],
+          "durationMs": 441000,
+          "spotifyId": "3nAAc6nqbxSy8TNsfb3i3l",
+          "url": "https://open.spotify.com/track/3nAAc6nqbxSy8TNsfb3i3l"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-028",
+      "spotifyId": "0KlAFve8RbTr3IZ7gSZvd0",
+      "title": "Close Encounters",
+      "type": "Single",
+      "artists": [
+        "Rave Saint"
+      ],
+      "artistIds": [
+        "52FisLP1SHHdWWk5LBF9Ll"
+      ],
+      "releaseDate": "2026-03-18",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/0KlAFve8RbTr3IZ7gSZvd0-300.jpg",
+      "coverLarge": "assets/covers/spotify/0KlAFve8RbTr3IZ7gSZvd0-640.jpg",
+      "url": "https://open.spotify.com/album/0KlAFve8RbTr3IZ7gSZvd0",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Close Encounters",
+          "artists": [
+            "Rave Saint"
+          ],
+          "durationMs": 244666,
+          "spotifyId": "0kADhJi8jItLEzLXEjuxTA",
+          "url": "https://open.spotify.com/track/0kADhJi8jItLEzLXEjuxTA"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-018",
+      "spotifyId": "245uN1vjb8BZrooo2kjUSi",
+      "title": "Riot",
+      "type": "Single",
+      "artists": [
+        "Blurfnes"
+      ],
+      "artistIds": [
+        "4wik1BSfL1Vh3rOHdGxsCt"
+      ],
+      "releaseDate": "2026-03-13",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/245uN1vjb8BZrooo2kjUSi-300.jpg",
+      "coverLarge": "assets/covers/spotify/245uN1vjb8BZrooo2kjUSi-640.jpg",
+      "url": "https://open.spotify.com/album/245uN1vjb8BZrooo2kjUSi",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Riot",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 530520,
+          "spotifyId": "14u72mjdAVF284hobE9ejM",
+          "url": "https://open.spotify.com/track/14u72mjdAVF284hobE9ejM"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-002",
+      "spotifyId": "5nzQiy9MU8GyxxalgUyKkz",
+      "title": "Miss Me",
+      "type": "Single",
+      "artists": [
+        "nick."
+      ],
+      "artistIds": [
+        "0NyHku5fQCfBfy4Naaah50"
+      ],
+      "releaseDate": "2026-03-08",
+      "label": "Hyard Records",
+      "cover": "assets/covers/miss-me.jpg",
+      "coverLarge": "assets/covers/miss-me.jpg",
+      "url": "https://open.spotify.com/album/5nzQiy9MU8GyxxalgUyKkz",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Miss Me",
+          "artists": [
+            "nick."
+          ],
+          "durationMs": 133799,
+          "spotifyId": "6WeudgJyrAc6Bey4mqz8nu",
+          "url": "https://open.spotify.com/track/6WeudgJyrAc6Bey4mqz8nu"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-019",
+      "spotifyId": "29GPfZSFW44LZRmmzOOwpy",
+      "title": "Friction",
+      "type": "Single",
+      "artists": [
+        "Blurfnes"
+      ],
+      "artistIds": [
+        "4wik1BSfL1Vh3rOHdGxsCt"
+      ],
+      "releaseDate": "2026-02-27",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/29GPfZSFW44LZRmmzOOwpy-300.jpg",
+      "coverLarge": "assets/covers/spotify/29GPfZSFW44LZRmmzOOwpy-640.jpg",
+      "url": "https://open.spotify.com/album/29GPfZSFW44LZRmmzOOwpy",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Friction",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 360935,
+          "spotifyId": "64QosfOORpL3l9d3w4p18s",
+          "url": "https://open.spotify.com/track/64QosfOORpL3l9d3w4p18s"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-021",
+      "spotifyId": "6qTEkRVpY85ZTPhBv0pm9h",
+      "title": "Taste of Your Love",
+      "type": "Single",
+      "artists": [
+        "Blurfnes"
+      ],
+      "artistIds": [
+        "4wik1BSfL1Vh3rOHdGxsCt"
+      ],
+      "releaseDate": "2026-01-01",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/6qTEkRVpY85ZTPhBv0pm9h-300.jpg",
+      "coverLarge": "assets/covers/spotify/6qTEkRVpY85ZTPhBv0pm9h-640.jpg",
+      "url": "https://open.spotify.com/album/6qTEkRVpY85ZTPhBv0pm9h",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Taste of Your Love",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 232036,
+          "spotifyId": "0otQTF9OMGoUoPpulhzyNx",
+          "url": "https://open.spotify.com/track/0otQTF9OMGoUoPpulhzyNx"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-022",
+      "spotifyId": "6Xi7X06uwlXQxmpRe31a8U",
+      "title": "No Time to Waste",
+      "type": "Single",
+      "artists": [
+        "Blurfnes"
+      ],
+      "artistIds": [
+        "4wik1BSfL1Vh3rOHdGxsCt"
+      ],
+      "releaseDate": "2025-11-05",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/6Xi7X06uwlXQxmpRe31a8U-300.jpg",
+      "coverLarge": "assets/covers/spotify/6Xi7X06uwlXQxmpRe31a8U-640.jpg",
+      "url": "https://open.spotify.com/album/6Xi7X06uwlXQxmpRe31a8U",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "No Time to Waste",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 220650,
+          "spotifyId": "7npSKkGidgk3t4IHTeNnsu",
+          "url": "https://open.spotify.com/track/7npSKkGidgk3t4IHTeNnsu"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-023",
+      "spotifyId": "4OjblEFRYUuUj77fZmPrIy",
+      "title": "Fate",
+      "type": "EP",
+      "artists": [
+        "Blurfnes"
+      ],
+      "artistIds": [
+        "4wik1BSfL1Vh3rOHdGxsCt"
+      ],
+      "releaseDate": "2025-10-01",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/4OjblEFRYUuUj77fZmPrIy-300.jpg",
+      "coverLarge": "assets/covers/spotify/4OjblEFRYUuUj77fZmPrIy-640.jpg",
+      "url": "https://open.spotify.com/album/4OjblEFRYUuUj77fZmPrIy",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Fate",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 418069,
+          "spotifyId": "6KnPFCggJ8M31Dvf7ZFhd3",
+          "url": "https://open.spotify.com/track/6KnPFCggJ8M31Dvf7ZFhd3"
+        },
+        {
+          "number": 2,
+          "title": "Fate - 2025 Remaster",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 418150,
+          "spotifyId": "62br5I9AfboNIzyG0L9zaB",
+          "url": "https://open.spotify.com/track/62br5I9AfboNIzyG0L9zaB"
+        },
+        {
+          "number": 3,
+          "title": "Fate - Orchestral Version",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 230458,
+          "spotifyId": "1Q5FYXQgakvEiZkZyygzSJ",
+          "url": "https://open.spotify.com/track/1Q5FYXQgakvEiZkZyygzSJ"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-027",
+      "spotifyId": "1zbkdISIy20tSuFx39RJXv",
+      "title": "Spirit",
+      "type": "EP",
+      "artists": [
+        "Rave Saint"
+      ],
+      "artistIds": [
+        "52FisLP1SHHdWWk5LBF9Ll"
+      ],
+      "releaseDate": "2025-09-19",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/1zbkdISIy20tSuFx39RJXv-300.jpg",
+      "coverLarge": "assets/covers/spotify/1zbkdISIy20tSuFx39RJXv-640.jpg",
+      "url": "https://open.spotify.com/album/1zbkdISIy20tSuFx39RJXv",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Spirit",
+          "artists": [
+            "Rave Saint"
+          ],
+          "durationMs": 236363,
+          "spotifyId": "1j9Ilwl0uCYtNTVRskyzxT",
+          "url": "https://open.spotify.com/track/1j9Ilwl0uCYtNTVRskyzxT"
+        },
+        {
+          "number": 2,
+          "title": "Spirit - Extended",
+          "artists": [
+            "Rave Saint"
+          ],
+          "durationMs": 350909,
+          "spotifyId": "7ffak7iGPkOmi8755Ik19W",
+          "url": "https://open.spotify.com/track/7ffak7iGPkOmi8755Ik19W"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-026",
+      "spotifyId": "352bTYDCKFanbgvV1kEdKI",
+      "title": "You Are an Idiot",
+      "type": "Single",
+      "artists": [
+        "nick."
+      ],
+      "artistIds": [
+        "0NyHku5fQCfBfy4Naaah50"
+      ],
+      "releaseDate": "2025-08-24",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/352bTYDCKFanbgvV1kEdKI-300.jpg",
+      "coverLarge": "assets/covers/spotify/352bTYDCKFanbgvV1kEdKI-640.jpg",
+      "url": "https://open.spotify.com/album/352bTYDCKFanbgvV1kEdKI",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "You Are an Idiot",
+          "artists": [
+            "nick."
+          ],
+          "durationMs": 93971,
+          "spotifyId": "6gWfTa1wSv9Hdilm8WIWOl",
+          "url": "https://open.spotify.com/track/6gWfTa1wSv9Hdilm8WIWOl"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-025",
+      "spotifyId": "2pJo6oN8cN4ZW4wrgxPoFj",
+      "title": "Coming of the Saint",
+      "type": "EP",
+      "artists": [
+        "Rave Saint"
+      ],
+      "artistIds": [
+        "52FisLP1SHHdWWk5LBF9Ll"
+      ],
+      "releaseDate": "2025-07-22",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/2pJo6oN8cN4ZW4wrgxPoFj-300.jpg",
+      "coverLarge": "assets/covers/spotify/2pJo6oN8cN4ZW4wrgxPoFj-640.jpg",
+      "url": "https://open.spotify.com/album/2pJo6oN8cN4ZW4wrgxPoFj",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Coming of the Saint (Intro)",
+          "artists": [
+            "Rave Saint"
+          ],
+          "durationMs": 153751,
+          "spotifyId": "2Nfmp0FKbehzpX4hIAislj",
+          "url": "https://open.spotify.com/track/2Nfmp0FKbehzpX4hIAislj"
+        },
+        {
+          "number": 2,
+          "title": "Out of Darkness",
+          "artists": [
+            "Rave Saint"
+          ],
+          "durationMs": 242812,
+          "spotifyId": "07FxMNT36VuaykidiQqZDx",
+          "url": "https://open.spotify.com/track/07FxMNT36VuaykidiQqZDx"
+        },
+        {
+          "number": 3,
+          "title": "Out of Darkness - Extended",
+          "artists": [
+            "Rave Saint"
+          ],
+          "durationMs": 362812,
+          "spotifyId": "0fKFIIUIuzMphOWeUDxdVY",
+          "url": "https://open.spotify.com/track/0fKFIIUIuzMphOWeUDxdVY"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-024",
+      "spotifyId": "6Lcxn9rWX7gHEVuN4xX8mk",
+      "title": "Inhale",
+      "type": "EP",
+      "artists": [
+        "Rave Saint"
+      ],
+      "artistIds": [
+        "52FisLP1SHHdWWk5LBF9Ll"
+      ],
+      "releaseDate": "2025-04-28",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/6Lcxn9rWX7gHEVuN4xX8mk-300.jpg",
+      "coverLarge": "assets/covers/spotify/6Lcxn9rWX7gHEVuN4xX8mk-640.jpg",
+      "url": "https://open.spotify.com/album/6Lcxn9rWX7gHEVuN4xX8mk",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Inhale Original",
+          "artists": [
+            "Rave Saint"
+          ],
+          "durationMs": 481874,
+          "spotifyId": "6t1ugMxsjQkjli6qWuWMEe",
+          "url": "https://open.spotify.com/track/6t1ugMxsjQkjli6qWuWMEe"
+        },
+        {
+          "number": 2,
+          "title": "Inhale Intense",
+          "artists": [
+            "Rave Saint"
+          ],
+          "durationMs": 481874,
+          "spotifyId": "0TyeKfgD1b3IMhIbNxoui2",
+          "url": "https://open.spotify.com/track/0TyeKfgD1b3IMhIbNxoui2"
+        },
+        {
+          "number": 3,
+          "title": "Inhale Revive",
+          "artists": [
+            "Rave Saint"
+          ],
+          "durationMs": 244687,
+          "spotifyId": "6PWa6wm1ngbwpJT512g151",
+          "url": "https://open.spotify.com/track/6PWa6wm1ngbwpJT512g151"
+        }
+      ]
+    },
+    {
+      "catalog": "HYD-029",
+      "spotifyId": "1vD34xmd5Wif8YjBzwq6Tm",
+      "title": "Mainstage Suspension",
+      "type": "Single",
+      "artists": [
+        "Blurfnes"
+      ],
+      "artistIds": [
+        "4wik1BSfL1Vh3rOHdGxsCt"
+      ],
+      "releaseDate": "2025-04-05",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/1vD34xmd5Wif8YjBzwq6Tm-300.jpg",
+      "coverLarge": "assets/covers/spotify/1vD34xmd5Wif8YjBzwq6Tm-640.jpg",
+      "url": "https://open.spotify.com/album/1vD34xmd5Wif8YjBzwq6Tm",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Mainstage Suspension",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 337000,
+          "spotifyId": "0dtIrkDHihYsU3HuZJr3w0",
+          "url": "https://open.spotify.com/track/0dtIrkDHihYsU3HuZJr3w0"
+        }
+      ]
+    }
+  ]
+}

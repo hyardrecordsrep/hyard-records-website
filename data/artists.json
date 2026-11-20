@@ -1,0 +1,338 @@
+{
+  "updatedAt": null,
+  "artists": [
+    {
+      "slug": "blurfnes",
+      "name": "Blurfnes",
+      "spotifyName": "Blurfnes",
+      "spotifyId": "4wik1BSfL1Vh3rOHdGxsCt",
+      "spotifyUrl": "https://open.spotify.com/artist/4wik1BSfL1Vh3rOHdGxsCt",
+      "image": "assets/artists/blurfnes.jpg",
+      "about": [
+        "Blurfnes is a solo Croatian electronic music project created by Lovro Bedenk in 2023, recognized for merging orchestral elements with analog synthesizers and heavy bass influences rooted in trap. With six years of music school studying oboe and piano, including two years of orchestra experience and over 30 solo performances, Blurfnes brings a strong classical foundation into electronic production. Blurfnes now studies audio engineering and sound design, refining both technical and creative approaches to sound.",
+        "In 2024, Blurfnes founded Hyard Records and frequently collaborates with Rave Saint and Blueexnetic. The sound of Blurfnes combines orchestral textures with hard synth basses and raw analog synthesis, evolving from an early focus on trap into the development of a personal genre while also contributing to various subgenres of techno with No Time to Waste and Mainstage Suspension. Live performances center on a live looping setup heavily inspired by Paul Kalkbrenner, emphasizing real-time composition, gradual build-ups, and an immersive, performance-driven approach to electronic music."
+      ],
+      "topTracks": [
+        {
+          "title": "Fate",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 418069,
+          "spotifyId": "6KnPFCggJ8M31Dvf7ZFhd3",
+          "url": "https://open.spotify.com/track/6KnPFCggJ8M31Dvf7ZFhd3"
+        },
+        {
+          "title": "Miss the Way",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 188571,
+          "spotifyId": "4s4M24efCP55qghbZ729tF",
+          "url": "https://open.spotify.com/track/4s4M24efCP55qghbZ729tF"
+        },
+        {
+          "title": "Speed of Sound",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 295748,
+          "spotifyId": "2NSQ8tayBM51jRTv1WtTCy",
+          "url": "https://open.spotify.com/track/2NSQ8tayBM51jRTv1WtTCy"
+        },
+        {
+          "title": "Speed of Sound - Minimal Remix",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 394960,
+          "spotifyId": "2UiacntWDputclDdQfoYFx",
+          "url": "https://open.spotify.com/track/2UiacntWDputclDdQfoYFx"
+        },
+        {
+          "title": "Friction",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 360935,
+          "spotifyId": "64QosfOORpL3l9d3w4p18s",
+          "url": "https://open.spotify.com/track/64QosfOORpL3l9d3w4p18s"
+        },
+        {
+          "title": "Maximus",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 224307,
+          "spotifyId": "4x6xwSFOTthtVG3tERzp0i",
+          "url": "https://open.spotify.com/track/4x6xwSFOTthtVG3tERzp0i"
+        },
+        {
+          "title": "Ramiro",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 368120,
+          "spotifyId": "7LLLFdoUN3dVGv3ry7IfwI",
+          "url": "https://open.spotify.com/track/7LLLFdoUN3dVGv3ry7IfwI"
+        },
+        {
+          "title": "Pretty",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 170571,
+          "spotifyId": "3xBSmf6Gi3Aj8EJCBPI9Vh",
+          "url": "https://open.spotify.com/track/3xBSmf6Gi3Aj8EJCBPI9Vh"
+        },
+        {
+          "title": "Eternal",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 284005,
+          "spotifyId": "4RYXwu9NxeXx0YFKdYgkYa",
+          "url": "https://open.spotify.com/track/4RYXwu9NxeXx0YFKdYgkYa"
+        },
+        {
+          "title": "Love Me Hard",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 302290,
+          "spotifyId": "1c7rhA0XFwVfwRzpMhnQk8",
+          "url": "https://open.spotify.com/track/1c7rhA0XFwVfwRzpMhnQk8"
+        }
+      ],
+      "collaborators": [
+        {
+          "spotifyId": "52FisLP1SHHdWWk5LBF9Ll",
+          "name": "Rave Saint",
+          "url": "https://open.spotify.com/artist/52FisLP1SHHdWWk5LBF9Ll",
+          "image": "assets/artists/rave-saint.jpg",
+          "count": 4,
+          "works": [
+            "Antarctica",
+            "Give Me Techno",
+            "Give Me Techno (Remix)",
+            "Inhale (Blurfnes Remix)"
+          ]
+        }
+      ],
+      "socials": [
+        {
+          "icon": "instagram",
+          "label": "Instagram",
+          "url": "https://www.instagram.com/blurfnes/"
+        },
+        {
+          "icon": "x",
+          "label": "X",
+          "url": "https://x.com/blurfnes"
+        },
+        {
+          "icon": "soundcloud",
+          "label": "SoundCloud",
+          "url": "https://soundcloud.com/blur-fnes"
+        },
+        {
+          "icon": "apple",
+          "label": "Apple Music",
+          "url": "https://music.apple.com/us/artist/blurfnes/1551872501"
+        },
+        {
+          "icon": "web",
+          "label": "Website",
+          "url": "https://www.blurfnes.com"
+        }
+      ]
+    },
+    {
+      "slug": "rave-saint",
+      "name": "Rave Saint",
+      "spotifyName": "Rave Saint",
+      "spotifyId": "52FisLP1SHHdWWk5LBF9Ll",
+      "spotifyUrl": "https://open.spotify.com/artist/52FisLP1SHHdWWk5LBF9Ll",
+      "image": "assets/artists/rave-saint.jpg",
+      "about": [
+        "Rave Saint is the techno project of Dominik, whose music started early: music school as a kid, trumpet in school bands, then writing and rapping as Q-Dom, both solo and as one half of the duo Colorz. Through his architecture studies he moved into design and software development, branding well-known names in the Slovenian music scene while his own music waited.",
+        "Once his business was on solid ground, he found his way back through the rave scene, first as a fan. He picked up Ableton, used the pandemic years to teach himself production, and built up a backlog of demos. The turning point came at EXIT festival 2022, where he proposed to his girlfriend during the last minute of Boris Brejcha's set. The moment went viral, and that season became his debut single, Rave Saint, featuring her vocals and released in December 2022."
+      ],
+      "topTracks": [
+        {
+          "title": "Antarctica - Club MIX",
+          "artists": [
+            "Rave Saint",
+            "Blurfnes"
+          ],
+          "durationMs": 441000,
+          "spotifyId": "3nAAc6nqbxSy8TNsfb3i3l",
+          "url": "https://open.spotify.com/track/3nAAc6nqbxSy8TNsfb3i3l"
+        },
+        {
+          "title": "Inhale - Blurfnes Remix",
+          "artists": [
+            "Blurfnes",
+            "Rave Saint"
+          ],
+          "durationMs": 217500,
+          "spotifyId": "6un1dpnUALxhaPb7YN1jYf",
+          "url": "https://open.spotify.com/track/6un1dpnUALxhaPb7YN1jYf"
+        },
+        {
+          "title": "Spirit",
+          "artists": [
+            "Rave Saint"
+          ],
+          "durationMs": 236363,
+          "spotifyId": "1j9Ilwl0uCYtNTVRskyzxT",
+          "url": "https://open.spotify.com/track/1j9Ilwl0uCYtNTVRskyzxT"
+        },
+        {
+          "title": "Mass Hypnosis",
+          "artists": [
+            "Rave Saint"
+          ],
+          "durationMs": 254129,
+          "spotifyId": "3HWJ3zfr0Gs6OtyK4mu3nu",
+          "url": "https://open.spotify.com/track/3HWJ3zfr0Gs6OtyK4mu3nu"
+        },
+        {
+          "title": "Give Me Techno",
+          "artists": [
+            "Blurfnes",
+            "Rave Saint"
+          ],
+          "durationMs": 232258,
+          "spotifyId": "1VQAtwKVHFBvYAmwEXfF9U",
+          "url": "https://open.spotify.com/track/1VQAtwKVHFBvYAmwEXfF9U"
+        },
+        {
+          "title": "Give Me Techno - Remix",
+          "artists": [
+            "Rave Saint",
+            "Blurfnes"
+          ],
+          "durationMs": 249483,
+          "spotifyId": "6Wg53B5LPcpI5BCYSGga6L",
+          "url": "https://open.spotify.com/track/6Wg53B5LPcpI5BCYSGga6L"
+        },
+        {
+          "title": "Antarctica - Techno Remix",
+          "artists": [
+            "Rave Saint",
+            "Blurfnes"
+          ],
+          "durationMs": 222857,
+          "spotifyId": "01OzfQ3YyBeMPA6qclsFCu",
+          "url": "https://open.spotify.com/track/01OzfQ3YyBeMPA6qclsFCu"
+        },
+        {
+          "title": "Inhale Revive",
+          "artists": [
+            "Rave Saint"
+          ],
+          "durationMs": 244687,
+          "spotifyId": "6PWa6wm1ngbwpJT512g151",
+          "url": "https://open.spotify.com/track/6PWa6wm1ngbwpJT512g151"
+        },
+        {
+          "title": "Resign",
+          "artists": [
+            "Rave Saint",
+            "Blurfnes"
+          ],
+          "durationMs": 220327,
+          "spotifyId": "29tipHzfshn0Nnvppj5SHn",
+          "url": "https://open.spotify.com/track/29tipHzfshn0Nnvppj5SHn"
+        },
+        {
+          "title": "Coming of the Saint (Intro)",
+          "artists": [
+            "Rave Saint"
+          ],
+          "durationMs": 153751,
+          "spotifyId": "2Nfmp0FKbehzpX4hIAislj",
+          "url": "https://open.spotify.com/track/2Nfmp0FKbehzpX4hIAislj"
+        }
+      ],
+      "collaborators": [
+        {
+          "spotifyId": "4wik1BSfL1Vh3rOHdGxsCt",
+          "name": "Blurfnes",
+          "url": "https://open.spotify.com/artist/4wik1BSfL1Vh3rOHdGxsCt",
+          "image": "assets/artists/blurfnes.jpg",
+          "count": 5,
+          "works": [
+            "Antarctica",
+            "Give Me Techno",
+            "Give Me Techno (Remix)",
+            "Inhale (Blurfnes Remix)",
+            "Inhale - Blurfnes Remix"
+          ]
+        }
+      ],
+      "socials": [
+        {
+          "icon": "instagram",
+          "label": "Instagram",
+          "url": "https://www.instagram.com/rave.saint/"
+        },
+        {
+          "icon": "soundcloud",
+          "label": "SoundCloud",
+          "url": "https://soundcloud.com/ravesaint"
+        },
+        {
+          "icon": "facebook",
+          "label": "Facebook",
+          "url": "https://www.facebook.com/profile.php?id=100088965729015"
+        },
+        {
+          "icon": "web",
+          "label": "Website",
+          "url": "https://www.ravesaint.com"
+        }
+      ]
+    },
+    {
+      "slug": "nick",
+      "name": "Nick.",
+      "spotifyName": "nick.",
+      "spotifyId": "0NyHku5fQCfBfy4Naaah50",
+      "spotifyUrl": "https://open.spotify.com/artist/0NyHku5fQCfBfy4Naaah50",
+      "image": "assets/artists/nick.jpg",
+      "about": [
+        "i rarely make music"
+      ],
+      "topTracks": [
+        {
+          "title": "You Are an Idiot",
+          "artists": [
+            "nick."
+          ],
+          "durationMs": 93971,
+          "spotifyId": "6gWfTa1wSv9Hdilm8WIWOl",
+          "url": "https://open.spotify.com/track/6gWfTa1wSv9Hdilm8WIWOl"
+        },
+        {
+          "title": "Miss Me",
+          "artists": [
+            "nick."
+          ],
+          "durationMs": 133799,
+          "spotifyId": "6WeudgJyrAc6Bey4mqz8nu",
+          "url": "https://open.spotify.com/track/6WeudgJyrAc6Bey4mqz8nu"
+        }
+      ],
+      "collaborators": [],
+      "socials": [
+        {
+          "icon": "instagram",
+          "label": "Instagram",
+          "url": "https://www.instagram.com/nicktheinstaguy/"
+        }
+      ]
+    }
+  ]
+}

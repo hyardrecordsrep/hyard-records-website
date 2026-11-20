@@ -1,0 +1,11 @@
+# macOS and Dropbox
+.DS_Store
+.dropbox
+.dropbox.attr
+Icon?
+
+# Local tools
+.claude/
+__pycache__/
+*.pyc
+node_modules/

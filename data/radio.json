@@ -1,0 +1,6 @@
+{
+  "_howTo": "featured picks the 'Now featured' track in the Radio section. Leave it null to always feature the newest release automatically. To pick one yourself, set catalog to an HYD number (e.g. HYD-020), optionally track to a track title on that release, and note to a short line shown under it.",
+  "featured": null,
+  "_featuredExample": { "catalog": "HYD-020", "track": "Antarctica - Club MIX", "note": "Peak-time pick from the label." },
+  "freshCount": 5
+}

@@ -1,0 +1,34 @@
+{
+  "socials": [
+    {
+      "name": "Spotify",
+      "label": "Spotify — Hyard Radio",
+      "icon": "spotify",
+      "url": "https://open.spotify.com/playlist/0gdYCFCfcTTYMiKOccVvGl"
+    },
+    {
+      "name": "Instagram",
+      "label": "Instagram",
+      "icon": "instagram",
+      "url": "https://www.instagram.com/hyardrecords/"
+    },
+    {
+      "name": "TikTok",
+      "label": "TikTok",
+      "icon": "tiktok",
+      "url": null
+    },
+    {
+      "name": "YouTube",
+      "label": "YouTube",
+      "icon": "youtube",
+      "url": null
+    },
+    {
+      "name": "SoundCloud",
+      "label": "SoundCloud",
+      "icon": "soundcloud",
+      "url": "https://soundcloud.com/hyardrecords"
+    }
+  ]
+}
