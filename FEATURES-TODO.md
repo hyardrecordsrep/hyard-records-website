@@ -6,66 +6,45 @@ Legend: **(you)** needs something only you can provide or set up · **(me)** I c
 
 ---
 
-## 1. Before launch
+## 1. Legal and contact details
 
-- [ ] **Fill in the legal notice** (8 blanks: name, address, legal entity, OIB, label email…) **(you)**
+- [ ] **Fill in the legal notice** (name, address, legal entity, OIB, label email, VAT wording, consumer complaints body) **(you)**
 - [ ] **Fill in the privacy policy** blanks (address, label email, hosting provider, how long you keep logs and demos) **(you)**
-- [ ] **Create the company email addresses** on hyardrecords.com (e.g. info@, press@, bookings@, business@, privacy@) **(you)**
-  - Then add them to `data/contacts.json` (or send them to me) and they appear on the Contact page as mail buttons; also fill them into the legal notice and privacy policy **(me)**
+  - Then I change its order files line to match the terms: files are deleted when the order closes **(me)**
+  - The label email for both can be privacy@hyardrecords.com or info@hyardrecords.com; say which and I fill it in **(you + me)**
+- [ ] **VAT line in the terms of service**: whether you charge VAT or are exempt **(you)**
 - [ ] **Send the remaining socials**: TikTok, YouTube **(you)**
 
-## 2. Catalog and releases
+## 2. Paid services: going live
 
-Nothing open. Release pages, the catalog-fed home page, search filters and the latest release banner are done.
+Setup steps: `SETUP-ACCOUNTS.md`.
 
-## 3. Artists
-
-Nothing open. Socials, bios, top tracks and collaborators are done.
-
-## 4. Fans and community
-
-- [ ] **Point MailerLite's "thank you page" to the site** for both forms (free plan) **(you)**
-  - Newsletter: `https://hyardrecords.com/confirmed`
-  - Pre-save: `https://hyardrecords.com/confirmed?list=presave`
-  - Steps in `brand/email/README.md`
-- [ ] **Rebuild the new confirmation emails in MailerLite** from the design in `brand/email/` (needs a paid plan or the 14-day trial) **(you)**
-- [ ] **Connect a Hyard email address to MailerLite** so confirmations and newsletters come from e.g. newsletter@hyardrecords.com **(you + me)**
-  - Needs the domain plus a mailbox on it (e.g. Zoho Mail free or Google Workspace)
-  - Then verify hyardrecords.com in MailerLite (Account settings → Domains, SPF/DKIM DNS records) and set it as the From address on both forms
-- [ ] **Add your first events** to `data/events.json` (or send me the details) **(you)**
-
-## 5. Accounts and services (paid)
-
-Built: log in / sign up (email or Google), artist dashboard (demos with status, profile, security), services with
-per-track prices and EP/album packages, cart, Stripe Checkout, order confirmed and payment failed pages, orders in the
-dashboard, label-only admin page, terms of service, privacy and legal updates. Setup steps: `SETUP-ACCOUNTS.md`.
-
-- [ ] **Create the Firebase project** and send me the web config **(you)**
-- [ ] **Install the Firebase CLI and log in** so I can deploy the rules and server functions **(you)**
-- [ ] **Create the Stripe account** (test mode first) and add the keys as Firebase secrets **(you + me)**
-- [ ] **Deploy** database rules, storage rules and functions, then switch on accounts on the site **(me)**
-- [ ] **Decide prices and packages** and enter them on the admin page (Services and prices) **(you)**
-- [ ] **Fill the blanks in the terms of service** (VAT, track length, file storage time, production credits) **(you)**
-- [ ] **Test purchase** in Stripe test mode, then one real low-value purchase and refund before going live **(you + me)**
+- [ ] **Activate Stripe**: business details, ID and payout bank account **(you)**
+- [ ] **Switch Stripe to live**: add the live webhook and set both secrets with the live keys **(you)**, then I redeploy the functions **(me)**
+- [ ] **Enter your real prices** on the admin page and remove the €1 test price **(you)**
+- [ ] **One real low-value purchase and refund** to check everything end to end **(you + me)**
+- [ ] **Check `hyardrecords.com` is an authorized domain** in Firebase → Authentication → Settings, so Google login works on the live site **(you)**
+- [ ] **Upgrade Google Cloud to a full account** before the 90-day free trial ends, or Google pauses logins and uploads **(you)**
 - [ ] **Before/after audio examples** on each service **(you + me)**
 - [ ] **Testimonials and credits list** from artists you've worked with **(you + me)**
 - [ ] Suggestions, not built yet:
-  - Email notifications when a demo status changes or an order is paid or delivered **(me)**
+  - Hyard emails: "new order" to you, and to artists when a demo status changes or files are delivered **(me)**
   - Discount codes (Stripe promotion codes) **(me)**
   - Automatic VAT with Stripe Tax, once you know if you charge VAT **(you + me)**
   - Messages between artist and label on each order **(me)**
   - Spam protection on sign-up and uploads (Firebase App Check) **(me)**
   - Newsletter tick box on sign-up **(me)**
+  - More admin accounts, e.g. a Hyard address **(you + me)**
 
-## 6. Press and business
+## 3. Fans and community
+
+- [ ] **Connect a Hyard email address to MailerLite** so confirmations and newsletters come from e.g. newsletter@hyardrecords.com **(you + me)**
+  - Verify hyardrecords.com in MailerLite (Account settings → Domains, SPF/DKIM DNS records) and set it as the From address on both forms
+- [ ] **Add your first events** to `data/events.json` (or send me the details) **(you)**
+
+## 4. Later
 
 - [ ] **Open the merch store** when products are ready; the menu already shows "Merch · Coming soon" **(you + me)**
-- [ ] **Full-quality WAV uploads** (optional): today big files are shrunk to an MP3 before sending; true WAV delivery needs file storage once the site is hosted **(you + me)**
-
-## 7. Polish and growth
-
-- [ ] **Check visitor stats once the site is live** (Cloudflare Web Analytics is switched on; it only runs on hyardrecords.com) **(you)**
-- [ ] **Have a native speaker read the Croatian version**, especially the privacy policy and legal notice **(you)**
 - [ ] **Croatian artist bios** (optional): bios stay in English for now **(you + me)**
 
 ---
@@ -84,15 +63,14 @@ dashboard, label-only admin page, terms of service, privacy and legal updates. S
 - [x] About the label page and demo guidelines (text approved)
 - [x] Radio: "Now featured" track (auto newest, or your pick in `data/radio.json`), "Fresh on Hyard" newest tracks, Hyard Radio playlist + "Listen to radio" button
 - [x] Events page in the menu: upcoming and past events, artist filter, tickets and add-to-calendar (fed from `data/events.json`)
-- [x] Contact page: demo form with file upload, message box and demo guidelines
-- [x] Big demo uploads: files over 10 MB are shrunk to an MP3 (up to 320 kbps) in the browser before sending
+- [x] Send your demo page: demo guidelines plus a link to send demos from an artist account
 - [x] Press kit page (footer only): logos, artist photos, bios with copy buttons, fact sheet, one-click zip
 - [x] Merch in the menu with "Coming soon"
 - [x] Search bar next to the menu button with live suggestions (search icon on phones); Search releases removed from the menu
-- [x] Contact page for press, bookings, business and privacy (email slots ready), separate from Send your demo
+- [x] Contact page for press, bookings, business and privacy, separate from Send your demo
 - [x] Hamburger menu and full footer with all pages, Instagram, SoundCloud, Spotify
 - [x] Newsletter and album pre-save connected to MailerLite (double opt-in, separate groups)
-- [x] Thank-you page after confirming (`/confirmed`, pre-save version `/confirmed?list=presave`) linking back to the site
+- [x] Thank-you page after confirming (`/confirmed`, pre-save version `/confirmed?list=presave`), set as MailerLite's thank-you page for both forms
 - [x] Confirmation email designs for newsletter and pre-save (`brand/email/`)
 - [x] Privacy policy and legal notice (drafts with blanks)
 - [x] 404 page, link previews, sitemap.xml, robots.txt
@@ -105,3 +83,12 @@ dashboard, label-only admin page, terms of service, privacy and legal updates. S
 - [x] Accessibility: skip link, page heading on home, readable placeholders, focus kept inside the open menu, named cover link
 - [x] Visitor stats: Cloudflare Web Analytics, cookie-free
 - [x] Croatian version with an EN/HR switch in the header (remembers the choice; Croatian browsers get it automatically)
+- [x] Artist accounts live: sign up and log in with email or Google, confirmation email, password reset
+- [x] Artist dashboard: send demos (MP3/WAV up to 200 MB each, full quality), demo status with notes from the label, profile, change password or email, delete account
+- [x] Services: production, mixing, mastering and all three, with per-track prices and EP/album packages
+- [x] Cart, Stripe Checkout, order confirmed and payment failed pages, orders and file exchange in the dashboard
+- [x] Admin page (label account only): review demos, move orders along, upload finished files, close orders and delete files, edit services and prices
+- [x] Firebase project, security rules and server functions deployed; Stripe connected in test mode and a test purchase worked
+- [x] Terms of service: credit to Lovro Bedenk, any track length, files deleted when an order closes
+- [x] Company email addresses (info@, press@, bookings@, business@, privacy@hyardrecords.com) as Google Groups, shown on the Contact page
+- [x] The label account only uses the admin page: the dashboard sends it there and the menu shows Admin

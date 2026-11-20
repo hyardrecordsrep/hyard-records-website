@@ -7,6 +7,7 @@
   const REGION = 'europe-west1';
   const HINT = 'hyard-signed-in';
   const CART_HINT = 'hyard-cart-count';
+  const ADMIN_HINT = 'hyard-admin';
   const hint = {
     set(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch { /* private mode */ } },
   };
@@ -65,7 +66,14 @@
     if (!fb.configured) return;
     fb.A.onAuthStateChanged(fb.auth, (u) => {
       hint.set(HINT, u ? '1' : null);
-      if (!u) hint.set(CART_HINT, null);
+      if (!u) { hint.set(CART_HINT, null); hint.set(ADMIN_HINT, null); }
+      // The label account only uses the admin page, so the menu points there instead of the dashboard
+      if (u) {
+        u.getIdTokenResult().then((t) => {
+          hint.set(ADMIN_HINT, t.claims.admin === true ? '1' : null);
+          if (window.hyardMenuAccount) window.hyardMenuAccount();
+        }).catch(() => {});
+      }
       document.dispatchEvent(new CustomEvent('hyard:auth', { detail: u }));
       if (window.hyardMenuAccount) window.hyardMenuAccount();
     });
@@ -163,6 +171,7 @@
   window.HyardFirebase = {
     ready, userReady, requireUser, isAdmin, message, euro, fmtDate, bytes, esc, nextPage,
     DEMO_STATUS, ORDER_STATUS,
+    setAdminHint: (on) => { hint.set(ADMIN_HINT, on ? '1' : null); if (window.hyardMenuAccount) window.hyardMenuAccount(); },
     setCartHint: (n) => { hint.set(CART_HINT, n > 0 ? String(n) : null); if (window.hyardMenuAccount) window.hyardMenuAccount(); },
   };
 })();

@@ -54,6 +54,8 @@
     const { A, F, S, db, auth, storage } = fb;
     const uid = user.uid;
 
+    // The label account doesn't use the artist dashboard: it only has the admin page
+    if (await H.isAdmin(user)) { H.setAdminHint(true); location.replace('admin'); return; }
     $('dash').hidden = false;
     showTab(false);
     // Opened on a section (dashboard#services): line up the dashboard below the header
@@ -64,7 +66,6 @@
     $('dash-hello').textContent = first ? `Hi, ${first}` : 'Dashboard';
     $('dash-kicker').textContent = `Artist dashboard · ${user.email}`;
     if (window.hyardObserve) window.hyardObserve();
-    H.isAdmin(user).then((on) => { $('admin-link').hidden = !on; });
 
     // ---------- Email confirmation ----------
     const needsVerify = () => !user.emailVerified;

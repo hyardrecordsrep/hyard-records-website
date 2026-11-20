@@ -1,43 +1,47 @@
 {
-  "_howTo": "Once the hyardrecords.com email addresses exist, put each one in its email field (e.g. \"press@hyardrecords.com\"). Cards with an email show a mail button; cards without one say the address is coming soon. planned is just a reminder and is never shown on the site.",
+  "_howTo": "Each card shows its email as a mail button. Set email to null to show \"Email address coming soon\" instead.",
   "contacts": [
     {
       "id": "general",
       "title": "General enquiries",
       "text": "Questions about the label, our releases or anything else.",
-      "email": null,
-      "planned": "info@hyardrecords.com"
+      "email": "info@hyardrecords.com"
     },
     {
       "id": "press",
       "title": "Press and interviews",
       "text": "Interviews, quotes, reviews, promo copies and higher-resolution photos. Logos, photos and bios are already in the press kit.",
-      "email": null,
-      "planned": "press@hyardrecords.com",
-      "link": { "label": "Open the press kit", "href": "press" }
+      "email": "press@hyardrecords.com",
+      "link": {
+        "label": "Open the press kit",
+        "href": "press"
+      }
     },
     {
       "id": "bookings",
       "title": "Bookings and events",
       "text": "Book Blurfnes, Rave Saint or Nick., or invite the label to host a showcase.",
-      "email": null,
-      "planned": "bookings@hyardrecords.com",
-      "link": { "label": "See upcoming events", "href": "events" }
+      "email": "bookings@hyardrecords.com",
+      "link": {
+        "label": "See upcoming events",
+        "href": "events"
+      }
     },
     {
       "id": "business",
       "title": "Business and licensing",
       "text": "Sync and licensing, remix requests, partnerships and distribution.",
-      "email": null,
-      "planned": "business@hyardrecords.com"
+      "email": "business@hyardrecords.com"
     },
     {
       "id": "privacy",
       "title": "Privacy and legal",
       "text": "Data protection requests, such as access to or deletion of your data, and legal notices.",
-      "email": null,
-      "planned": "privacy@hyardrecords.com",
-      "link": { "label": "Read the privacy policy", "href": "privacy" }
+      "email": "privacy@hyardrecords.com",
+      "link": {
+        "label": "Read the privacy policy",
+        "href": "privacy"
+      }
     }
   ]
 }

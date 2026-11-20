@@ -38,6 +38,7 @@
       } catch (err) { console.warn('claimAdmin', err); }
     }
     $('adm-loading').hidden = true;
+    H.setAdminHint(ok);
     if (!ok) { $('adm-denied').hidden = false; return; }
     $('adm').hidden = false;
     showTab();

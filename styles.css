@@ -1412,7 +1412,8 @@ button.menu-link { width: 100%; background: none; border: 0; border-bottom: 1px 
 .contact-card h2 { margin: 0; font-size: 20px; line-height: 1.1; }
 .contact-no { font-size: 11px; letter-spacing: 0.16em; }
 .contact-text { margin: 0; font-size: 13px; line-height: 1.8; color: #cfcfcf; text-transform: none; flex: 1; }
-.contact-mail { text-decoration: none; font-size: 13px; height: 48px; text-transform: none; }
+.contact-mail { text-decoration: none; font-size: 13px; height: 48px; text-transform: none; max-width: 100%; }
+@media (max-width: 440px) { .contact-card { padding: 20px; } .contact-mail { font-size: 12px; padding-left: 14px; padding-right: 14px; } }
 .contact-soon { font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; padding: 8px 12px; border: 1px dashed var(--hyard-ash); color: var(--hyard-ash); }
 .contact-extra { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; text-decoration: none; color: var(--hyard-ash); }
 .contact-extra:hover { color: var(--hyard-white); }

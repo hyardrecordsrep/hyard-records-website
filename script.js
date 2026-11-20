@@ -73,16 +73,30 @@
   const readHint = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
   window.hyardMenuAccount = () => {
     const signedIn = readHint('hyard-signed-in') === '1';
-    const count = Number(readHint('hyard-cart-count')) || 0;
+    const admin = signedIn && readHint('hyard-admin') === '1';
+    const count = admin ? 0 : Number(readHint('hyard-cart-count')) || 0;
+    const page = admin ? 'admin' : signedIn ? 'dashboard' : 'account';
+    const label = admin ? 'Admin' : signedIn ? 'Dashboard' : 'Log in / Sign up';
+    const ACC = /(account|dashboard|admin)$/;
+    const ARTIST_ONLY = /(dashboard#services|dashboard#submit|cart)$/;
+    // Footer "For artists" links: the account link follows the sign-in, artist-only links hide for the label
+    $$('.footer-col a').forEach((a) => {
+      const h = a.getAttribute('href') || '';
+      if (ACC.test(h)) { a.setAttribute('href', h.replace(ACC, page)); a.textContent = label; }
+      if (ARTIST_ONLY.test(h)) a.hidden = admin;
+    });
+    $$('.menu-link').forEach((a) => {
+      if (/(dashboard#services|dashboard#submit)$/.test(a.getAttribute('href') || '')) a.hidden = admin;
+    });
     $$('[data-account-link]').forEach((a) => {
       const num = a.querySelector('.mono');
-      a.textContent = signedIn ? 'Dashboard' : 'Log in / Sign up';
+      a.textContent = label;
       if (num) a.prepend(num);
-      a.setAttribute('href', signedIn ? a.getAttribute('href').replace(/account$/, 'dashboard') : a.getAttribute('href').replace(/dashboard$/, 'account'));
+      a.setAttribute('href', a.getAttribute('href').replace(ACC, page));
     });
     $$('[data-account-icon]').forEach((a) => {
-      a.setAttribute('href', a.getAttribute('href').replace(/(account|dashboard)$/, signedIn ? 'dashboard' : 'account'));
-      a.setAttribute('aria-label', signedIn ? 'Your dashboard' : 'Log in or sign up');
+      a.setAttribute('href', a.getAttribute('href').replace(ACC, page));
+      a.setAttribute('aria-label', admin ? 'Admin page' : signedIn ? 'Your dashboard' : 'Log in or sign up');
       a.classList.toggle('is-signed-in', signedIn);
       const badge = a.querySelector('.nav-account-count');
       if (badge) { badge.hidden = !count; badge.textContent = count || ''; }
@@ -94,7 +108,7 @@
     });
   };
   window.hyardMenuAccount();
-  window.addEventListener('storage', (e) => { if (/^hyard-(signed-in|cart-count)$/.test(e.key || '')) window.hyardMenuAccount(); });
+  window.addEventListener('storage', (e) => { if (/^hyard-(signed-in|cart-count|admin)$/.test(e.key || '')) window.hyardMenuAccount(); });
 
   // ---------- Header search with live suggestions ----------
   const navSearch = $('.nav-search');
