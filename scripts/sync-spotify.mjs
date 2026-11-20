@@ -178,8 +178,9 @@ async function main() {
   log(`looking for releases on label "${LABEL}"`);
 
   const candidates = new Set();
+  const labelHits = new Set(); // found by Spotify's own label:"Hyard Records" search
   try {
-    (await searchLabel(LABEL)).forEach((a) => candidates.add(a.id));
+    (await searchLabel(LABEL)).forEach((a) => { candidates.add(a.id); labelHits.add(a.id); });
     log(`label search: ${candidates.size} candidates`);
   } catch (e) {
     log(`label search unavailable (${e.message}), continuing with artist scan`);
@@ -189,13 +190,22 @@ async function main() {
   const queue = [...new Set([...(config.artistIds || []), ...rosterIds])];
   const checked = new Map();
   const matches = new Map();
+  const labelsSeen = new Map();
+
+  // Some Spotify apps don't get the album "label" field back. When it's missing, a release
+  // counts as ours only if Spotify's label:"Hyard Records" search returned it.
+  const onLabel = (album) => {
+    const label = typeof album.label === 'string' ? album.label.trim() : '';
+    labelsSeen.set(label || '(missing)', (labelsSeen.get(label || '(missing)') || 0) + 1);
+    return label ? norm(label) === norm(LABEL) : labelHits.has(album.id);
+  };
 
   const checkCandidates = async () => {
     const todo = [...candidates].filter((id) => !checked.has(id));
     const albums = await fullAlbums(todo);
     for (const album of albums) {
       checked.set(album.id, album);
-      if (norm(album.label) !== norm(LABEL)) continue;
+      if (!onLabel(album)) continue;
       matches.set(album.id, album);
       album.artists.forEach((a) => { if (!scannedArtists.has(a.id)) queue.push(a.id); });
     }
@@ -215,6 +225,7 @@ async function main() {
     await checkCandidates();
   }
   log(`checked ${checked.size} releases from ${scannedArtists.size} artists, ${matches.size} on ${LABEL}`);
+  log(`labels Spotify returned: ${[...labelsSeen].map(([l, n]) => `${l} ×${n}`).join(', ')}`);
 
   if (!matches.size) {
     throw new Error(`No releases with label "${LABEL}" found. Leaving data/releases.json unchanged.`);
@@ -250,7 +261,7 @@ async function main() {
       artists: album.artists.map((a) => a.name),
       artistIds: album.artists.map((a) => a.id),
       releaseDate: album.release_date,
-      label: album.label,
+      label: (typeof album.label === "string" && album.label.trim()) || LABEL,
       cover: localCovers[norm(album.name)]
         || await saveImage(album.images?.[1]?.url || album.images?.[0]?.url, `assets/covers/spotify/${album.id}-300.jpg`),
       coverLarge: localCovers[norm(album.name)]
