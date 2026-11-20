@@ -13,6 +13,7 @@ Legend: **(you)** needs something only you can provide or set up · **(me)** I c
   - Then I change its order files line to match the terms: files are deleted when the order closes **(me)**
   - The label email for both can be privacy@hyardrecords.com or info@hyardrecords.com; say which and I fill it in **(you + me)**
 - [ ] **VAT line in the terms of service**: whether you charge VAT or are exempt **(you)**
+- [ ] **Add the DMARC record** at name.com so emails land in inboxes: TXT, host `_dmarc`, value `v=DMARC1; p=none; adkim=r; aspf=r` **(you)**
 - [ ] **Send the remaining socials**: TikTok, YouTube **(you)**
 
 ## 2. Paid services: going live
@@ -25,7 +26,7 @@ Setup steps: `SETUP-ACCOUNTS.md`.
 - [ ] **Before/after audio examples** on each service **(you + me)**
 - [ ] **Testimonials and credits list** from artists you've worked with **(you + me)**
 - [ ] Suggestions, not built yet:
-  - Hyard emails: "new order" to you, and to artists when a demo status changes or files are delivered **(me)**
+  - Email the artist when their finished files are delivered **(me)**
   - Discount codes (Stripe promotion codes) **(me)**
   - Automatic VAT with Stripe Tax, once you know if you charge VAT **(you + me)**
   - Messages between artist and label on each order **(me)**
@@ -35,8 +36,6 @@ Setup steps: `SETUP-ACCOUNTS.md`.
 
 ## 3. Fans and community
 
-- [ ] **Connect a Hyard email address to MailerLite** so confirmations and newsletters come from e.g. newsletter@hyardrecords.com **(you + me)**
-  - Verify hyardrecords.com in MailerLite (Account settings → Domains, SPF/DKIM DNS records) and set it as the From address on both forms
 - [ ] **Add your first events** to `data/events.json` (or send me the details) **(you)**
 
 ## 4. Later
@@ -90,3 +89,6 @@ Setup steps: `SETUP-ACCOUNTS.md`.
 - [x] Company email addresses (info@, press@, bookings@, business@, privacy@hyardrecords.com) as Google Groups, shown on the Contact page
 - [x] The label account only uses the admin page: the dashboard sends it there and the menu shows Admin
 - [x] Stripe live: activated, live webhook, live restricted key on the server, functions redeployed; hyardrecords.com is an authorized domain in Firebase
+- [x] MailerLite sends from newsletter@hyardrecords.com (domain verified: DKIM and SPF)
+- [x] Receipt email after each paid order from payments@ to the customer (English or Croatian), plus a "You received an order" email to you
+- [x] Demo emails from product@: "ready for review" to you with all the details, "we've got your demo" to the artist, and an update to the artist whenever you change the status

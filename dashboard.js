@@ -231,6 +231,7 @@
           files: uploaded,
           status: 'submitted',
           note: '',
+          lang: document.documentElement.lang === 'hr' ? 'hr' : 'en',
           createdAt: F.serverTimestamp(),
           updatedAt: F.serverTimestamp(),
         });

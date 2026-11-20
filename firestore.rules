@@ -32,7 +32,8 @@ service cloud.firestore {
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.status == 'submitted'
         && request.resource.data.note == ''
-        && request.resource.data.keys().hasOnly(['uid', 'email', 'title', 'artist', 'genre', 'bpm', 'key', 'link', 'message', 'files', 'status', 'note', 'createdAt', 'updatedAt'])
+        && request.resource.data.keys().hasOnly(['uid', 'email', 'title', 'artist', 'genre', 'bpm', 'key', 'link', 'message', 'files', 'status', 'note', 'lang', 'createdAt', 'updatedAt'])
+        && request.resource.data.get('lang', 'en') in ['en', 'hr']
         && request.resource.data.title is string && request.resource.data.title.size() > 0 && request.resource.data.title.size() <= 120
         && shortText(request.resource.data.artist, 80)
         && shortText(request.resource.data.message, 3000)

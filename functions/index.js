@@ -3,6 +3,8 @@
 //   createCheckoutSession  prices the signed-in artist's cart from Firestore and opens Stripe Checkout
 //   cancelCheckout         closes an unpaid order when the artist leaves the Stripe page
 //   stripeWebhook          Stripe tells us a payment succeeded, failed, expired or was refunded
+//   demoSubmitted          emails the label and the artist when a demo comes in
+//   demoUpdated            emails the artist when the label changes a demo's status
 //   claimAdmin             gives the label's own account(s) access to the admin page
 //   cleanUpDeletedUser     removes a deleted account's profile, demos and files
 //
@@ -10,8 +12,10 @@
 //   firebase functions:secrets:set STRIPE_SECRET_KEY
 //   firebase functions:secrets:set STRIPE_WEBHOOK_SECRET
 //   firebase functions:secrets:set SMTP_PASSWORD      (Google app password of SMTP_USER, for receipts)
-// Settings (functions/.env): ADMIN_EMAILS, SITE_URL, SMTP_USER, RECEIPT_FROM, RECEIPT_COPY_TO, RECEIPT_NOTE
+// Settings (functions/.env): ADMIN_EMAILS, SITE_URL, SMTP_USER, RECEIPT_FROM, RECEIPT_COPY_TO, RECEIPT_NOTE,
+//   DEMO_FROM, DEMO_NOTIFY_TO
 const { onCall, onRequest, HttpsError } = require('firebase-functions/v2/https');
+const { onDocumentCreated, onDocumentUpdated } = require('firebase-functions/v2/firestore');
 const { defineSecret, defineString } = require('firebase-functions/params');
 const { setGlobalOptions, logger } = require('firebase-functions/v2');
 const functionsV1 = require('firebase-functions/v1');
@@ -19,6 +23,7 @@ const admin = require('firebase-admin');
 const Stripe = require('stripe');
 const nodemailer = require('nodemailer');
 const { buildReceipt } = require('./receipt');
+const { demoForLabel, demoReceived, demoStatus } = require('./demo-emails');
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -37,6 +42,18 @@ const SMTP_USER = defineString('SMTP_USER', { default: '' });
 const RECEIPT_FROM = defineString('RECEIPT_FROM', { default: 'payments@hyardrecords.com' });
 const RECEIPT_COPY_TO = defineString('RECEIPT_COPY_TO', { default: '' });
 const RECEIPT_NOTE = defineString('RECEIPT_NOTE', { default: '' });
+// Demo emails: from DEMO_FROM (also a "Send mail as" address of SMTP_USER), label copy to DEMO_NOTIFY_TO
+const DEMO_FROM = defineString('DEMO_FROM', { default: 'product@hyardrecords.com' });
+const DEMO_NOTIFY_TO = defineString('DEMO_NOTIFY_TO', { default: '' });
+
+// One Gmail connection for all emails. Returns null (and logs) when the login isn't set up.
+const mailer = () => {
+  const user = SMTP_USER.value();
+  let pass = '';
+  try { pass = SMTP_PASSWORD.value(); } catch { pass = ''; }
+  if (!user || !pass) { logger.warn('Email not sent: SMTP_USER or SMTP_PASSWORD missing'); return null; }
+  return nodemailer.createTransport({ host: 'smtp.gmail.com', port: 465, secure: true, auth: { user, pass: pass.replace(/\s+/g, '') } });
+};
 
 const orderNumber = (id) => `HYO-${String(id).slice(0, 6).toUpperCase()}`;
 
@@ -52,16 +69,12 @@ async function sendReceipt(ref, extra = {}) {
   });
   if (!claimed) return;
   try {
-    const user = SMTP_USER.value();
-    let pass = '';
-    try { pass = SMTP_PASSWORD.value(); } catch { pass = ''; }
-    if (!user || !pass) {
-      logger.warn('Receipt not sent: SMTP_USER or SMTP_PASSWORD missing', { order: ref.id });
+    const transport = mailer();
+    if (!transport) {
       await ref.update({ receiptSending: FieldValue.delete(), receiptError: 'not configured' });
       return;
     }
-    const transport = nodemailer.createTransport({ host: 'smtp.gmail.com', port: 465, secure: true, auth: { user, pass: pass.replace(/\s+/g, '') } });
-    const from = RECEIPT_FROM.value() || user;
+    const from = RECEIPT_FROM.value() || SMTP_USER.value();
     const base = {
       orderNo: orderNumber(ref.id),
       orderId: ref.id,
@@ -283,6 +296,52 @@ exports.stripeWebhook = onRequest({ secrets: [STRIPE_SECRET_KEY, STRIPE_WEBHOOK_
     logger.error('Webhook failed', err);
     res.status(500).send('Webhook handler failed');
   }
+});
+
+// ---------- Demo emails ----------
+const artistName = async (uid) => {
+  try { const u = await db.doc(`users/${uid}`).get(); return (u.exists && u.data().name) || ''; } catch { return ''; }
+};
+const toDate = (v) => (v && typeof v.toDate === 'function' ? v.toDate() : new Date());
+
+// A demo came in: tell the label (with every detail) and tell the artist it arrived
+exports.demoSubmitted = onDocumentCreated({ document: 'demos/{id}', secrets: [SMTP_PASSWORD] }, async (event) => {
+  const demo = event.data && event.data.data();
+  if (!demo) return;
+  const transport = mailer();
+  if (!transport) return;
+  const id = event.params.id;
+  const site = SITE_URL.value();
+  const from = { name: 'Hyard Records', address: DEMO_FROM.value() || SMTP_USER.value() };
+  const sentAt = toDate(demo.createdAt);
+
+  const label = DEMO_NOTIFY_TO.value();
+  if (label) {
+    const m = demoForLabel({ id, demo, site, sentAt });
+    await transport.sendMail({ from, to: label, replyTo: demo.email || from.address, subject: m.subject, html: m.html, text: m.text })
+      .catch((err) => logger.error('Demo email to label failed', { id, message: err.message }));
+  }
+  if (demo.email) {
+    const m = demoReceived({ id, demo, site, sentAt, name: await artistName(demo.uid) });
+    await transport.sendMail({ from, to: demo.email, replyTo: from.address, subject: m.subject, html: m.html, text: m.text })
+      .catch((err) => logger.error('Demo email to artist failed', { id, message: err.message }));
+  }
+  logger.info('Demo emails sent', { id });
+});
+
+// The label changed a demo's status: tell the artist what changed, with the label's note
+exports.demoUpdated = onDocumentUpdated({ document: 'demos/{id}', secrets: [SMTP_PASSWORD] }, async (event) => {
+  const before = event.data && event.data.before.data();
+  const demo = event.data && event.data.after.data();
+  if (!before || !demo || before.status === demo.status || !demo.email) return;
+  const transport = mailer();
+  if (!transport) return;
+  const id = event.params.id;
+  const from = { name: 'Hyard Records', address: DEMO_FROM.value() || SMTP_USER.value() };
+  const m = demoStatus({ id, demo, before, site: SITE_URL.value(), name: await artistName(demo.uid), at: toDate(demo.updatedAt) });
+  await transport.sendMail({ from, to: demo.email, replyTo: from.address, subject: m.subject, html: m.html, text: m.text })
+    .then(() => logger.info('Demo status email sent', { id, status: demo.status }))
+    .catch((err) => logger.error('Demo status email failed', { id, message: err.message }));
 });
 
 // The label's own accounts (ADMIN_EMAILS, comma separated) get the admin flag the first time
