@@ -13,7 +13,7 @@
   // ---------- Small form helpers ----------
   const setError = (input, msg) => {
     const field = input.closest('.field');
-    const out = field ? field.querySelector('.field-error') : input.form.querySelector(`[data-for="${input.name}"]`);
+    const out = field ? field.querySelector('.field-error') : input.form && input.form.querySelector(`[data-for="${input.name}"]`);
     if (field) field.classList.toggle('has-error', !!msg);
     if (out) out.textContent = msg || '';
     input.setAttribute('aria-invalid', msg ? 'true' : 'false');
@@ -73,6 +73,7 @@
       $('verify-email').textContent = user.email;
     };
     refreshVerify();
+    user.getIdTokenResult().then((t) => { if (user.emailVerified && t.claims.email_verified !== true) user.getIdToken(true); }).catch(() => {});
     $('verify-resend').addEventListener('click', async () => {
       try {
         await A.sendEmailVerification(user, { url: `${location.origin}/dashboard` });
@@ -187,7 +188,11 @@
       $('music-hint').classList.toggle('is-error', !hasMusic);
       if (!hasMusic && !bad) bad = input;
       if (bad) { bad.focus(); return; }
+      // The upload rules read "email confirmed" from the login token, so make sure it's fresh
+      await user.reload().catch(() => {});
+      refreshVerify();
       if (needsVerify()) { status(df, 'Confirm your email first (see the message at the top).'); $('verify-banner').scrollIntoView({ behavior: 'smooth' }); return; }
+      await user.getIdToken(true).catch(() => {});
 
       busy(df, true);
       const bar = $('upload-bar');
@@ -240,6 +245,7 @@
       } catch (err) {
         // Don't leave orphan files behind if the demo couldn't be saved
         uploaded.forEach((u) => S.deleteObject(S.ref(storage, u.path)).catch(() => {}));
+        console.error('Demo upload failed', err.code, err.message);
         status(df, H.message(err));
       }
       bar.hidden = true;

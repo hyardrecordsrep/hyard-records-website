@@ -11,6 +11,13 @@
     "presaveAction": "https://assets.mailerlite.com/jsonp/2811950/forms/204664868363568728/subscribe",
     "doubleOptIn": true
   },
-  "firebase": null,
+  "firebase": {
+    "apiKey": "AIzaSyBVzFs7RllSTens8S5P2_I6skT6GsmLqNY",
+    "authDomain": "hyardrecords.firebaseapp.com",
+    "projectId": "hyardrecords",
+    "storageBucket": "hyardrecords.firebasestorage.app",
+    "messagingSenderId": "403502797704",
+    "appId": "1:403502797704:web:165c55fa93cf08280f203d"
+  },
   "firebaseEmulators": false
 }
