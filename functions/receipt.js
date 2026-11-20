@@ -1,12 +1,11 @@
 // Receipt email for paid orders, in English or Croatian (the language the buyer used on the site).
-// The same layout goes to the buyer and to the label; the label copy gets a short "new order" header
-// with the buyer's email and a link to the admin page.
+// The label gets its own version ("You received an order") with the buyer's details, what to do
+// next on the admin page, and a link straight to the orders list.
 // Styles are inline and the layout is tables, so it looks right in Gmail, Apple Mail and Outlook.
 
 const T = {
   en: {
     subject: (no) => `Your Hyard Records receipt ${no}`,
-    labelSubject: (no, total) => `New order ${no} · ${total}`,
     kicker: 'Payment received',
     title: 'Thanks for<br>your order',
     intro: (name) => `${name ? `Hi ${name}, w` : 'W'}e've received your payment. Here's your receipt. Send us your files and a short brief from your dashboard and we'll get started.`,
@@ -30,12 +29,9 @@ const T = {
     files: 'Files are deleted when the order is closed, so download them when they arrive.',
     questions: 'Questions about this order? Just reply to this email.',
     legal: 'Terms of service',
-    labelNote: (email) => `New paid order from ${email}`,
-    labelLink: 'Open in admin',
   },
   hr: {
     subject: (no) => `Vaš račun Hyard Records ${no}`,
-    labelSubject: (no, total) => `Nova narudžba ${no} · ${total}`,
     kicker: 'Uplata primljena',
     title: 'Hvala na<br>narudžbi',
     intro: (name) => `${name ? `Bok ${name}, p` : 'P'}rimili smo vašu uplatu. Ovo je vaša potvrda. Pošaljite nam datoteke i kratak opis na nadzornoj ploči i krećemo s radom.`,
@@ -59,9 +55,28 @@ const T = {
     files: 'Datoteke se brišu kad se narudžba zatvori, pa ih preuzmite čim stignu.',
     questions: 'Pitanja o narudžbi? Samo odgovorite na ovaj e-mail.',
     legal: 'Uvjeti korištenja',
-    labelNote: (email) => `Nova plaćena narudžba od ${email}`,
-    labelLink: 'Otvori u administraciji',
   },
+};
+
+// The label's own email (always English)
+const LABEL = {
+  subject: (no, total) => `You received an order: ${no} · ${total}`,
+  kicker: 'New order',
+  title: 'You received<br>an order',
+  intro: (who, total) => `${who} just paid ${total}. The order is in the admin page, waiting for their files and brief.`,
+  customer: 'Customer',
+  email: 'Email',
+  language: 'Language',
+  languages: { en: 'English', hr: 'Croatian' },
+  button: 'Open in admin',
+  next: 'Your next steps',
+  steps: [
+    'Wait for their files and brief on the order (or reply to this email to ask for them).',
+    'Set the order to In progress when you start.',
+    'Upload the finished files and set it to Delivered.',
+    'Once they have downloaded everything, close the order to delete the files.',
+  ],
+  footer: 'The customer got their own receipt. Reply to this email to write to them directly.',
 };
 
 const MONTHS = {
@@ -114,41 +129,39 @@ const DISPLAY = "font:900 30px/1.1 'Arial Black',Helvetica,Arial,sans-serif;lett
  */
 function buildReceipt(o) {
   const lang = o.lang === 'hr' && !o.forLabel ? 'hr' : 'en';
-  const t = T[lang];
+  const t = o.forLabel ? { ...T.en, ...LABEL } : T[lang];
   const site = o.site.replace(/\/$/, '');
   const total = euro(o.total, lang);
   const date = fmtDate(o.paidAt, lang);
   const orderUrl = o.forLabel ? `${site}/admin#a-orders` : `${site}/dashboard#orders`;
   const first = String(o.name || '').trim().split(/\s+/)[0];
+  const who = String(o.name || '').trim() || o.email || 'A customer';
+  const intro = o.forLabel ? LABEL.intro(who, total) : t.intro(first);
 
   const rows = o.items.map((it) => `
         <tr>
           <td style="padding:14px 0;border-bottom:1px solid #2a2a2a;vertical-align:top;">
             <p style="margin:0;color:#ffffff;${BODY}">${esc(itemLabel(it.label, lang))}</p>
-            ${it.notes ? `<p style="margin:6px 0 0;color:#8a8a8a;font:13px/1.6 Helvetica,Arial,sans-serif;">${esc(t.notes)}: ${esc(it.notes)}</p>` : ''}
+            ${it.notes ? `<p style="margin:6px 0 0;color:#8a8a8a;font:13px/1.6 Helvetica,Arial,sans-serif;">${esc(o.forLabel ? 'Their notes' : t.notes)}: ${esc(it.notes)}</p>` : ''}
           </td>
           <td align="right" style="padding:14px 0 14px 16px;border-bottom:1px solid #2a2a2a;vertical-align:top;white-space:nowrap;color:#ffffff;${BODY}">${esc(euro(it.amount, lang))}</td>
         </tr>`).join('');
 
   const meta = [
+    ...(o.forLabel ? [
+      ...(o.name ? [[LABEL.customer, o.name]] : []),
+      [LABEL.email, o.email || '-'],
+      [LABEL.language, LABEL.languages[o.lang === 'hr' ? 'hr' : 'en']],
+    ] : []),
     [t.order, o.orderNo],
     [t.date, date],
     [t.method, t.methodValue],
   ].map(([k, v]) => `
           <tr>
             <td style="padding:4px 0;color:#8a8a8a;${MONO}">${esc(k)}</td>
-            <td align="right" style="padding:4px 0 4px 16px;color:#ffffff;${MONO}">${esc(v)}</td>
+            <td align="right" style="padding:4px 0 4px 16px;color:#ffffff;${MONO}${String(v).includes('@') ? 'text-transform:none;letter-spacing:.04em;' : ''}">${esc(v)}</td>
           </tr>`).join('');
 
-  const labelBanner = o.forLabel ? `
-        <tr><td style="padding:0;">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;">
-            <tr>
-              <td style="padding:14px 24px;color:#000000;font:900 13px/1.4 'Arial Black',Helvetica,Arial,sans-serif;text-transform:uppercase;letter-spacing:.06em;">${esc(t.labelNote(o.email))}</td>
-              <td align="right" style="padding:14px 24px;white-space:nowrap;"><a href="${esc(orderUrl)}" style="color:#000000;${MONO}text-decoration:underline;">${esc(t.labelLink)} →</a></td>
-            </tr>
-          </table>
-        </td></tr>` : '';
 
   const html = `<!doctype html>
 <html lang="${lang}">
@@ -157,13 +170,13 @@ function buildReceipt(o) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
   <meta name="supported-color-schemes" content="dark">
-  <title>${esc(o.forLabel ? t.labelSubject(o.orderNo, total) : t.subject(o.orderNo))}</title>
+  <title>${esc(t.subject(o.orderNo, total))}</title>
 </head>
 <body style="margin:0;padding:0;background:#1a1a1a;">
   <div style="display:none;max-height:0;overflow:hidden;opacity:0;">${esc(`${t.order} ${o.orderNo} · ${t.paid} ${total}`)}</div>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#1a1a1a;">
     <tr><td align="center" style="padding:32px 16px 48px;">
-      <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#000000;border:1px solid #2a2a2a;">${labelBanner}
+      <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#000000;border:1px solid #2a2a2a;">
         <tr><td align="center" style="padding:40px 32px 8px;">
           <img src="${site}/assets/email/hyard-logo-600.jpg" width="120" height="120" alt="Hyard Records" style="display:block;width:120px;height:120px;border:0;">
         </td></tr>
@@ -174,7 +187,7 @@ function buildReceipt(o) {
           <h1 style="margin:0;color:#ffffff;${DISPLAY}">${t.title}</h1>
         </td></tr>
         <tr><td align="center" style="padding:20px 40px 0;">
-          <p style="margin:0;color:#d6d6d6;${BODY}">${esc(t.intro(first))}</p>
+          <p style="margin:0;color:#d6d6d6;${BODY}">${esc(intro)}</p>
         </td></tr>
 
         <tr><td style="padding:32px 32px 0;">
@@ -201,7 +214,7 @@ function buildReceipt(o) {
         </td></tr>
 
         <tr><td align="center" style="padding:32px 32px 0;">
-          <a href="${esc(orderUrl)}" style="display:inline-block;background:#ffffff;color:#000000;font:900 15px/1 'Arial Black',Helvetica,Arial,sans-serif;text-transform:uppercase;letter-spacing:.06em;text-decoration:none;padding:18px 34px;">${esc(o.forLabel ? t.labelLink : t.button)}</a>
+          <a href="${esc(orderUrl)}" style="display:inline-block;background:#ffffff;color:#000000;font:900 15px/1 'Arial Black',Helvetica,Arial,sans-serif;text-transform:uppercase;letter-spacing:.06em;text-decoration:none;padding:18px 34px;">${esc(t.button)}</a>
         </td></tr>
 
         <tr><td style="padding:36px 32px 0;">
@@ -214,7 +227,7 @@ function buildReceipt(o) {
         </td></tr>
 
         <tr><td style="padding:24px 32px 0;">
-          <p style="margin:0;color:#8a8a8a;font:13px/1.7 Helvetica,Arial,sans-serif;">${esc(t.credit)} ${esc(t.files)}<br>${esc(t.questions)}</p>
+          <p style="margin:0;color:#8a8a8a;font:13px/1.7 Helvetica,Arial,sans-serif;">${o.forLabel ? esc(LABEL.footer) : `${esc(t.credit)} ${esc(t.files)}<br>${esc(t.questions)}`}</p>
         </td></tr>
 
         <tr><td style="padding:36px 32px 0;"><div style="border-top:1px solid #2a2a2a;font-size:0;line-height:0;">&nbsp;</div></td></tr>
@@ -236,33 +249,32 @@ function buildReceipt(o) {
 
   // Plain-text version for mail apps that don't show HTML
   const text = [
-    o.forLabel ? `${t.labelNote(o.email)}\n${orderUrl}\n` : '',
     `${t.kicker.toUpperCase()}`,
     '',
-    t.intro(first),
+    intro,
     '',
+    ...(o.forLabel ? [...(o.name ? [`${LABEL.customer}: ${o.name}`] : []), `${LABEL.email}: ${o.email || '-'}`, `${LABEL.language}: ${LABEL.languages[o.lang === 'hr' ? 'hr' : 'en']}`] : []),
     `${t.order}: ${o.orderNo}`,
     `${t.date}: ${date}`,
     `${t.method}: ${t.methodValue}`,
     '',
-    ...o.items.map((it) => `${itemLabel(it.label, lang)}  ${euro(it.amount, lang)}${it.notes ? `\n  ${t.notes}: ${it.notes}` : ''}`),
+    ...o.items.map((it) => `${itemLabel(it.label, lang)}  ${euro(it.amount, lang)}${it.notes ? `\n  ${o.forLabel ? 'Their notes' : t.notes}: ${it.notes}` : ''}`),
     '',
     `${t.total}: ${total}`,
     o.footerNote || '',
     '',
-    `${o.forLabel ? t.labelLink : t.button}: ${orderUrl}`,
+    `${t.button}: ${orderUrl}`,
     '',
     `${t.next}:`,
     ...t.steps.map((s, i) => `${i + 1}. ${s}`),
     '',
-    `${t.credit} ${t.files}`,
-    t.questions,
+    ...(o.forLabel ? [LABEL.footer] : [`${t.credit} ${t.files}`, t.questions]),
     '',
     'Hyard Records · hyardrecords.com',
   ].join('\n').replace(/\n{3,}/g, '\n\n').trim();
 
   return {
-    subject: o.forLabel ? t.labelSubject(o.orderNo, euro(o.total, 'en')) : t.subject(o.orderNo),
+    subject: t.subject(o.orderNo, total),
     html,
     text,
   };
