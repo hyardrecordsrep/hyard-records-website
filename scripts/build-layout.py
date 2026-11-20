@@ -12,7 +12,7 @@ os.chdir(ROOT)
 PAGES = {  # page -> menu item marked as current
     'index.html': None, 'about.html': 'about.html', 'artists.html': 'artists.html', 'artist.html': 'artists.html', 'events.html': 'events.html', 'press.html': None,
     'releases.html': 'releases.html', 'release.html': 'releases.html', 'contact.html': 'contact.html', 'get-in-touch.html': None,
-    'privacy.html': 'privacy.html', 'legal.html': 'legal.html', '404.html': None,
+    'privacy.html': 'privacy.html', 'legal.html': 'legal.html', '404.html': None, 'confirmed.html': None,
 }
 MENU = [('about.html', 'About the label'), ('artists.html', 'Artists'), ('events.html', 'Events'), ('#merch', 'Merch'), ('contact.html', 'Send your demo'),
         ('privacy.html', 'Privacy policy'), ('legal.html', 'Legal notice')]

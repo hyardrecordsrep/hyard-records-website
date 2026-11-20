@@ -31,7 +31,14 @@ Nothing open. Socials, bios, top tracks and collaborators are done.
 
 ## 4. Fans and community
 
-- [ ] **Send newsletters from your own domain**: sign-ups already go to MailerLite; to email the list, add a hyardrecords.com sender address in MailerLite once the domain is bought **(you)**
+- [ ] **Point MailerLite's "thank you page" to the site** for both forms (free plan) **(you)**
+  - Newsletter: `https://hyardrecordsrep.github.io/hyard-records-website/confirmed`
+  - Pre-save: `https://hyardrecordsrep.github.io/hyard-records-website/confirmed?list=presave`
+  - Steps in `brand/email/README.md`; switch to hyardrecords.com addresses once the domain is live
+- [ ] **Rebuild the new confirmation emails in MailerLite** from the design in `brand/email/` (needs a paid plan or the 14-day trial) **(you)**
+- [ ] **Connect a Hyard email address to MailerLite** so confirmations and newsletters come from e.g. newsletter@hyardrecords.com **(you + me)**
+  - Needs the domain plus a mailbox on it (e.g. Zoho Mail free or Google Workspace)
+  - Then verify hyardrecords.com in MailerLite (Account settings → Domains, SPF/DKIM DNS records) and set it as the From address on both forms
 - [ ] **Add your first events** to `data/events.json` (or send me the details) **(you)**
 
 ## 5. Services (paid)
@@ -81,6 +88,8 @@ Nothing open. Socials, bios, top tracks and collaborators are done.
 - [x] Contact page for press, bookings, business and privacy (email slots ready), separate from Send your demo
 - [x] Hamburger menu and full footer with all pages, Instagram, SoundCloud, Spotify
 - [x] Newsletter and album pre-save connected to MailerLite (double opt-in, separate groups)
+- [x] Thank-you page after confirming (`/confirmed`, pre-save version `/confirmed?list=presave`) linking back to the site
+- [x] Confirmation email designs for newsletter and pre-save (`brand/email/`)
 - [x] Privacy policy and legal notice (drafts with blanks)
 - [x] 404 page, link previews, sitemap.xml, robots.txt
 - [x] Daily Spotify sync running (04:17 UTC): 29 releases matched Spotify on the first run

@@ -1438,6 +1438,18 @@ body { transition: opacity 0.25s ease; }
 .news-consent a { text-underline-offset: 3px; }
 .news-consent a:hover { color: var(--hyard-white); }
 
+/* Subscription confirmed page */
+.confirmed { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 18px; min-height: 76vh; }
+.confirmed-globe { width: clamp(110px, 18vw, 180px); height: clamp(110px, 18vw, 180px); animation: globeIn 1.4s var(--ease) both, spin 22s linear 1.4s infinite; }
+.confirmed-kicker { text-transform: uppercase; letter-spacing: 0.22em; padding: 6px 10px; border: 1px solid var(--hyard-white); color: var(--hyard-white); }
+.confirmed-text { margin: 0; max-width: 52ch; font-size: 14px; line-height: 1.85; text-transform: none; }
+.confirmed-note { margin: 0; max-width: 52ch; font-size: 12px; line-height: 1.7; text-transform: none; }
+.confirmed-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 10px; }
+.confirmed-actions a { text-decoration: none; }
+.confirmed-follow { display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; color: var(--hyard-ash); text-decoration: none; text-transform: uppercase; letter-spacing: 0.12em; font-size: 11px; transition: color 0.3s; }
+.confirmed-follow svg { width: 18px; height: 18px; }
+.confirmed-follow:hover { color: var(--hyard-white); }
+
 /* ---------- Mobile ---------- */
 @media (max-width: 720px) {
   .result-row { grid-template-columns: 56px minmax(0, 1fr) 22px; gap: 4px 14px; }
