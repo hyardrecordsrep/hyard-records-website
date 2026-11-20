@@ -9,10 +9,11 @@ Legend: **(you)** needs something only you can provide or set up · **(me)** I c
 ## 1. Before launch
 
 - [ ] **Buy and connect the domain** hyardrecords.com **(you)**
-- [ ] **Host the site** on GitHub + GitHub Pages, Netlify or Cloudflare Pages **(you + me)**
-  - Needed for the daily Spotify sync, the contact form and link previews to work
+- [ ] **Connect hyardrecords.com to GitHub Pages** once the domain is bought **(you + me)**
+  - Add the DNS records at your registrar, then I add the domain in the repo's Pages settings
+  - The site is live meanwhile at https://hyardrecordsrep.github.io/hyard-records-website/
 - [ ] **Turn on the daily Spotify sync** **(you + me)**
-  - Create a free Spotify developer app → add `SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET` as GitHub secrets
+  - Create a free Spotify developer app → add `SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET` as secrets in github.com/hyardrecordsrep/hyard-records-website → Settings → Secrets and variables → Actions
 - [ ] **Activate the contact form** **(you)**
   - Send one real test demo → click the FormSubmit confirmation email in blurfnes@gmail.com
   - Then I swap the visible email in the page code for FormSubmit's hidden code **(me)**
@@ -87,6 +88,7 @@ Nothing open. Socials, bios, top tracks and collaborators are done.
 - [x] Privacy policy and legal notice (drafts with blanks)
 - [x] 404 page, link previews, sitemap.xml, robots.txt
 - [x] Daily Spotify sync script (ready, not running yet)
+- [x] Published on GitHub Pages from github.com/hyardrecordsrep/hyard-records-website; every push republishes
 - [x] Clean addresses without .html (hyardrecords.com/about, /release-hyd-020…), home links go to the bare domain, old .html addresses redirect
 - [x] Covers and artist photos stored on the site; the sync downloads new ones automatically
 - [x] Own page per release (`release-hyd-020.html`) and per artist (`artist-blurfnes.html`) with their own cover in link previews; sitemap lists them all
