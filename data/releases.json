@@ -1,7 +1,7 @@
 {
   "label": "Hyard Records",
-  "syncedAt": null,
-  "source": "spotify-public-pages",
+  "syncedAt": "2026-11-20T13:50:47.153Z",
+  "source": "spotify",
   "releases": [
     {
       "catalog": "HYD-003",
@@ -19,6 +19,7 @@
       "cover": "assets/covers/spotify/4o08pRb2nnGtCVa3xEqood-300.jpg",
       "coverLarge": "assets/covers/spotify/4o08pRb2nnGtCVa3xEqood-640.jpg",
       "url": "https://open.spotify.com/album/4o08pRb2nnGtCVa3xEqood",
+      "upc": "859748198209",
       "tracks": [
         {
           "number": 1,
@@ -48,6 +49,7 @@
       "cover": "assets/covers/spotify/4Dv7XB3YIC1sLZXKv07Yfh-300.jpg",
       "coverLarge": "assets/covers/spotify/4Dv7XB3YIC1sLZXKv07Yfh-640.jpg",
       "url": "https://open.spotify.com/album/4Dv7XB3YIC1sLZXKv07Yfh",
+      "upc": "859745321662",
       "tracks": [
         {
           "number": 1,
@@ -77,6 +79,7 @@
       "cover": "assets/covers/spotify/54CE8pD8hIKWmRWszlKHtm-300.jpg",
       "coverLarge": "assets/covers/spotify/54CE8pD8hIKWmRWszlKHtm-640.jpg",
       "url": "https://open.spotify.com/album/54CE8pD8hIKWmRWszlKHtm",
+      "upc": "859743813558",
       "tracks": [
         {
           "number": 1,
@@ -106,6 +109,7 @@
       "cover": "assets/covers/spotify/3Itnj0J4LI55gWWbzY0xZZ-300.jpg",
       "coverLarge": "assets/covers/spotify/3Itnj0J4LI55gWWbzY0xZZ-640.jpg",
       "url": "https://open.spotify.com/album/3Itnj0J4LI55gWWbzY0xZZ",
+      "upc": "859742879470",
       "tracks": [
         {
           "number": 1,
@@ -145,6 +149,7 @@
       "cover": "assets/covers/spotify/62CGIwpPsPGZu7mnxIsE5k-300.jpg",
       "coverLarge": "assets/covers/spotify/62CGIwpPsPGZu7mnxIsE5k-640.jpg",
       "url": "https://open.spotify.com/album/62CGIwpPsPGZu7mnxIsE5k",
+      "upc": "859738700061",
       "tracks": [
         {
           "number": 1,
@@ -174,6 +179,7 @@
       "cover": "assets/covers/spotify/2eNNaOIvBBX1qgo4OgBI5Y-300.jpg",
       "coverLarge": "assets/covers/spotify/2eNNaOIvBBX1qgo4OgBI5Y-640.jpg",
       "url": "https://open.spotify.com/album/2eNNaOIvBBX1qgo4OgBI5Y",
+      "upc": "859738952279",
       "tracks": [
         {
           "number": 1,
@@ -245,6 +251,7 @@
       "cover": "assets/covers/spotify/30I0URZRVOOvAzEf2JrG2L-300.jpg",
       "coverLarge": "assets/covers/spotify/30I0URZRVOOvAzEf2JrG2L-640.jpg",
       "url": "https://open.spotify.com/album/30I0URZRVOOvAzEf2JrG2L",
+      "upc": "859738706346",
       "tracks": [
         {
           "number": 1,
@@ -277,6 +284,7 @@
       "cover": "assets/covers/spotify/6ZxBlL2Mi5v0GcW7LKS2FA-300.jpg",
       "coverLarge": "assets/covers/spotify/6ZxBlL2Mi5v0GcW7LKS2FA-640.jpg",
       "url": "https://open.spotify.com/album/6ZxBlL2Mi5v0GcW7LKS2FA",
+      "upc": "859738136549",
       "tracks": [
         {
           "number": 1,
@@ -307,6 +315,7 @@
       "cover": "assets/covers/mass-hypnosis.jpg",
       "coverLarge": "assets/covers/mass-hypnosis.jpg",
       "url": "https://open.spotify.com/album/1C7b83Es1R7lO8VbFIOv2L",
+      "upc": "859737664371",
       "tracks": [
         {
           "number": 1,
@@ -336,6 +345,7 @@
       "cover": "assets/covers/spotify/0ayUZmcSc7szGRFiYHOmzo-300.jpg",
       "coverLarge": "assets/covers/spotify/0ayUZmcSc7szGRFiYHOmzo-640.jpg",
       "url": "https://open.spotify.com/album/0ayUZmcSc7szGRFiYHOmzo",
+      "upc": "859736068828",
       "tracks": [
         {
           "number": 1,
@@ -365,6 +375,7 @@
       "cover": "assets/covers/spotify/3huvj5vT556O9EV9PhWFBJ-300.jpg",
       "coverLarge": "assets/covers/spotify/3huvj5vT556O9EV9PhWFBJ-640.jpg",
       "url": "https://open.spotify.com/album/3huvj5vT556O9EV9PhWFBJ",
+      "upc": "859736653253",
       "tracks": [
         {
           "number": 1,
@@ -394,6 +405,7 @@
       "cover": "assets/covers/spotify/5n985HHpBDuFPOdACmR02w-300.jpg",
       "coverLarge": "assets/covers/spotify/5n985HHpBDuFPOdACmR02w-640.jpg",
       "url": "https://open.spotify.com/album/5n985HHpBDuFPOdACmR02w",
+      "upc": "859736068569",
       "tracks": [
         {
           "number": 1,
@@ -423,6 +435,7 @@
       "cover": "assets/covers/spotify/2YWSpsqCU0TZ0t3FvWdmzB-300.jpg",
       "coverLarge": "assets/covers/spotify/2YWSpsqCU0TZ0t3FvWdmzB-640.jpg",
       "url": "https://open.spotify.com/album/2YWSpsqCU0TZ0t3FvWdmzB",
+      "upc": "859742879203",
       "tracks": [
         {
           "number": 1,
@@ -452,6 +465,7 @@
       "cover": "assets/covers/spotify/12u0IyEO8Ji511kLThrxYK-300.jpg",
       "coverLarge": "assets/covers/spotify/12u0IyEO8Ji511kLThrxYK-640.jpg",
       "url": "https://open.spotify.com/album/12u0IyEO8Ji511kLThrxYK",
+      "upc": "859735465291",
       "tracks": [
         {
           "number": 1,
@@ -483,6 +497,7 @@
       "cover": "assets/covers/spotify/3toqBYkHqaWuhIenm4V8mH-300.jpg",
       "coverLarge": "assets/covers/spotify/3toqBYkHqaWuhIenm4V8mH-640.jpg",
       "url": "https://open.spotify.com/album/3toqBYkHqaWuhIenm4V8mH",
+      "upc": "859735407079",
       "tracks": [
         {
           "number": 1,
@@ -513,6 +528,7 @@
       "cover": "assets/covers/spotify/5sC27mciBaK1wUbxusYyBD-300.jpg",
       "coverLarge": "assets/covers/spotify/5sC27mciBaK1wUbxusYyBD-640.jpg",
       "url": "https://open.spotify.com/album/5sC27mciBaK1wUbxusYyBD",
+      "upc": "859734787196",
       "tracks": [
         {
           "number": 1,
@@ -554,6 +570,7 @@
       "cover": "assets/covers/spotify/6XLDXVVJQPc6ilXOS9ZyOw-300.jpg",
       "coverLarge": "assets/covers/spotify/6XLDXVVJQPc6ilXOS9ZyOw-640.jpg",
       "url": "https://open.spotify.com/album/6XLDXVVJQPc6ilXOS9ZyOw",
+      "upc": "859734413330",
       "tracks": [
         {
           "number": 1,
@@ -606,6 +623,7 @@
       "cover": "assets/covers/spotify/0KlAFve8RbTr3IZ7gSZvd0-300.jpg",
       "coverLarge": "assets/covers/spotify/0KlAFve8RbTr3IZ7gSZvd0-640.jpg",
       "url": "https://open.spotify.com/album/0KlAFve8RbTr3IZ7gSZvd0",
+      "upc": "859734806347",
       "tracks": [
         {
           "number": 1,
@@ -635,6 +653,7 @@
       "cover": "assets/covers/spotify/245uN1vjb8BZrooo2kjUSi-300.jpg",
       "coverLarge": "assets/covers/spotify/245uN1vjb8BZrooo2kjUSi-640.jpg",
       "url": "https://open.spotify.com/album/245uN1vjb8BZrooo2kjUSi",
+      "upc": "859734338022",
       "tracks": [
         {
           "number": 1,
@@ -664,6 +683,7 @@
       "cover": "assets/covers/miss-me.jpg",
       "coverLarge": "assets/covers/miss-me.jpg",
       "url": "https://open.spotify.com/album/5nzQiy9MU8GyxxalgUyKkz",
+      "upc": "859733843206",
       "tracks": [
         {
           "number": 1,
@@ -693,6 +713,7 @@
       "cover": "assets/covers/spotify/29GPfZSFW44LZRmmzOOwpy-300.jpg",
       "coverLarge": "assets/covers/spotify/29GPfZSFW44LZRmmzOOwpy-640.jpg",
       "url": "https://open.spotify.com/album/29GPfZSFW44LZRmmzOOwpy",
+      "upc": "859733352616",
       "tracks": [
         {
           "number": 1,
@@ -722,6 +743,7 @@
       "cover": "assets/covers/spotify/6qTEkRVpY85ZTPhBv0pm9h-300.jpg",
       "coverLarge": "assets/covers/spotify/6qTEkRVpY85ZTPhBv0pm9h-640.jpg",
       "url": "https://open.spotify.com/album/6qTEkRVpY85ZTPhBv0pm9h",
+      "upc": "859731149515",
       "tracks": [
         {
           "number": 1,
@@ -751,6 +773,7 @@
       "cover": "assets/covers/spotify/6Xi7X06uwlXQxmpRe31a8U-300.jpg",
       "coverLarge": "assets/covers/spotify/6Xi7X06uwlXQxmpRe31a8U-640.jpg",
       "url": "https://open.spotify.com/album/6Xi7X06uwlXQxmpRe31a8U",
+      "upc": "859721917186",
       "tracks": [
         {
           "number": 1,
@@ -780,6 +803,7 @@
       "cover": "assets/covers/spotify/4OjblEFRYUuUj77fZmPrIy-300.jpg",
       "coverLarge": "assets/covers/spotify/4OjblEFRYUuUj77fZmPrIy-640.jpg",
       "url": "https://open.spotify.com/album/4OjblEFRYUuUj77fZmPrIy",
+      "upc": "859719039395",
       "tracks": [
         {
           "number": 1,
@@ -829,6 +853,7 @@
       "cover": "assets/covers/spotify/1zbkdISIy20tSuFx39RJXv-300.jpg",
       "coverLarge": "assets/covers/spotify/1zbkdISIy20tSuFx39RJXv-640.jpg",
       "url": "https://open.spotify.com/album/1zbkdISIy20tSuFx39RJXv",
+      "upc": "859718016328",
       "tracks": [
         {
           "number": 1,
@@ -868,6 +893,7 @@
       "cover": "assets/covers/spotify/352bTYDCKFanbgvV1kEdKI-300.jpg",
       "coverLarge": "assets/covers/spotify/352bTYDCKFanbgvV1kEdKI-640.jpg",
       "url": "https://open.spotify.com/album/352bTYDCKFanbgvV1kEdKI",
+      "upc": "859717728451",
       "tracks": [
         {
           "number": 1,
@@ -897,6 +923,7 @@
       "cover": "assets/covers/spotify/2pJo6oN8cN4ZW4wrgxPoFj-300.jpg",
       "coverLarge": "assets/covers/spotify/2pJo6oN8cN4ZW4wrgxPoFj-640.jpg",
       "url": "https://open.spotify.com/album/2pJo6oN8cN4ZW4wrgxPoFj",
+      "upc": "859712476968",
       "tracks": [
         {
           "number": 1,
@@ -946,6 +973,7 @@
       "cover": "assets/covers/spotify/6Lcxn9rWX7gHEVuN4xX8mk-300.jpg",
       "coverLarge": "assets/covers/spotify/6Lcxn9rWX7gHEVuN4xX8mk-640.jpg",
       "url": "https://open.spotify.com/album/6Lcxn9rWX7gHEVuN4xX8mk",
+      "upc": "859705463135",
       "tracks": [
         {
           "number": 1,
@@ -995,6 +1023,7 @@
       "cover": "assets/covers/spotify/1vD34xmd5Wif8YjBzwq6Tm-300.jpg",
       "coverLarge": "assets/covers/spotify/1vD34xmd5Wif8YjBzwq6Tm-640.jpg",
       "url": "https://open.spotify.com/album/1vD34xmd5Wif8YjBzwq6Tm",
+      "upc": "859703985103",
       "tracks": [
         {
           "number": 1,

@@ -110,12 +110,13 @@
           "name": "Rave Saint",
           "url": "https://open.spotify.com/artist/52FisLP1SHHdWWk5LBF9Ll",
           "image": "assets/artists/rave-saint.jpg",
-          "count": 4,
+          "count": 5,
           "works": [
             "Antarctica",
             "Give Me Techno",
             "Give Me Techno (Remix)",
-            "Inhale (Blurfnes Remix)"
+            "Inhale (Blurfnes Remix)",
+            "Resign"
           ]
         }
       ],
@@ -268,7 +269,7 @@
             "Give Me Techno",
             "Give Me Techno (Remix)",
             "Inhale (Blurfnes Remix)",
-            "Inhale - Blurfnes Remix"
+            "Resign"
           ]
         }
       ],
