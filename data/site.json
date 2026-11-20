@@ -1,5 +1,5 @@
 {
-  "_howTo": "Visitor stats are off while provider is null. To switch them on, set provider to \"plausible\" (after adding hyardrecords.com at plausible.io) or to \"cloudflare\" (paste the token from Cloudflare Web Analytics into cloudflareToken). Both are cookie-free, so no cookie banner is needed. The privacy policy updates itself to match. Newsletter: paste the MailerLite embedded-form action URLs (https://assets.mailerlite.com/jsonp/ACCOUNT/forms/FORM/subscribe) into newsletterAction (general newsletter form) and presaveAction (album pre-save form). While they are null, the boxes say sign-ups aren't live yet.",
+  "_howTo": "Visitor stats are off while provider is null. To switch them on, set provider to \"plausible\" (after adding hyardrecords.com at plausible.io) or to \"cloudflare\" (paste the token from Cloudflare Web Analytics into cloudflareToken). Both are cookie-free, so no cookie banner is needed. The privacy policy updates itself to match. Newsletter: paste the MailerLite embedded-form action URLs (https://assets.mailerlite.com/jsonp/ACCOUNT/forms/FORM/subscribe) into newsletterAction (general newsletter form) and presaveAction (album pre-save form). While they are null, the boxes say sign-ups aren't live yet. Accounts: paste the Firebase web app config (Project settings → Your apps → SDK setup → Config) into firebase as {\"apiKey\": ..., \"authDomain\": ..., \"projectId\": ..., \"storageBucket\": ..., \"messagingSenderId\": ..., \"appId\": ...}. While it is null, the account pages say accounts open soon. Set firebaseEmulators to true only for local testing with the Firebase emulators.",
   "analytics": {
     "provider": "cloudflare",
     "domain": "hyardrecords.com",
@@ -10,5 +10,7 @@
     "newsletterAction": "https://assets.mailerlite.com/jsonp/2811950/forms/204664655949334363/subscribe",
     "presaveAction": "https://assets.mailerlite.com/jsonp/2811950/forms/204664868363568728/subscribe",
     "doubleOptIn": true
-  }
+  },
+  "firebase": null,
+  "firebaseEmulators": false
 }

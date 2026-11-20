@@ -13,7 +13,7 @@
   let closeTimer = null;
   // While the menu is open, the rest of the page can't be reached with Tab or a screen reader
   const outside = () => [document.querySelector('main'), document.querySelector('footer'), document.querySelector('.nav-search'),
-    document.querySelector('.nav-search-toggle'), document.querySelector('.lockup'), document.querySelector('.skip-link')].filter(Boolean);
+    document.querySelector('.nav-search-toggle'), document.querySelector('.nav-account'), document.querySelector('.lockup'), document.querySelector('.skip-link')].filter(Boolean);
   const setInert = (on) => outside().forEach((el) => { el.inert = on; });
 
   const openMenu = () => {
@@ -66,6 +66,35 @@
       });
     }
   }
+
+  // ---------- Account and cart in the menu ----------
+  // firebase.js (on account pages) leaves a small hint, so every page can show "Dashboard"
+  // without loading Firebase. The account pages themselves check the real sign-in.
+  const readHint = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
+  window.hyardMenuAccount = () => {
+    const signedIn = readHint('hyard-signed-in') === '1';
+    const count = Number(readHint('hyard-cart-count')) || 0;
+    $$('[data-account-link]').forEach((a) => {
+      const num = a.querySelector('.mono');
+      a.textContent = signedIn ? 'Dashboard' : 'Log in / Sign up';
+      if (num) a.prepend(num);
+      a.setAttribute('href', signedIn ? a.getAttribute('href').replace(/account$/, 'dashboard') : a.getAttribute('href').replace(/dashboard$/, 'account'));
+    });
+    $$('[data-account-icon]').forEach((a) => {
+      a.setAttribute('href', a.getAttribute('href').replace(/(account|dashboard)$/, signedIn ? 'dashboard' : 'account'));
+      a.setAttribute('aria-label', signedIn ? 'Your dashboard' : 'Log in or sign up');
+      a.classList.toggle('is-signed-in', signedIn);
+      const badge = a.querySelector('.nav-account-count');
+      if (badge) { badge.hidden = !count; badge.textContent = count || ''; }
+    });
+    $$('[data-cart-link]').forEach((a) => {
+      a.hidden = !count;
+      const c = a.querySelector('[data-cart-count]');
+      if (c) c.textContent = String(count);
+    });
+  };
+  window.hyardMenuAccount();
+  window.addEventListener('storage', (e) => { if (/^hyard-(signed-in|cart-count)$/.test(e.key || '')) window.hyardMenuAccount(); });
 
   // ---------- Header search with live suggestions ----------
   const navSearch = $('.nav-search');

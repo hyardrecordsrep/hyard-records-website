@@ -32,7 +32,7 @@ jobs:
           ref: main
 
       - name: Leave tooling out of the published site
-        run: rm -rf .github scripts brand FEATURES-TODO.md .gitignore
+        run: rm -rf .github scripts brand functions FEATURES-TODO.md .gitignore firebase.json firestore.rules storage.rules .firebaserc SETUP-ACCOUNTS.md
 
       - uses: actions/configure-pages@v5
 

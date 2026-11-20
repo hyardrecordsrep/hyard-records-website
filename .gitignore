@@ -9,3 +9,9 @@ Icon?
 __pycache__/
 *.pyc
 node_modules/
+functions/node_modules/
+functions/.env
+functions/.env.*
+!functions/.env.example
+.firebase/
+*-debug.log

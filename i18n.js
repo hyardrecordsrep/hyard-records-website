@@ -92,6 +92,21 @@
     [/^(.+) on (Instagram|X|SoundCloud|Apple Music|Website|Facebook|Spotify)$/, (m, a, s) => `${a} na ${s === 'Website' ? 'webu' : s}`],
     [/^(.+): open the release page$/, (m, t) => `${t}: otvori stranicu izdanja`],
     [/^(.+) →$/, (m, t) => (S[t] !== undefined ? `${S[t]} →` : null)],
+    // Accounts, dashboard and services
+    [/^Hi, (.+)$/, (m, n) => `Bok, ${n}`],
+    [/^Sent (.+)$/, (m, d) => `Poslano ${translate(d, S) || d}`],
+    [/^Order (HYO-[A-Z0-9]+)$/, (m, n) => `Narudžba ${n}`],
+    [/^(.+) package$/, (m, n) => `${n} paket`],
+    [/^(.+) package \((\d+) tracks\)$/, (m, n, t) => `${n} paket (${t} ${plural(+t, 'pjesma', 'pjesme', 'pjesama')})`],
+    [/^(€[\d.,]+) per track$/, (m, p) => `${p} po pjesmi`],
+    [/^Uploading (\d+) of (\d+)…$/, (m, a, b) => `Prenosimo ${a} od ${b}…`],
+    [/^Remove (.+)$/, (m, f) => `Ukloni ${f}`],
+    [/^Go to cart \((\d+)\)$/, (m, n) => `Idi u košaricu (${n})`],
+    [/^(.+) isn't an MP3 or WAV\.$/, (m, f) => `${f} nije MP3 ni WAV.`],
+    [/^(.+) is over 200 MB\. Send a link for it instead\.$/, (m, f) => `${f} ima više od 200 MB. Umjesto toga pošaljite poveznicu.`],
+    [/^We sent a link to (.+)\. Your email changes once you open it\.$/, (m, e) => `Poslali smo poveznicu na ${e}. E-adresa se mijenja kad je otvorite.`],
+    [/^(.+) doesn't have a price yet, so it can't be bought\.$/, (m, s) => `${s} još nema cijenu pa se ne može kupiti.`],
+    [/^Choose an option for (.+)$/, (m, s) => `Odaberite opciju: ${s}`],
   ];
 
   const translate = (text, map) => {

@@ -1,0 +1,36 @@
+rules_version = '2';
+
+// Who can upload and download files.
+// Deploy with: firebase deploy --only storage
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isAdmin() { return request.auth != null && request.auth.token.admin == true; }
+    function isUser(uid) { return request.auth != null && request.auth.uid == uid; }
+
+    // Demo tracks: MP3 or WAV, up to 200 MB each, from confirmed accounts
+    match /demos/{uid}/{demoId}/{file} {
+      allow read: if isUser(uid) || isAdmin();
+      allow create: if isUser(uid)
+        && request.auth.token.email_verified == true
+        && request.resource.size < 200 * 1024 * 1024
+        && request.resource.contentType.matches('audio/(mpeg|mp3|wav|x-wav|wave|vnd.wave)');
+      allow delete: if isUser(uid) || isAdmin();
+    }
+
+    // Files the artist sends for a paid order (stems, references), up to 2 GB each
+    match /orders/{uid}/{orderId}/uploads/{file} {
+      allow read: if isUser(uid) || isAdmin();
+      allow create: if isUser(uid)
+        && request.resource.size < 2 * 1024 * 1024 * 1024
+        && firestore.get(/databases/(default)/documents/orders/$(orderId)).data.uid == uid
+        && firestore.get(/databases/(default)/documents/orders/$(orderId)).data.status in ['paid', 'in_progress', 'delivered'];
+      allow delete: if isAdmin();
+    }
+
+    // Finished files from the label
+    match /orders/{uid}/{orderId}/deliverables/{file} {
+      allow read: if isUser(uid) || isAdmin();
+      allow write: if isAdmin();
+    }
+  }
+}

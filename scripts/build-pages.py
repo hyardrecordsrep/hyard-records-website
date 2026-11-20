@@ -90,7 +90,7 @@ for a in artists:
     open(artist_file(a), 'w').write(page)
 
 # Sitemap
-static = ['', 'about', 'artists', 'events', 'releases', 'contact', 'get-in-touch', 'press', 'privacy', 'legal']
+static = ['', 'about', 'artists', 'events', 'releases', 'contact', 'get-in-touch', 'press', 'privacy', 'legal', 'terms']
 today = date.today().isoformat()
 urls = [f'{SITE}/{p}' for p in static] + [f'{SITE}/{url_of(artist_file(a))}' for a in artists] + [f'{SITE}/{url_of(release_file(r))}' for r in releases]
 open('sitemap.xml', 'w').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'

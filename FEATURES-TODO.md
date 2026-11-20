@@ -8,9 +8,6 @@ Legend: **(you)** needs something only you can provide or set up · **(me)** I c
 
 ## 1. Before launch
 
-- [ ] **Activate the contact form** **(you)**
-  - Send one real test demo → click the FormSubmit confirmation email in blurfnes@gmail.com
-  - Then I swap the visible email in the page code for FormSubmit's hidden code **(me)**
 - [ ] **Fill in the legal notice** (8 blanks: name, address, legal entity, OIB, label email…) **(you)**
 - [ ] **Fill in the privacy policy** blanks (address, label email, hosting provider, how long you keep logs and demos) **(you)**
 - [ ] **Create the company email addresses** on hyardrecords.com (e.g. info@, press@, bookings@, business@, privacy@) **(you)**
@@ -37,17 +34,28 @@ Nothing open. Socials, bios, top tracks and collaborators are done.
   - Then verify hyardrecords.com in MailerLite (Account settings → Domains, SPF/DKIM DNS records) and set it as the From address on both forms
 - [ ] **Add your first events** to `data/events.json` (or send me the details) **(you)**
 
-## 5. Services (paid)
+## 5. Accounts and services (paid)
 
-- [ ] **Services page in the menu**: mixing, mastering and production by the label **(me)**
-  - One section per service: what's included, turnaround time, number of revisions, before/after audio examples
-- [ ] **Decide prices and packages** (e.g. per track / per EP, stem mixing vs. stereo mastering, rush fee) **(you)**
-- [ ] **Enquiry and booking form**: service, number of tracks, deadline, reference tracks, file links **(me)**
-- [ ] **Online payment**, e.g. Stripe or PayPal payment links per package, or a deposit to book **(you + me)**
-  - Needs a business/payout account in your name **(you)**
-- [ ] **Terms of service** for paid work: payment, deadlines, revisions, refunds, file delivery, credits and rights **(you + me)**
-- [ ] **Update the legal notice and privacy policy** for selling services (VAT/OIB, payment provider) **(me)**
+Built: log in / sign up (email or Google), artist dashboard (demos with status, profile, security), services with
+per-track prices and EP/album packages, cart, Stripe Checkout, order confirmed and payment failed pages, orders in the
+dashboard, label-only admin page, terms of service, privacy and legal updates. Setup steps: `SETUP-ACCOUNTS.md`.
+
+- [ ] **Create the Firebase project** and send me the web config **(you)**
+- [ ] **Install the Firebase CLI and log in** so I can deploy the rules and server functions **(you)**
+- [ ] **Create the Stripe account** (test mode first) and add the keys as Firebase secrets **(you + me)**
+- [ ] **Deploy** database rules, storage rules and functions, then switch on accounts on the site **(me)**
+- [ ] **Decide prices and packages** and enter them on the admin page (Services and prices) **(you)**
+- [ ] **Fill the blanks in the terms of service** (VAT, track length, file storage time, production credits) **(you)**
+- [ ] **Test purchase** in Stripe test mode, then one real low-value purchase and refund before going live **(you + me)**
+- [ ] **Before/after audio examples** on each service **(you + me)**
 - [ ] **Testimonials and credits list** from artists you've worked with **(you + me)**
+- [ ] Suggestions, not built yet:
+  - Email notifications when a demo status changes or an order is paid or delivered **(me)**
+  - Discount codes (Stripe promotion codes) **(me)**
+  - Automatic VAT with Stripe Tax, once you know if you charge VAT **(you + me)**
+  - Messages between artist and label on each order **(me)**
+  - Spam protection on sign-up and uploads (Firebase App Check) **(me)**
+  - Newsletter tick box on sign-up **(me)**
 
 ## 6. Press and business
 

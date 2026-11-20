@@ -1,0 +1,84 @@
+rules_version = '2';
+
+// Who can read and write what in the Hyard Records database.
+// Deploy with: firebase deploy --only firestore:rules
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isAdmin() { return signedIn() && request.auth.token.admin == true; }
+    function isUser(uid) { return signedIn() && request.auth.uid == uid; }
+    function verified() { return signedIn() && request.auth.token.email_verified == true; }
+    function ownsDoc() { return signedIn() && resource.data.uid == request.auth.uid; }
+    function changesOnly(keys) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys); }
+    function shortText(v, max) { return v is string && v.size() <= max; }
+
+    // Artist profiles: only the artist (and the label) can see them
+    match /users/{uid} {
+      allow read: if isUser(uid) || isAdmin();
+      allow create, update: if isUser(uid)
+        && request.resource.data.keys().hasOnly(['name', 'stageName', 'email', 'phone', 'country', 'links', 'createdAt', 'updatedAt'])
+        && shortText(request.resource.data.get('name', ''), 80)
+        && shortText(request.resource.data.get('stageName', ''), 80)
+        && shortText(request.resource.data.get('phone', ''), 30)
+        && shortText(request.resource.data.get('country', ''), 60)
+        && request.resource.data.get('links', {}) is map;
+      allow delete: if false; // removed by the server when the account is deleted
+    }
+
+    // Demos: artists send them (status always starts as "submitted"); only the label changes the status
+    match /demos/{id} {
+      allow read: if ownsDoc() || isAdmin();
+      allow create: if verified()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == 'submitted'
+        && request.resource.data.note == ''
+        && request.resource.data.keys().hasOnly(['uid', 'email', 'title', 'artist', 'genre', 'bpm', 'key', 'link', 'message', 'files', 'status', 'note', 'createdAt', 'updatedAt'])
+        && request.resource.data.title is string && request.resource.data.title.size() > 0 && request.resource.data.title.size() <= 120
+        && shortText(request.resource.data.artist, 80)
+        && shortText(request.resource.data.message, 3000)
+        && shortText(request.resource.data.link, 500)
+        && request.resource.data.files is list && request.resource.data.files.size() <= 3
+        && (request.resource.data.files.size() > 0 || request.resource.data.link.size() > 0);
+      allow update: if isAdmin()
+        && changesOnly(['status', 'note', 'updatedAt'])
+        && request.resource.data.status in ['submitted', 'listening', 'shortlisted', 'declined', 'signed']
+        && shortText(request.resource.data.note, 2000);
+      allow delete: if (ownsDoc() && resource.data.status == 'submitted') || isAdmin();
+    }
+
+    // Services and prices: anyone can read, only the label can change them
+    match /services/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Carts: private to each artist. Prices are never stored here, the server works them out.
+    match /carts/{uid} {
+      allow read, delete: if isUser(uid);
+      allow create, update: if isUser(uid)
+        && request.resource.data.keys().hasOnly(['items', 'updatedAt'])
+        && request.resource.data.items is list
+        && request.resource.data.items.size() <= 20;
+    }
+
+    // Orders: only the server creates them and marks them paid.
+    // Artists can add a brief and their files; the label moves the work along and adds the finished files.
+    match /orders/{id} {
+      allow read: if ownsDoc() || isAdmin();
+      allow create, delete: if false;
+      allow update: if (
+          ownsDoc()
+          && resource.data.status in ['paid', 'in_progress', 'delivered']
+          && changesOnly(['brief', 'uploads', 'updatedAt'])
+          && shortText(request.resource.data.brief, 5000)
+          && request.resource.data.uploads is list && request.resource.data.uploads.size() <= 50
+        ) || (
+          isAdmin()
+          && changesOnly(['status', 'deliverables', 'adminNote', 'updatedAt'])
+          && request.resource.data.status in ['paid', 'in_progress', 'delivered']
+          && resource.data.status in ['paid', 'in_progress', 'delivered']
+          && shortText(request.resource.data.adminNote, 2000)
+        );
+    }
+  }
+}
