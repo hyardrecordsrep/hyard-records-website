@@ -3,7 +3,7 @@
   "private": true,
   "description": "Hyard Records server functions: Stripe Checkout, webhooks, admin access and account clean-up",
   "main": "index.js",
-  "engines": { "node": "20" },
+  "engines": { "node": "22" },
   "scripts": {
     "serve": "firebase emulators:start --only functions",
     "deploy": "firebase deploy --only functions",
