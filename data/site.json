@@ -7,8 +7,8 @@
   },
   "newsletter": {
     "provider": "mailerlite",
-    "newsletterAction": null,
-    "presaveAction": null,
+    "newsletterAction": "https://assets.mailerlite.com/jsonp/2811950/forms/204664655949334363/subscribe",
+    "presaveAction": "https://assets.mailerlite.com/jsonp/2811950/forms/204664868363568728/subscribe",
     "doubleOptIn": true
   }
 }

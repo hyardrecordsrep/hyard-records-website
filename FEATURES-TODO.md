@@ -31,10 +31,7 @@ Nothing open. Socials, bios, top tracks and collaborators are done.
 
 ## 4. Fans and community
 
-- [ ] **Finish the MailerLite setup** (site side is done) **(you)**
-  - Create the account, the "Newsletter" and "Beginning and The End pre-save" groups, and one embedded form for each
-  - Paste each form's action address into `data/site.json` → `newsletter` (or send them to me); the privacy policy switches to its newsletter section by itself
-  - MailerLite needs a sender address on your own domain to send campaigns, so this pairs with buying hyardrecords.com
+- [ ] **Send newsletters from your own domain**: sign-ups already go to MailerLite; to email the list, add a hyardrecords.com sender address in MailerLite once the domain is bought **(you)**
 - [ ] **Add your first events** to `data/events.json` (or send me the details) **(you)**
 
 ## 5. Services (paid)
@@ -83,7 +80,7 @@ Nothing open. Socials, bios, top tracks and collaborators are done.
 - [x] Search bar next to the menu button with live suggestions (search icon on phones); Search releases removed from the menu
 - [x] Contact page for press, bookings, business and privacy (email slots ready), separate from Send your demo
 - [x] Hamburger menu and full footer with all pages, Instagram, SoundCloud, Spotify
-- [x] Newsletter signup box (not connected yet)
+- [x] Newsletter and album pre-save connected to MailerLite (double opt-in, separate groups)
 - [x] Privacy policy and legal notice (drafts with blanks)
 - [x] 404 page, link previews, sitemap.xml, robots.txt
 - [x] Daily Spotify sync running (04:17 UTC): 29 releases matched Spotify on the first run
