@@ -28,7 +28,8 @@
   H.ready.then(async (fb0) => {
     if (!fb0.configured) { $('adm-loading').hidden = true; $('adm-denied').hidden = false; $('adm-denied-text').textContent = 'Accounts aren\'t set up yet.'; return; }
     const { fb, user } = await H.requireUser();
-    const { F, S, Fn, db, storage, functions } = fb;
+    const { A, F, S, Fn, db, storage, functions, auth } = fb;
+    $('adm-logout').addEventListener('click', async () => { await A.signOut(auth); location.replace('./'); });
 
     let ok = await H.isAdmin(user);
     if (!ok) {
