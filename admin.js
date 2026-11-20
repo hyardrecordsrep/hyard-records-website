@@ -152,6 +152,7 @@
           ${o.brief ? `<div class="item-note"><span class="mono muted">Brief</span><p>${esc(o.brief)}</p></div>` : ''}
           ${(o.uploads || []).length ? `<h4 class="mono muted">Artist's files</h4><ul class="item-files">${o.uploads.map((f, i) => `<li><span class="mono">${esc(f.name)}</span><span class="mono muted">${H.bytes(f.size || 0)}</span><button type="button" class="link-btn mono" data-up="${i}">Download</button></li>`).join('')}</ul>` : ''}
           ${(o.deliverables || []).length ? `<h4 class="mono muted">Finished files</h4><ul class="item-files">${o.deliverables.map((f) => `<li><span class="mono">${esc(f.name)}</span><span class="mono muted">${H.bytes(f.size || 0)}</span></li>`).join('')}</ul>` : ''}
+          ${o.filesDeletedAt ? `<p class="mono muted">Files deleted ${esc(H.fmtDate(o.filesDeletedAt))}</p>` : ''}
           ${o.paymentIntent ? `<p class="mono muted"><a href="https://dashboard.stripe.com/payments/${esc(o.paymentIntent)}" target="_blank" rel="noopener">Open in Stripe (refunds)</a></p>` : ''}
           ${editable ? `
           <div class="adm-edit">
@@ -160,7 +161,8 @@
             <label class="field"><span class="field-label mono">Note to the artist <em class="muted">They see this</em></span>
               <textarea rows="2" maxlength="2000" data-note>${esc(o.adminNote || '')}</textarea></label>
             <div class="quick"><button type="button" class="more" data-save>Save</button>
-            <label class="more file-btn">Upload finished files<input type="file" multiple data-deliver hidden></label></div>
+            <label class="more file-btn">Upload finished files<input type="file" multiple data-deliver hidden></label>
+            ${o.status === 'delivered' && ((o.uploads || []).length || (o.deliverables || []).length) ? '<button type="button" class="link-btn mono" data-wipe>Close order and delete files</button>' : ''}</div>
             <span class="drop-progress upload-bar" hidden aria-hidden="true"><span></span></span>
             <p class="form-status mono muted" aria-live="polite"></p>
           </div>` : ''}
@@ -182,6 +184,15 @@
       const up = e.target.closest('[data-up]');
       if (up) {
         try { window.open(await S.getDownloadURL(S.ref(storage, o.uploads[Number(up.dataset.up)].path)), '_blank', 'noopener'); } catch (err) { out.textContent = H.message(err); }
+        return;
+      }
+      if (e.target.closest('[data-wipe]')) {
+        if (!window.confirm(`Close ${shortId(o.id)} and delete all its files for good? The artist can't download them after this.`)) return;
+        try {
+          const paths = [...(o.uploads || []), ...(o.deliverables || [])].map((f) => f.path);
+          await Promise.all(paths.map((p) => S.deleteObject(S.ref(storage, p)).catch(() => {})));
+          await F.updateDoc(F.doc(db, 'orders', o.id), { uploads: [], deliverables: [], filesDeletedAt: F.serverTimestamp(), updatedAt: F.serverTimestamp() });
+        } catch (err) { out.textContent = H.message(err); }
         return;
       }
       if (e.target.closest('[data-save]')) {

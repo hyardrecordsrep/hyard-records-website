@@ -74,7 +74,7 @@ service cloud.firestore {
           && request.resource.data.uploads is list && request.resource.data.uploads.size() <= 50
         ) || (
           isAdmin()
-          && changesOnly(['status', 'deliverables', 'adminNote', 'updatedAt'])
+          && changesOnly(['status', 'deliverables', 'uploads', 'filesDeletedAt', 'adminNote', 'updatedAt'])
           && request.resource.data.status in ['paid', 'in_progress', 'delivered']
           && resource.data.status in ['paid', 'in_progress', 'delivered']
           && shortText(request.resource.data.adminNote, 2000)

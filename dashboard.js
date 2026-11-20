@@ -394,7 +394,7 @@
     const OPEN = ['awaiting_payment', 'paid', 'in_progress'];
     const orderKind = (s) => (s === 'delivered' ? 'on' : ['payment_failed', 'cancelled', 'refunded'].includes(s) ? 'off' : '');
     const orderItem = (o) => {
-      const working = ['paid', 'in_progress', 'delivered'].includes(o.status);
+      const working = ['paid', 'in_progress', 'delivered'].includes(o.status) && !o.filesDeletedAt;
       return `
       <li class="item" data-id="${esc(o.id)}">
         <div class="item-head">
@@ -405,6 +405,7 @@
         <ul class="item-lines">${(o.items || []).map((i) => `<li><span class="mono">${esc(i.label)}</span><span class="mono muted">${esc(H.euro(i.amount) || '')}</span></li>`).join('')}</ul>
         ${o.status === 'awaiting_payment' && o.checkoutUrl && o.expiresAt && o.expiresAt.seconds * 1000 > Date.now()
           ? `<a class="more" href="${esc(o.checkoutUrl)}">Finish payment</a>` : ''}
+        ${o.filesDeletedAt ? `<p class="mono muted">Order closed. Files deleted ${esc(H.fmtDate(o.filesDeletedAt))}.</p>` : ''}
         ${o.adminNote ? `<div class="item-note"><span class="mono muted">Note from the label</span><p>${esc(o.adminNote)}</p></div>` : ''}
         ${working ? `
         <div class="order-work">
@@ -415,7 +416,7 @@
           <span class="drop-progress upload-bar" hidden aria-hidden="true"><span></span></span>
           <p class="form-status mono muted" aria-live="polite"></p>
           ${(o.uploads || []).length ? `<h4 class="mono muted">Your files</h4><ul class="item-files">${o.uploads.map((f) => `<li><span class="mono">${esc(f.name)}</span><span class="mono muted">${H.bytes(f.size || 0)}</span></li>`).join('')}</ul>` : ''}
-          ${(o.deliverables || []).length ? `<h4 class="mono muted">Finished files</h4><ul class="item-files">${o.deliverables.map((f, i) => `<li><span class="mono">${esc(f.name)}</span><span class="mono muted">${H.bytes(f.size || 0)}</span><button type="button" class="link-btn mono" data-download="${i}">Download</button></li>`).join('')}</ul>` : ''}
+          ${(o.deliverables || []).length ? `<h4 class="mono muted">Finished files</h4><p class="mono muted">Download them now: files are deleted when the order is closed.</p><ul class="item-files">${o.deliverables.map((f, i) => `<li><span class="mono">${esc(f.name)}</span><span class="mono muted">${H.bytes(f.size || 0)}</span><button type="button" class="link-btn mono" data-download="${i}">Download</button></li>`).join('')}</ul>` : ''}
         </div>` : ''}
       </li>`;
     };

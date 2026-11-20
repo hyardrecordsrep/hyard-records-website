@@ -107,6 +107,8 @@
     [/^We sent a link to (.+)\. Your email changes once you open it\.$/, (m, e) => `Poslali smo poveznicu na ${e}. E-adresa se mijenja kad je otvorite.`],
     [/^(.+) doesn't have a price yet, so it can't be bought\.$/, (m, s) => `${s} još nema cijenu pa se ne može kupiti.`],
     [/^Choose an option for (.+)$/, (m, s) => `Odaberite opciju: ${s}`],
+    [/^Order closed\. Files deleted (.+)\.$/, (m, d) => `Narudžba zatvorena. Datoteke izbrisane ${translate(d, S) || d}`],
+    [/^Files deleted (.+)$/, (m, d) => `Datoteke izbrisane ${translate(d, S) || d}`],
   ];
 
   const translate = (text, map) => {
