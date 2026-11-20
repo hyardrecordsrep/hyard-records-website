@@ -9,13 +9,16 @@
 // Secrets (set once with the Firebase CLI, never committed):
 //   firebase functions:secrets:set STRIPE_SECRET_KEY
 //   firebase functions:secrets:set STRIPE_WEBHOOK_SECRET
-// Settings (functions/.env): ADMIN_EMAILS, SITE_URL
+//   firebase functions:secrets:set SMTP_PASSWORD      (Google app password of SMTP_USER, for receipts)
+// Settings (functions/.env): ADMIN_EMAILS, SITE_URL, SMTP_USER, RECEIPT_FROM, RECEIPT_COPY_TO, RECEIPT_NOTE
 const { onCall, onRequest, HttpsError } = require('firebase-functions/v2/https');
 const { defineSecret, defineString } = require('firebase-functions/params');
 const { setGlobalOptions, logger } = require('firebase-functions/v2');
 const functionsV1 = require('firebase-functions/v1');
 const admin = require('firebase-admin');
 const Stripe = require('stripe');
+const nodemailer = require('nodemailer');
+const { buildReceipt } = require('./receipt');
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -27,6 +30,69 @@ const STRIPE_SECRET_KEY = defineSecret('STRIPE_SECRET_KEY');
 const STRIPE_WEBHOOK_SECRET = defineSecret('STRIPE_WEBHOOK_SECRET');
 const ADMIN_EMAILS = defineString('ADMIN_EMAILS', { default: '' });
 const SITE_URL = defineString('SITE_URL', { default: 'https://hyardrecords.com' });
+// Receipts: sent through Google Workspace (smtp.gmail.com) as SMTP_USER, from RECEIPT_FROM.
+// RECEIPT_FROM must be a "Send mail as" address of SMTP_USER in Gmail, or Gmail swaps it back.
+const SMTP_PASSWORD = defineSecret('SMTP_PASSWORD');
+const SMTP_USER = defineString('SMTP_USER', { default: '' });
+const RECEIPT_FROM = defineString('RECEIPT_FROM', { default: 'payments@hyardrecords.com' });
+const RECEIPT_COPY_TO = defineString('RECEIPT_COPY_TO', { default: '' });
+const RECEIPT_NOTE = defineString('RECEIPT_NOTE', { default: '' });
+
+const orderNumber = (id) => `HYO-${String(id).slice(0, 6).toUpperCase()}`;
+
+// Sends the receipt to the buyer and a copy to the label. Never throws: a mail problem must not
+// make Stripe retry the webhook. receiptSentAt stops a second copy if Stripe sends the event twice.
+async function sendReceipt(ref, extra = {}) {
+  const claimed = await db.runTransaction(async (tx) => {
+    const s = await tx.get(ref);
+    const o = s.data();
+    if (!o || o.receiptSentAt || o.receiptSending) return null;
+    tx.update(ref, { receiptSending: true });
+    return o;
+  });
+  if (!claimed) return;
+  try {
+    const user = SMTP_USER.value();
+    let pass = '';
+    try { pass = SMTP_PASSWORD.value(); } catch { pass = ''; }
+    if (!user || !pass) {
+      logger.warn('Receipt not sent: SMTP_USER or SMTP_PASSWORD missing', { order: ref.id });
+      await ref.update({ receiptSending: FieldValue.delete(), receiptError: 'not configured' });
+      return;
+    }
+    const transport = nodemailer.createTransport({ host: 'smtp.gmail.com', port: 465, secure: true, auth: { user, pass: pass.replace(/\s+/g, '') } });
+    const from = RECEIPT_FROM.value() || user;
+    const base = {
+      orderNo: orderNumber(ref.id),
+      orderId: ref.id,
+      items: (claimed.items || []).map((i) => ({ label: i.label, amount: i.amount, notes: i.notes })),
+      total: extra.amountPaid ?? claimed.amountPaid ?? claimed.total,
+      paidAt: new Date(),
+      email: claimed.email,
+      name: extra.name || '',
+      lang: claimed.lang,
+      site: SITE_URL.value(),
+      footerNote: RECEIPT_NOTE.value(),
+    };
+    const sent = [];
+    if (claimed.email) {
+      const r = buildReceipt(base);
+      await transport.sendMail({ from: { name: 'Hyard Records', address: from }, replyTo: from, to: claimed.email, subject: r.subject, html: r.html, text: r.text });
+      sent.push('buyer');
+    }
+    const copyTo = RECEIPT_COPY_TO.value();
+    if (copyTo) {
+      const r = buildReceipt({ ...base, forLabel: true });
+      await transport.sendMail({ from: { name: 'Hyard Records', address: from }, replyTo: claimed.email || from, to: copyTo, subject: r.subject, html: r.html, text: r.text });
+      sent.push('label');
+    }
+    await ref.update({ receiptSentAt: FieldValue.serverTimestamp(), receiptSending: FieldValue.delete(), receiptError: FieldValue.delete() });
+    logger.info('Receipt sent', { order: ref.id, sent });
+  } catch (err) {
+    logger.error('Receipt failed', { order: ref.id, message: err.message });
+    await ref.update({ receiptSending: FieldValue.delete(), receiptError: String(err.message || err).slice(0, 300) }).catch(() => {});
+  }
+}
 
 const stripeClient = () => new Stripe(STRIPE_SECRET_KEY.value(), { apiVersion: '2024-06-20' });
 const hasPrice = (v) => v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v)) && Number(v) > 0;
@@ -107,6 +173,7 @@ exports.createCheckoutSession = onCall({ secrets: [STRIPE_SECRET_KEY], enforceAp
     total: totalCents / 100,
     currency: 'eur',
     status: 'awaiting_payment',
+    lang: req.data?.lang === 'hr' ? 'hr' : 'en',
     consent: { terms: true, earlyStart: true, at: FieldValue.serverTimestamp() },
     stripeSessionId: session.id,
     checkoutUrl: session.url,
@@ -146,7 +213,7 @@ exports.cancelCheckout = onCall({ secrets: [STRIPE_SECRET_KEY] }, async (req) =>
 //   https://europe-west1-<project-id>.cloudfunctions.net/stripeWebhook
 // Events: checkout.session.completed, checkout.session.async_payment_succeeded,
 //         checkout.session.async_payment_failed, checkout.session.expired, charge.refunded
-exports.stripeWebhook = onRequest({ secrets: [STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET] }, async (req, res) => {
+exports.stripeWebhook = onRequest({ secrets: [STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, SMTP_PASSWORD] }, async (req, res) => {
   let event;
   try {
     event = stripeClient().webhooks.constructEvent(req.rawBody, req.headers['stripe-signature'], STRIPE_WEBHOOK_SECRET.value());
@@ -187,6 +254,7 @@ exports.stripeWebhook = onRequest({ secrets: [STRIPE_SECRET_KEY, STRIPE_WEBHOOK_
               checkoutUrl: FieldValue.delete(),
             });
             await db.doc(`carts/${order.uid}`).delete().catch(() => {});
+            await sendReceipt(ref, { amountPaid: (obj.amount_total || 0) / 100, name: obj.customer_details?.name || '' });
           }
         } else {
           // Bank transfer style payments: paid later, Stripe sends async_payment_succeeded
