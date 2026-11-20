@@ -64,7 +64,7 @@ def build(page, current):
         '        <a class="social" href="%s" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-%s"/></svg><span>%s</span></a>'
         % (esc(s['url']), s['icon'], esc(s['label'])) for s in socials if s.get('url'))
     footer = (footer_t.replace('{HOME}', '#top' if page == 'index.html' else L('index.html'))
-              .replace('{CONTACT}', L('contact.html'))
+              .replace('{CONTACT}', L('contact.html')).replace('{PRIVACY}', L('privacy.html'))
               .replace('{EXPLORE}', links(EXPLORE)).replace('{ARTISTS}', links(artist_items))
               .replace('{LABEL}', links(LABEL)).replace('{SOCIALS}', social_html))
     return header, footer

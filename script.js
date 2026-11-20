@@ -157,12 +157,53 @@
     }
   }
 
-  // ---------- Newsletter (not connected yet: validates and confirms only) ----------
+  // ---------- Newsletter and pre-save sign-ups (MailerLite) ----------
+  // Settings live in data/site.json → newsletter. Until a form address is set there,
+  // the boxes check the email and say sign-ups aren't live yet.
+  const siteBase = ($('.nav-search')?.getAttribute('action') || 'releases.html').replace(/releases(\.html)?$/, '');
+  let siteConfig = null;
+  const loadSite = () => {
+    siteConfig = siteConfig || fetch(`${siteBase}data/site.json`, { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
+    return siteConfig;
+  };
+  const ML_FORM = /^https:\/\/assets\.mailerlite\.com\/jsonp\/\d+\/forms\/\d+\/subscribe$/;
+
+  // kind: 'newsletter' or 'presave'. Resolves to 'sent', 'not-live' or 'error'.
+  window.hyardSubscribe = async (email, kind) => {
+    const { newsletter = {} } = await loadSite();
+    const action = kind === 'presave' ? (newsletter.presaveAction || newsletter.newsletterAction) : newsletter.newsletterAction;
+    if (!action || !ML_FORM.test(action)) return 'not-live';
+    const body = new FormData();
+    body.append('fields[email]', email);
+    body.append('ml-submit', '1');
+    body.append('anticsrf', 'true');
+    try {
+      const res = await fetch(action, { method: 'POST', body });
+      const data = await res.json().catch(() => ({}));
+      return res.ok && data.success !== false ? 'sent' : 'error';
+    } catch {
+      // If the browser can't read MailerLite's answer, send it anyway without reading it
+      try {
+        await fetch(action, { method: 'POST', body, mode: 'no-cors' });
+        return 'sent';
+      } catch {
+        return 'error';
+      }
+    }
+  };
+
+  // Show the newsletter paragraphs in the privacy policy only once sign-ups are live
+  loadSite().then(({ newsletter = {} }) => {
+    const live = ML_FORM.test(newsletter.newsletterAction || '') || ML_FORM.test(newsletter.presaveAction || '');
+    document.querySelectorAll('[data-newsletter]').forEach((el) => { el.hidden = el.dataset.newsletter !== (live ? 'on' : 'off'); });
+  });
+
   document.querySelectorAll('.news-form').forEach((form) => {
     const input = form.querySelector('input[type=email]');
     const status = form.querySelector('.news-status');
+    const btn = form.querySelector('button[type=submit]');
     input.addEventListener('input', () => { form.classList.remove('has-error'); status.textContent = ''; });
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const v = input.value.trim();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
@@ -172,8 +213,19 @@
         return;
       }
       form.classList.remove('has-error');
+      btn.disabled = true;
+      status.textContent = 'Signing you up…';
+      const result = await window.hyardSubscribe(v, 'newsletter');
+      btn.disabled = false;
+      if (result === 'error') {
+        form.classList.add('has-error');
+        status.textContent = 'Something went wrong. Try again in a moment.';
+        return;
+      }
       form.classList.add('is-done');
-      status.textContent = "Thanks! The newsletter isn't live yet, so nothing was saved. Sign-ups open soon.";
+      status.textContent = result === 'sent'
+        ? 'Almost done! Check your inbox and confirm your email to join the newsletter.'
+        : "Thanks! The newsletter isn't live yet, so nothing was saved. Sign-ups open soon.";
       input.value = '';
     });
   });

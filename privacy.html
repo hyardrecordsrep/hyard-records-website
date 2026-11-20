@@ -127,6 +127,17 @@
       </ul>
       <p>If you email us directly instead, we receive your email address and whatever you include, and handle it the same way.</p>
 
+      <h3>Newsletter and album pre-saves</h3>
+      <p data-newsletter="off">The newsletter and pre-save boxes aren't connected yet. Anything typed into them is checked in your browser and not sent or stored anywhere.</p>
+      <div data-newsletter="on" hidden>
+        <p>If you sign up for the newsletter or pre-save an album, we collect your email address and which list you joined. We use it only to send you label news and updates about that release. You first get an email asking you to confirm, and every email has an unsubscribe link.</p>
+        <ul>
+          <li><strong>Legal basis:</strong> your consent (Art. 6(1)(a) GDPR), which you can withdraw at any time by unsubscribing.</li>
+          <li><strong>Retention:</strong> until you unsubscribe, after which your address is removed from our lists.</li>
+          <li><strong>Processor:</strong> MailerLite (UAB MailerLite, Lithuania, EU) stores the list and sends the emails on our behalf. It may record whether emails are opened or links clicked. See <a href="https://www.mailerlite.com/legal/privacy-policy" target="_blank" rel="noopener">MailerLite's privacy policy</a>.</li>
+        </ul>
+      </div>
+
       <h3>Searching releases</h3>
       <p>The release search runs entirely in your browser. What you type is not sent to us or stored.</p>
 
@@ -138,6 +149,7 @@
       <ul>
         <li><strong>Google Fonts</strong> (Google Ireland Limited / Google LLC) provides our typefaces. See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's privacy policy</a>.</li>
         <li><strong>FormSubmit</strong> (Devro LABS) delivers contact form submissions, including uploaded demo files, to our inbox. It processes your submission only to deliver it and may show a reCAPTCHA check from Google to block spam. See <a href="https://formsubmit.co/privacy.pdf" target="_blank" rel="noopener">FormSubmit's privacy policy</a>.</li>
+        <li data-newsletter="on" hidden><strong>MailerLite</strong> (UAB MailerLite, Lithuania) manages our newsletter and pre-save lists and sends those emails.</li>
         <li><strong>Gmail</strong> (Google) is where we receive and store submissions.</li>
         <li><strong>Spotify</strong> (Spotify AB) is the source of our release information, and release links open on Spotify. Once you're on Spotify, its own <a href="https://www.spotify.com/legal/privacy-policy/" target="_blank" rel="noopener">privacy policy</a> applies.</li>
         <li><strong>Hosting:</strong> <span class="todo">[hosting provider name, country, link to its privacy policy]</span> stores and serves this website and its log files on our behalf under a data processing agreement.</li>
@@ -196,6 +208,7 @@
         </label>
         <button class="news-btn display" type="submit">Sign up <svg aria-hidden="true"><use href="#i-arrow"/></svg></button>
         <p class="news-status mono" aria-live="polite"></p>
+        <p class="news-consent mono muted">By signing up you agree to get our newsletter. Unsubscribe anytime. <a href="privacy">Privacy policy</a></p>
       </form>
     </section>
 

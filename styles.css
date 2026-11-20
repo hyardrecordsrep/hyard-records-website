@@ -1434,6 +1434,10 @@ body { transition: opacity 0.25s ease; }
 .lang-sep, .lang-other { color: var(--hyard-ash); transition: color 0.3s; }
 .lang-toggle:hover .lang-other { color: var(--hyard-white); }
 
+.news-consent { grid-column: 1 / -1; margin: 6px 0 0; font-size: 11px; line-height: 1.6; text-transform: none; letter-spacing: 0.02em; }
+.news-consent a { text-underline-offset: 3px; }
+.news-consent a:hover { color: var(--hyard-white); }
+
 /* ---------- Mobile ---------- */
 @media (max-width: 720px) {
   .result-row { grid-template-columns: 56px minmax(0, 1fr) 22px; gap: 4px 14px; }

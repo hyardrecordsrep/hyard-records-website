@@ -1,8 +1,14 @@
 {
-  "_howTo": "Visitor stats are off while provider is null. To switch them on, set provider to \"plausible\" (after adding hyardrecords.com at plausible.io) or to \"cloudflare\" (paste the token from Cloudflare Web Analytics into cloudflareToken). Both are cookie-free, so no cookie banner is needed. The privacy policy updates itself to match.",
+  "_howTo": "Visitor stats are off while provider is null. To switch them on, set provider to \"plausible\" (after adding hyardrecords.com at plausible.io) or to \"cloudflare\" (paste the token from Cloudflare Web Analytics into cloudflareToken). Both are cookie-free, so no cookie banner is needed. The privacy policy updates itself to match. Newsletter: paste the MailerLite embedded-form action URLs (https://assets.mailerlite.com/jsonp/ACCOUNT/forms/FORM/subscribe) into newsletterAction (general newsletter form) and presaveAction (album pre-save form). While they are null, the boxes say sign-ups aren't live yet.",
   "analytics": {
     "provider": "cloudflare",
     "domain": "hyardrecords.com",
     "cloudflareToken": "1e338b2e1ad0400cae24bcb99c38e875"
+  },
+  "newsletter": {
+    "provider": "mailerlite",
+    "newsletterAction": null,
+    "presaveAction": null,
+    "doubleOptIn": true
   }
 }

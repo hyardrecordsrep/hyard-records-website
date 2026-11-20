@@ -366,7 +366,22 @@
     "Privacy": "Privatnost",
     "How we handle personal data is explained in our": "Kako postupamo s osobnim podacima objašnjeno je u našim",
     "(Spotify AB) is the source of our release information, and release links open on Spotify. Once you're on Spotify, its own": "(Spotify AB) izvor je podataka o izdanjima, a linkovi na izdanja otvaraju se na Spotifyju. Kada ste na Spotifyju, vrijede njegova",
-    "Page not found": "Stranica nije pronađena"
+    "Page not found": "Stranica nije pronađena",
+    "Signing you up…": "Prijavljujemo vas…",
+    "Something went wrong. Try again in a moment.": "Nešto je pošlo po zlu. Pokušajte ponovno za trenutak.",
+    "Almost done! Check your inbox and confirm your email to join the newsletter.": "Još samo korak! Provjerite sandučić i potvrdite e-mail kako biste se pridružili newsletteru.",
+    "Check your inbox and confirm your email to finish.": "Provjerite sandučić i potvrdite e-mail za kraj prijave.",
+    "By signing up you agree to get our newsletter. Unsubscribe anytime.": "Prijavom pristajete primati naš newsletter. Odjava je moguća u bilo kojem trenutku.",
+    "By signing up you agree to get emails about this album and Hyard Records news. Unsubscribe anytime.": "Prijavom pristajete primati e-mailove o ovom albumu i novosti Hyard Recordsa. Odjava je moguća u bilo kojem trenutku.",
+    "Newsletter and album pre-saves": "Newsletter i pre-save albuma",
+    "The newsletter and pre-save boxes aren't connected yet. Anything typed into them is checked in your browser and not sent or stored anywhere.": "Polja za newsletter i pre-save još nisu povezana. Sve što upišete provjerava se samo u vašem pregledniku i nigdje se ne šalje niti sprema.",
+    "If you sign up for the newsletter or pre-save an album, we collect your email address and which list you joined. We use it only to send you label news and updates about that release. You first get an email asking you to confirm, and every email has an unsubscribe link.": "Ako se prijavite na newsletter ili napravite pre-save albuma, prikupljamo vašu e-mail adresu i popis kojem ste se pridružili. Koristimo je samo za slanje novosti izdavačke kuće i obavijesti o tom izdanju. Najprije ćete dobiti e-mail za potvrdu, a svaki e-mail sadrži link za odjavu.",
+    "your consent (Art. 6(1)(a) GDPR), which you can withdraw at any time by unsubscribing.": "vaša privola (čl. 6. st. 1. t. (a) GDPR-a), koju možete povući u bilo kojem trenutku odjavom.",
+    "until you unsubscribe, after which your address is removed from our lists.": "do odjave, nakon čega se vaša adresa uklanja s naših popisa.",
+    "Processor:": "Izvršitelj obrade:",
+    "MailerLite (UAB MailerLite, Lithuania, EU) stores the list and sends the emails on our behalf. It may record whether emails are opened or links clicked. See": "MailerLite (UAB MailerLite, Litva, EU) u naše ime čuva popis i šalje e-mailove. Može bilježiti otvaranje e-mailova i klikove na linkove. Pogledajte",
+    "MailerLite's privacy policy": "MailerLiteova pravila privatnosti",
+    "(UAB MailerLite, Lithuania) manages our newsletter and pre-save lists and sends those emails.": "(UAB MailerLite, Litva) vodi naše popise za newsletter i pre-save te šalje te e-mailove."
   },
   "attributes": {
     "Hyard Records home": "Hyard Records početna",

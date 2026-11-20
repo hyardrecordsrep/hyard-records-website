@@ -31,9 +31,10 @@ Nothing open. Socials, bios, top tracks and collaborators are done.
 
 ## 4. Fans and community
 
-- [ ] **Connect the newsletter** to a real service (Mailchimp, Brevo, Buttondown…) **(you + me)**
-  - The *Beginning and The End* pre-save box starts working at the same time
-  - Update the privacy policy when it goes live **(me)**
+- [ ] **Finish the MailerLite setup** (site side is done) **(you)**
+  - Create the account, the "Newsletter" and "Beginning and The End pre-save" groups, and one embedded form for each
+  - Paste each form's action address into `data/site.json` → `newsletter` (or send them to me); the privacy policy switches to its newsletter section by itself
+  - MailerLite needs a sender address on your own domain to send campaigns, so this pairs with buying hyardrecords.com
 - [ ] **Add your first events** to `data/events.json` (or send me the details) **(you)**
 
 ## 5. Services (paid)

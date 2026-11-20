@@ -113,7 +113,7 @@
   dialog.addEventListener('close', () => opener.focus());
   input.addEventListener('input', () => { form.classList.remove('has-error'); status.textContent = ''; });
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const v = input.value.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
@@ -122,8 +122,20 @@
       input.focus();
       return;
     }
-    // TODO: send `v` to the newsletter / pre-save service once it's connected
+    const btn = form.querySelector('button[type=submit]');
+    btn.disabled = true;
+    status.textContent = 'Signing you up…';
+    // Goes to the MailerLite pre-save form set in data/site.json
+    const result = window.hyardSubscribe ? await window.hyardSubscribe(v, 'presave') : 'not-live';
+    btn.disabled = false;
+    if (result === 'error') {
+      form.classList.add('has-error');
+      status.textContent = 'Something went wrong. Try again in a moment.';
+      return;
+    }
+    status.textContent = '';
     input.value = '';
+    done.querySelector('.presave-confirm').hidden = result !== 'sent';
     formView.hidden = true;
     done.hidden = false;
     done.querySelector('.more').focus();
