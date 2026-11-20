@@ -13,7 +13,6 @@ Legend: **(you)** needs something only you can provide or set up · **(me)** I c
   - Then I change its order files line to match the terms: files are deleted when the order closes **(me)**
   - The label email for both can be privacy@hyardrecords.com or info@hyardrecords.com; say which and I fill it in **(you + me)**
 - [ ] **VAT line in the terms of service**: whether you charge VAT or are exempt **(you)**
-- [ ] **Add the DMARC record** at name.com so emails land in inboxes: TXT, host `_dmarc`, value `v=DMARC1; p=none; adkim=r; aspf=r` **(you)**
 - [ ] **Send the remaining socials**: TikTok, YouTube **(you)**
 
 ## 2. Paid services: going live
@@ -92,3 +91,4 @@ Setup steps: `SETUP-ACCOUNTS.md`.
 - [x] MailerLite sends from newsletter@hyardrecords.com (domain verified: DKIM and SPF)
 - [x] Receipt email after each paid order from payments@ to the customer (English or Croatian), plus a "You received an order" email to you
 - [x] Demo emails from product@: "ready for review" to you with all the details, "we've got your demo" to the artist, and an update to the artist whenever you change the status
+- [x] DMARC record added for hyardrecords.com
