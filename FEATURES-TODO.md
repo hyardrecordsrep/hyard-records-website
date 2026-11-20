@@ -8,10 +8,6 @@ Legend: **(you)** needs something only you can provide or set up · **(me)** I c
 
 ## 1. Before launch
 
-- [ ] **Buy and connect the domain** hyardrecords.com **(you)**
-- [ ] **Connect hyardrecords.com to GitHub Pages** once the domain is bought **(you + me)**
-  - Add the DNS records at your registrar, then I add the domain in the repo's Pages settings
-  - The site is live meanwhile at https://hyardrecordsrep.github.io/hyard-records-website/
 - [ ] **Activate the contact form** **(you)**
   - Send one real test demo → click the FormSubmit confirmation email in blurfnes@gmail.com
   - Then I swap the visible email in the page code for FormSubmit's hidden code **(me)**
@@ -32,9 +28,9 @@ Nothing open. Socials, bios, top tracks and collaborators are done.
 ## 4. Fans and community
 
 - [ ] **Point MailerLite's "thank you page" to the site** for both forms (free plan) **(you)**
-  - Newsletter: `https://hyardrecordsrep.github.io/hyard-records-website/confirmed`
-  - Pre-save: `https://hyardrecordsrep.github.io/hyard-records-website/confirmed?list=presave`
-  - Steps in `brand/email/README.md`; switch to hyardrecords.com addresses once the domain is live
+  - Newsletter: `https://hyardrecords.com/confirmed`
+  - Pre-save: `https://hyardrecords.com/confirmed?list=presave`
+  - Steps in `brand/email/README.md`
 - [ ] **Rebuild the new confirmation emails in MailerLite** from the design in `brand/email/` (needs a paid plan or the 14-day trial) **(you)**
 - [ ] **Connect a Hyard email address to MailerLite** so confirmations and newsletters come from e.g. newsletter@hyardrecords.com **(you + me)**
   - Needs the domain plus a mailbox on it (e.g. Zoho Mail free or Google Workspace)
@@ -94,6 +90,7 @@ Nothing open. Socials, bios, top tracks and collaborators are done.
 - [x] 404 page, link previews, sitemap.xml, robots.txt
 - [x] Daily Spotify sync running (04:17 UTC): 29 releases matched Spotify on the first run
 - [x] Published on GitHub Pages from github.com/hyardrecordsrep/hyard-records-website; every push republishes
+- [x] hyardrecords.com connected (bought at name.com), HTTPS certificate from GitHub, http and www redirect to https://hyardrecords.com
 - [x] Clean addresses without .html (hyardrecords.com/about, /release-hyd-020…), home links go to the bare domain, old .html addresses redirect
 - [x] Covers and artist photos stored on the site; the sync downloads new ones automatically
 - [x] Own page per release (`release-hyd-020.html`) and per artist (`artist-blurfnes.html`) with their own cover in link previews; sitemap lists them all
