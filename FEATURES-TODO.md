@@ -19,7 +19,6 @@ Legend: **(you)** needs something only you can provide or set up · **(me)** I c
 
 Setup steps: `SETUP-ACCOUNTS.md`.
 
-- [ ] **Put the live Stripe keys on the server**: live webhook, then both secrets with the live values **(you)**, then I redeploy the functions **(me)**
 - [ ] **Enter your real prices** on the admin page and remove the €1 test price **(you)**
 - [ ] **One real low-value purchase and refund** to check everything end to end **(you + me)**
 - [ ] **Upgrade Google Cloud to a full account** before the 90-day free trial ends, or Google pauses logins and uploads **(you)**
@@ -90,4 +89,4 @@ Setup steps: `SETUP-ACCOUNTS.md`.
 - [x] Terms of service: credit to Lovro Bedenk, any track length, files deleted when an order closes
 - [x] Company email addresses (info@, press@, bookings@, business@, privacy@hyardrecords.com) as Google Groups, shown on the Contact page
 - [x] The label account only uses the admin page: the dashboard sends it there and the menu shows Admin
-- [x] Stripe activated and switched to live mode; hyardrecords.com is an authorized domain in Firebase
+- [x] Stripe live: activated, live webhook, live restricted key on the server, functions redeployed; hyardrecords.com is an authorized domain in Firebase
