@@ -76,6 +76,10 @@ def build(page, current):
               .replace('{CONTACT}', L('contact.html')).replace('{PRIVACY}', L('privacy.html'))
               .replace('{EXPLORE}', links(EXPLORE)).replace('{ARTISTS}', links(artist_items))
               .replace('{LABEL}', links(LABEL)).replace('{ACCOUNTLINKS}', links(ACCOUNT)).replace('{SOCIALS}', social_html))
+    # The newsletter sign-up and the "Send us your demo" button only show on the home page
+    if page != 'index.html':
+        footer = re.sub(r'\n        <a class="more footer-cta"[^\n]*</a>', '', footer)
+        footer = re.sub(r'\n    <section class="footer-news"[\s\S]*?</section>\n', '', footer)
     return header, footer
 
 for page, current in PAGES.items():
