@@ -94,12 +94,21 @@
       if (num) a.prepend(num);
       a.setAttribute('href', a.getAttribute('href').replace(ACC, page));
     });
+    // Cart button next to the search bar: on the dashboard and cart page, for signed-in artists
+    const onDash = /\/(dashboard|cart)(\.html)?$/.test(location.pathname);
+    const showCart = onDash && signedIn && !admin;
+    $$('[data-cart-icon]').forEach((a) => {
+      a.hidden = !showCart;
+      if (/\/cart(\.html)?$/.test(location.pathname)) a.setAttribute('aria-current', 'page');
+      const badge = a.querySelector('.nav-account-count');
+      if (badge) { badge.hidden = !count; badge.textContent = count || ''; }
+    });
     $$('[data-account-icon]').forEach((a) => {
       a.setAttribute('href', a.getAttribute('href').replace(ACC, page));
       a.setAttribute('aria-label', admin ? 'Admin page' : signedIn ? 'Your dashboard' : 'Log in or sign up');
       a.classList.toggle('is-signed-in', signedIn);
       const badge = a.querySelector('.nav-account-count');
-      if (badge) { badge.hidden = !count; badge.textContent = count || ''; }
+      if (badge) { badge.hidden = !count || showCart; badge.textContent = count || ''; }
     });
     $$('[data-cart-link]').forEach((a) => {
       a.hidden = !count;

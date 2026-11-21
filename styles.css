@@ -1458,6 +1458,8 @@ body { transition: opacity 0.25s ease; }
 .nav-account.is-signed-in { border-color: var(--hyard-ash); }
 .nav-account-count { position: absolute; top: -7px; right: -7px; min-width: 18px; height: 18px; padding: 0 4px; display: grid; place-items: center; background: var(--hyard-white); color: var(--hyard-black); font-size: 10px; letter-spacing: 0; border-radius: 9px; }
 .nav-account-count[hidden] { display: none; }
+.nav-cart[hidden] { display: none; }
+.nav-cart[aria-current="page"] { border-color: var(--hyard-white); }
 .menu-link[hidden] { display: none; }
 
 .field input[type=password], .field input[type=number], .field select {
@@ -1686,6 +1688,8 @@ body { transition: opacity 0.25s ease; }
   .nav-actions { gap: 8px; }
   .lang-toggle .lang-current, .lang-toggle .lang-sep { display: none; }
   .lang-toggle { padding: 0 9px; }
+  /* On the dashboard the cart button takes the account button's place (the menu still has Dashboard) */
+  .nav-actions:has(.nav-cart:not([hidden])) [data-account-icon] { display: none; }
 }
 
 /* ---------- Mobile ---------- */

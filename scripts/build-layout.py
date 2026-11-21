@@ -64,7 +64,7 @@ def build(page, current):
         return '      <a class="menu-link display" href="%s" style="--i:%d"%s%s><span class="mono muted">%02d</span>%s</a>' % (
             L(h), i, ' aria-current="page"' if h == current else '', extra, i + 1, t)
     menu = '\n'.join(menu_item(i, h, t) for i, (h, t) in enumerate(MENU))
-    header = header_t.replace('{LINKS}', menu).replace('{LOCKUP}', '#top' if page == 'index.html' else L('index.html')).replace('{SEARCH}', L('releases.html')).replace('{MAINID}', 'main').replace('{I18N}', L('i18n.js')).replace('{ACCOUNT}', L('account.html'))
+    header = header_t.replace('{LINKS}', menu).replace('{LOCKUP}', '#top' if page == 'index.html' else L('index.html')).replace('{SEARCH}', L('releases.html')).replace('{MAINID}', 'main').replace('{I18N}', L('i18n.js')).replace('{ACCOUNT}', L('account.html')).replace('{CART}', L('cart.html'))
 
     def links(items):
         return '\n'.join('        <a href="%s">%s</a>' % (L(h), esc(t)) for h, t in items)
