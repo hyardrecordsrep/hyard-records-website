@@ -324,7 +324,8 @@ exports.demoSubmitted = onDocumentCreated({ document: 'demos/{id}', secrets: [SM
   if (demo.email) {
     const m = demoReceived({ id, demo, site, sentAt, name: await artistName(demo.uid) });
     await transport.sendMail({ from, to: demo.email, replyTo: from.address, subject: m.subject, html: m.html, text: m.text })
-      .catch((err) => logger.error('Demo email to artist failed', { id, message: err.message }));
+      .then((info) => logger.info('Demo email to artist sent', { id, to: demo.email, accepted: info.accepted, rejected: info.rejected }))
+      .catch((err) => logger.error('Demo email to artist failed', { id, to: demo.email, message: err.message }));
   }
   logger.info('Demo emails sent', { id });
 });
@@ -340,8 +341,8 @@ exports.demoUpdated = onDocumentUpdated({ document: 'demos/{id}', secrets: [SMTP
   const from = { name: 'Hyard Records', address: DEMO_FROM.value() || SMTP_USER.value() };
   const m = demoStatus({ id, demo, before, site: SITE_URL.value(), name: await artistName(demo.uid), at: toDate(demo.updatedAt) });
   await transport.sendMail({ from, to: demo.email, replyTo: from.address, subject: m.subject, html: m.html, text: m.text })
-    .then(() => logger.info('Demo status email sent', { id, status: demo.status }))
-    .catch((err) => logger.error('Demo status email failed', { id, message: err.message }));
+    .then((info) => logger.info('Demo status email sent', { id, status: demo.status, to: demo.email, accepted: info.accepted, rejected: info.rejected }))
+    .catch((err) => logger.error('Demo status email failed', { id, to: demo.email, message: err.message }));
 });
 
 // The label's own accounts (ADMIN_EMAILS, comma separated) get the admin flag the first time
