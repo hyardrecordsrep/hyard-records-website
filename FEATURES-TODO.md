@@ -19,7 +19,10 @@ Legend: **(you)** needs something only you can provide or set up · **(me)** I c
 
 Setup steps: `SETUP-ACCOUNTS.md`.
 
-- [ ] **Enter your real prices** on the admin page and remove the €1 test price **(you)**
+- [ ] **Stop emails going to Outlook's Junk folder**: send receipts and demo emails through MailerSend (free up to 3,000 a month, same company as MailerLite) **(you + me)**
+  - You: sign up at mailersend.com, add the domain `hyardrecords.com`, add its DNS records and click Verify
+  - Me: switch the server to MailerSend (still from payments@ and product@), you paste the API key into Terminal, then a test to an Outlook address
+  - Two weeks later: change DMARC from `p=none` to `p=quarantine`
 - [ ] **One real low-value purchase and refund** to check everything end to end **(you + me)**
 - [ ] **Upgrade Google Cloud to a full account** before the 90-day free trial ends, or Google pauses logins and uploads **(you)**
 - [ ] **Before/after audio examples** on each service **(you + me)**
@@ -46,6 +49,7 @@ Setup steps: `SETUP-ACCOUNTS.md`.
 
 ## Done
 
+- [x] Service prices entered (mastering from €35, mixing from €110, production from €300, all three from €400), 1 week per track, 2 revision rounds
 - [x] Brand guide and brand board (`brand/`); Archivo confirmed as the display font
 - [x] Animated home page: logo intro that fades into the latest release banner, marquee, slide-in animations
 - [x] Latest release banner: newest release from the Spotify catalog, updates itself with the daily sync
