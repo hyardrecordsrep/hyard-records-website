@@ -8,7 +8,7 @@
       "summary": "We build your track with you, from an idea, a loop or a rough demo to a finished arrangement ready for mixing.",
       "includes": ["Sound design and arrangement", "Drum programming and groove", "Session with the producer, online or in person", "Project file and stems on request"],
       "turnaround": "2 to 4 weeks per track",
-      "revisions": "3 rounds of changes",
+      "revisions": "2 rounds of changes",
       "pricePerTrack": null,
       "packages": [
         { "id": "ep", "name": "EP", "tracks": 4, "price": null },
@@ -38,7 +38,7 @@
       "summary": "Loud, clean and consistent masters for streaming, DJ sets and vinyl.",
       "includes": ["Streaming master (WAV 24-bit)", "Club master", "Loudness matched to your references", "Final MP3 and WAV files"],
       "turnaround": "2 to 3 working days per track",
-      "revisions": "1 round of changes",
+      "revisions": "2 rounds of changes",
       "pricePerTrack": null,
       "packages": [
         { "id": "ep", "name": "EP", "tracks": 4, "price": null },
@@ -53,7 +53,7 @@
       "summary": "All three in one: we take your track from the first idea to the final master, at a better price than booking them apart.",
       "includes": ["Everything in production, mixing and mastering", "One producer from start to finish", "Release-ready files", "Priority in the queue"],
       "turnaround": "3 to 6 weeks per track",
-      "revisions": "3 rounds of changes per stage",
+      "revisions": "2 rounds of changes per stage",
       "pricePerTrack": null,
       "packages": [
         { "id": "ep", "name": "EP", "tracks": 4, "price": null },
