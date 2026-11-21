@@ -8,10 +8,7 @@ Legend: **(you)** needs something only you can provide or set up · **(me)** I c
 
 ## 1. Legal and contact details
 
-- [ ] **Fill in the legal notice** (name, address, legal entity, OIB, label email, VAT wording, consumer complaints body) **(you)**
-- [ ] **Fill in the privacy policy** blanks (address, label email, hosting provider, how long you keep logs and demos) **(you)**
-  - Then I change its order files line to match the terms: files are deleted when the order closes **(me)**
-  - The label email for both can be privacy@hyardrecords.com or info@hyardrecords.com; say which and I fill it in **(you + me)**
+- [ ] **Fill in the legal notice** (name, legal entity, OIB, VAT wording, consumer complaints body; address Ulica Hermana Bužana 10 and info@hyardrecords.com are known) **(you)**
 - [ ] **VAT line in the terms of service**: whether you charge VAT or are exempt **(you)**
 - [ ] **Send the remaining socials**: TikTok, YouTube **(you)**
 
@@ -68,7 +65,8 @@ Setup steps: `SETUP-ACCOUNTS.md`.
 - [x] Newsletter and album pre-save connected to MailerLite (double opt-in, separate groups)
 - [x] Thank-you page after confirming (`/confirmed`, pre-save version `/confirmed?list=presave`), set as MailerLite's thank-you page for both forms
 - [x] Confirmation email designs for newsletter and pre-save (`brand/email/`)
-- [x] Privacy policy and legal notice (drafts with blanks)
+- [x] Privacy policy filled in (address, info@ as label email, privacy@ for privacy requests, GitHub Pages hosting, demos deleted after the decision, order files deleted when the order closes)
+- [x] Legal notice (draft with blanks)
 - [x] 404 page, link previews, sitemap.xml, robots.txt
 - [x] Daily Spotify sync running (04:17 UTC): 29 releases matched Spotify on the first run
 - [x] Published on GitHub Pages from github.com/hyardrecordsrep/hyard-records-website; every push republishes
