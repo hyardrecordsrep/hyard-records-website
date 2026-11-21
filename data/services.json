@@ -7,12 +7,12 @@
       "name": "Production",
       "summary": "We build your track with you, from an idea, a loop or a rough demo to a finished arrangement ready for mixing.",
       "includes": ["Sound design and arrangement", "Drum programming and groove", "Session with the producer, online or in person", "Project file and stems on request"],
-      "turnaround": "2 to 4 weeks per track",
+      "turnaround": "1 week per track",
       "revisions": "2 rounds of changes",
-      "pricePerTrack": null,
+      "pricePerTrack": 300,
       "packages": [
-        { "id": "ep", "name": "EP", "tracks": 4, "price": null },
-        { "id": "album", "name": "Album", "tracks": 10, "price": null }
+        { "id": "ep", "name": "EP", "tracks": 4, "price": 1100 },
+        { "id": "album", "name": "Album", "tracks": 10, "price": 2600 }
       ],
       "active": true
     },
@@ -22,12 +22,12 @@
       "name": "Mixing",
       "summary": "A club-ready mix of your stems: punchy low end, clear mids and space for every element.",
       "includes": ["Balance, EQ and compression", "Low-end and kick-bass work", "Effects, space and automation", "Club and streaming checks"],
-      "turnaround": "5 to 7 working days per track",
+      "turnaround": "1 week per track",
       "revisions": "2 rounds of changes",
-      "pricePerTrack": null,
+      "pricePerTrack": 110,
       "packages": [
-        { "id": "ep", "name": "EP", "tracks": 4, "price": null },
-        { "id": "album", "name": "Album", "tracks": 10, "price": null }
+        { "id": "ep", "name": "EP", "tracks": 4, "price": 400 },
+        { "id": "album", "name": "Album", "tracks": 10, "price": 950 }
       ],
       "active": true
     },
@@ -37,12 +37,12 @@
       "name": "Mastering",
       "summary": "Loud, clean and consistent masters for streaming, DJ sets and vinyl.",
       "includes": ["Streaming master (WAV 24-bit)", "Club master", "Loudness matched to your references", "Final MP3 and WAV files"],
-      "turnaround": "2 to 3 working days per track",
+      "turnaround": "1 week per track",
       "revisions": "2 rounds of changes",
-      "pricePerTrack": null,
+      "pricePerTrack": 35,
       "packages": [
-        { "id": "ep", "name": "EP", "tracks": 4, "price": null },
-        { "id": "album", "name": "Album", "tracks": 10, "price": null }
+        { "id": "ep", "name": "EP", "tracks": 4, "price": 120 },
+        { "id": "album", "name": "Album", "tracks": 10, "price": 280 }
       ],
       "active": true
     },
@@ -52,12 +52,12 @@
       "name": "Production, mixing and mastering",
       "summary": "All three in one: we take your track from the first idea to the final master, at a better price than booking them apart.",
       "includes": ["Everything in production, mixing and mastering", "One producer from start to finish", "Release-ready files", "Priority in the queue"],
-      "turnaround": "3 to 6 weeks per track",
+      "turnaround": "1 week per track",
       "revisions": "2 rounds of changes per stage",
-      "pricePerTrack": null,
+      "pricePerTrack": 400,
       "packages": [
-        { "id": "ep", "name": "EP", "tracks": 4, "price": null },
-        { "id": "album", "name": "Album", "tracks": 10, "price": null }
+        { "id": "ep", "name": "EP", "tracks": 4, "price": 1450 },
+        { "id": "album", "name": "Album", "tracks": 10, "price": 3400 }
       ],
       "active": true
     }
