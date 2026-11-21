@@ -43,12 +43,12 @@ Setup steps: `SETUP-ACCOUNTS.md`.
 ## 4. Later
 
 - [ ] **Open the merch store** when products are ready; the menu already shows "Merch · Coming soon" **(you + me)**
-- [ ] **Croatian artist bios** (optional): bios stay in English for now **(you + me)**
 
 ---
 
 ## Done
 
+- [x] Artist and label bios in Croatian when the site is switched to HR (artist pages and press kit)
 - [x] Service prices entered (mastering from €35, mixing from €110, production from €300, all three from €400), 1 week per track, 2 revision rounds
 - [x] Brand guide and brand board (`brand/`); Archivo confirmed as the display font
 - [x] Animated home page: logo intro that fades into the latest release banner, marquee, slide-in animations
