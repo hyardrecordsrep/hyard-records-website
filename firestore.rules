@@ -66,6 +66,13 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // News posts: published ones (and "deleted" markers that hide a starter post) are public,
+    // drafts only for the label. Only the label writes them.
+    match /posts/{id} {
+      allow read: if resource.data.status in ['published', 'deleted'] || isAdmin();
+      allow write: if isAdmin();
+    }
+
     // Carts: private to each artist. Prices are never stored here, the server works them out.
     match /carts/{uid} {
       allow read, delete: if isUser(uid);

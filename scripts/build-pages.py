@@ -90,9 +90,10 @@ for a in artists:
     open(artist_file(a), 'w').write(page)
 
 # Sitemap
-static = ['', 'about', 'artists', 'events', 'releases', 'contact', 'get-in-touch', 'press', 'privacy', 'legal', 'terms']
+static = ['', 'about', 'news', 'artists', 'events', 'releases', 'contact', 'get-in-touch', 'press', 'privacy', 'legal', 'terms']
 today = date.today().isoformat()
-urls = [f'{SITE}/{p}' for p in static] + [f'{SITE}/{url_of(artist_file(a))}' for a in artists] + [f'{SITE}/{url_of(release_file(r))}' for r in releases]
+news_posts = [p for p in json.load(open('data/news.json')).get('posts', []) if p.get('status', 'published') == 'published']
+urls = [f'{SITE}/{p}' for p in static] + [f"{SITE}/post?p={p['id']}" for p in news_posts] + [f'{SITE}/{url_of(artist_file(a))}' for a in artists] + [f'{SITE}/{url_of(release_file(r))}' for r in releases]
 open('sitemap.xml', 'w').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                + ''.join(f'  <url><loc>{u}</loc><lastmod>{today}</lastmod></url>\n' for u in urls) + '</urlset>\n')
 print(f'{len(releases)} release pages, {len(artists)} artist pages, sitemap with {len(urls)} URLs')

@@ -1,5 +1,5 @@
 // Label-only admin: sales overview, review demos, move orders along, upload finished files, edit services,
-// products and prices, add events.
+// products and prices, add events and write news posts.
 // Access comes from the "admin" flag on the account, given by the claimAdmin server function to the
 // emails in functions/.env (ADMIN_EMAILS). The database rules check the same flag.
 (() => {
@@ -9,7 +9,7 @@
   const pill = (t, k) => `<span class="pill mono${k ? ` pill-${k}` : ''}">${esc(t)}</span>`;
   const shortId = (id) => `HYO-${String(id).slice(0, 6).toUpperCase()}`;
 
-  const TABS = ['a-overview', 'a-demos', 'a-orders', 'a-services', 'a-products', 'a-events'];
+  const TABS = ['a-overview', 'a-demos', 'a-orders', 'a-services', 'a-products', 'a-events', 'a-news'];
   const showTab = () => {
     const name = TABS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'a-overview';
     document.querySelectorAll('[data-panel]').forEach((p) => { p.hidden = p.id !== name; });
@@ -531,6 +531,29 @@
     const DEFAULT_CATS = ['Drum kits', 'Sample packs', 'Presets', 'MIDI packs', 'Loops'];
     let products = [];
     let pend = {}; // files picked in the form: { image, preview, file } or { removeImage: true, removePreview: true }
+    let gal = []; // extra pictures in the form: { path, url } already saved, or { file, url } picked now
+    let galRemoved = []; // storage paths of saved extra pictures removed in the form
+    const GALLERY_MAX = 8;
+    const galHtml = () => gal.map((g, i) => `
+      <li class="gal-edit-item">
+        <img src="${esc(g.url)}" alt="">
+        <div class="gal-edit-tools">
+          <button type="button" class="link-btn mono" data-gal-move="${i}" data-dir="-1"${i === 0 ? ' disabled' : ''} aria-label="Move picture ${i + 1} left">←</button>
+          <button type="button" class="link-btn mono" data-gal-move="${i}" data-dir="1"${i === gal.length - 1 ? ' disabled' : ''} aria-label="Move picture ${i + 1} right">→</button>
+          <button type="button" class="link-btn mono" data-gal-rm="${i}">Remove</button>
+        </div>
+      </li>`).join('');
+    const renderGal = () => {
+      const list = pEditor.querySelector('[data-gal]');
+      if (!list) return;
+      list.innerHTML = galHtml();
+      pEditor.querySelector('[data-gal-add]').hidden = gal.length >= GALLERY_MAX;
+      pEditor.querySelector('[data-gal-count]').textContent = `${gal.length} of ${GALLERY_MAX}`;
+    };
+    const picCount = (p) => {
+      const n = (p.image && p.image.url ? 1 : 0) + (p.gallery || []).length;
+      return n === 1 ? '1 picture' : `${n} pictures`;
+    };
     const prodCard = (p) => `
       <article class="prod prod-admin${p.active === false ? ' is-off' : ''}" data-prod="${esc(p.id)}" tabindex="0" role="button" aria-label="Edit ${esc(p.title)}">
         <div class="ev-pic prod-pic">${p.image && p.image.url ? `<img src="${esc(p.image.url)}" alt="" loading="lazy">` : '<svg aria-hidden="true"><use href="#globe"/></svg><span class="mono muted">No picture yet</span>'}</div>
@@ -538,7 +561,7 @@
           <div class="svc-admin-head">${p.category ? `<span class="mono muted prod-cat">${esc(p.category)}</span>` : '<span></span>'}${p.active === false ? pill('Hidden', 'off') : ''}</div>
           <h3 class="display prod-title">${esc(p.title)}</h3>
           ${p.description ? `<p class="prod-desc">${esc(p.description)}</p>` : ''}
-          <p class="mono muted">${esc([p.file && p.file.name ? `${p.file.name} · ${H.bytes(p.file.size || 0)}` : 'No file yet', p.preview && p.preview.url ? 'Preview' : 'No preview'].join(' · '))}</p>
+          <p class="mono muted">${esc([p.file && p.file.name ? `${p.file.name} · ${H.bytes(p.file.size || 0)}` : 'No file yet', p.preview && p.preview.url ? 'Preview' : 'No preview', picCount(p)].join(' · '))}</p>
           <div class="prod-foot"><span class="display prod-price">${esc(priced(p.price))}</span><span class="mono svc-admin-edit">Edit <svg aria-hidden="true"><use href="#i-arrow"/></svg></span></div>
         </div>
       </article>`;
@@ -576,6 +599,14 @@
             </div>
           </div>
           <div class="field">
+            <span class="field-label mono">More pictures <em class="muted">Shown in the gallery on the product page, after the main image. Up to 8, JPG, PNG or WebP under 8 MB each.</em></span>
+            <ul class="gal-edit" data-gal></ul>
+            <div class="quick">
+              <label class="more file-btn" data-gal-add>Add pictures<input type="file" accept="image/jpeg,image/png,image/webp" multiple data-gal-pick hidden></label>
+              <span class="mono muted" data-gal-count></span>
+            </div>
+          </div>
+          <div class="field">
             <span class="field-label mono">MP3 preview <em class="muted">A short demo artists can play before buying. MP3, up to 20 MB.</em></span>
             <div class="quick prod-file">
               <audio controls preload="none" data-audio${p.preview && p.preview.url ? ` src="${esc(p.preview.url)}"` : ' hidden'}></audio>
@@ -591,6 +622,7 @@
         <div class="quick">
           <button class="more" type="submit">${isNew ? 'Add product' : 'Save changes'}</button>
           <button type="button" class="link-btn mono" data-back>Cancel</button>
+          ${isNew ? '' : `<a class="link-btn mono" href="product?p=${encodeURIComponent(p.id)}" target="_blank" rel="noopener">View page</a>`}
           ${isNew ? '' : '<button type="button" class="link-btn mono" data-delete-prod>Delete product</button>'}
         </div>
         <p class="form-status mono muted" aria-live="polite"></p>
@@ -604,9 +636,12 @@
     };
     const openProd = (p, isNew) => {
       pend = {};
+      gal = (p.gallery || []).filter((g) => g && g.url).map((g) => ({ ...g }));
+      galRemoved = [];
       pGrid.hidden = true;
       pEditor.hidden = false;
       pEditor.innerHTML = prodForm(p, isNew);
+      renderGal();
       pStatus.textContent = '';
       const top = $('a-products').getBoundingClientRect().top + window.scrollY - 110;
       if (window.scrollY > top) window.scrollTo({ top });
@@ -632,6 +667,18 @@
       file: { types: /.*/, max: 2 * 1024 * 1024 * 1024, bad: 'The product file must be under 2 GB.' },
     };
     pEditor.addEventListener('change', (e) => {
+      const gp = e.target.closest('[data-gal-pick]');
+      if (gp) {
+        const out = pEditor.querySelector('.form-status');
+        const files = [...gp.files];
+        gp.value = '';
+        const bad = files.filter((f) => !LIMITS.image.types.test(f.type) || f.size > LIMITS.image.max);
+        const good = files.filter((f) => !bad.includes(f)).slice(0, GALLERY_MAX - gal.length);
+        good.forEach((f) => gal.push({ file: f, url: URL.createObjectURL(f) }));
+        out.textContent = bad.length ? LIMITS.image.bad : files.length > good.length ? `Only ${GALLERY_MAX} extra pictures fit.` : '';
+        renderGal();
+        return;
+      }
       const inp = e.target.closest('[data-pick]');
       if (!inp || !inp.files[0]) return;
       const key = inp.dataset.pick;
@@ -659,6 +706,21 @@
     });
     pEditor.addEventListener('click', async (e) => {
       if (e.target.closest('[data-back]')) { showProdGrid(); return; }
+      const mv = e.target.closest('[data-gal-move]');
+      if (mv) {
+        const i = Number(mv.dataset.galMove);
+        const j = i + Number(mv.dataset.dir);
+        if (j >= 0 && j < gal.length) [gal[i], gal[j]] = [gal[j], gal[i]];
+        renderGal();
+        return;
+      }
+      const rm = e.target.closest('[data-gal-rm]');
+      if (rm) {
+        const [g] = gal.splice(Number(rm.dataset.galRm), 1);
+        if (g && g.path) galRemoved.push(g.path);
+        renderGal();
+        return;
+      }
       const un = e.target.closest('[data-unpick]');
       if (un) {
         const key = un.dataset.unpick;
@@ -678,7 +740,7 @@
         const p = products.find((x) => x.id === f.dataset.id);
         if (!window.confirm(`Delete "${p.title}" and its files? People who already bought it can't download it any more. To hide it from the shop instead, untick "Show this product to artists".`)) return;
         try {
-          await Promise.all([p.image, p.preview, p.file].filter((x) => x && x.path).map((x) => S.deleteObject(S.ref(storage, x.path)).catch(() => {})));
+          await Promise.all([p.image, p.preview, p.file, ...(p.gallery || [])].filter((x) => x && x.path).map((x) => S.deleteObject(S.ref(storage, x.path)).catch(() => {})));
           await F.deleteDoc(F.doc(db, 'products', p.id));
           await loadProducts(`${p.title} deleted.`);
         } catch (err) { f.querySelector('.form-status').textContent = H.message(err); }
@@ -702,7 +764,8 @@
       try {
         const kept = { image: old.image || null, preview: old.preview || null, file: old.file || null };
         const uploads = ['image', 'preview', 'file'].filter((k) => pend[k]);
-        const totalBytes = uploads.reduce((n, k) => n + pend[k].size, 0) || 1;
+        const galNew = gal.filter((g) => g.file);
+        const totalBytes = uploads.reduce((n, k) => n + pend[k].size, 0) + galNew.reduce((n, g) => n + g.file.size, 0) || 1;
         let doneBytes = 0;
         for (const k of ['image', 'preview', 'file']) {
           if ((pend[k] || pend[`remove_${k}`]) && kept[k] && kept[k].path) {
@@ -726,6 +789,20 @@
             ? { path, name: file.name, size: file.size }
             : { path, url: await S.getDownloadURL(S.ref(storage, path)) };
         }
+        const gallery = [];
+        for (const g of gal) {
+          if (!g.file) { gallery.push({ path: g.path, url: g.url }); continue; }
+          const path = `products/${ref.id}/public/${Date.now()}-${g.file.name.replace(/[^\w.-]+/g, '_').slice(-80)}`;
+          bar.hidden = false;
+          out.textContent = `Uploading picture ${gallery.length + 1} of ${gal.length}…`;
+          await new Promise((resolve, reject) => {
+            const task = S.uploadBytesResumable(S.ref(storage, path), g.file, { contentType: g.file.type });
+            task.on('state_changed', (s) => { bar.firstElementChild.style.width = `${Math.round(((doneBytes + s.bytesTransferred) / totalBytes) * 100)}%`; }, reject, resolve);
+          });
+          doneBytes += g.file.size;
+          gallery.push({ path, url: await S.getDownloadURL(S.ref(storage, path)) });
+        }
+        await Promise.all(galRemoved.map((x) => S.deleteObject(S.ref(storage, x)).catch(() => {})));
         bar.hidden = true;
         await F.setDoc(ref, {
           title,
@@ -734,6 +811,7 @@
           order: Number(el.order.value) || 0,
           description: el.description.value.trim(),
           image: kept.image,
+          gallery,
           preview: kept.preview,
           file: kept.file,
           active: el.active.checked,
@@ -940,6 +1018,418 @@
         });
         await loadEvents(f.dataset.id ? `${title} saved. It shows on the Events page straight away.` : `${title} added. It shows on the Events page straight away.`);
       } catch (err) {
+        out.textContent = err && err.code === 'storage/unauthorized' ? 'That picture couldn\'t be uploaded. Use a JPG, PNG or WebP under 8 MB.' : H.message(err);
+        btn.disabled = false;
+      }
+    });
+
+    // ---------- News ----------
+    // Posts live in the "posts" collection. data/news.json holds starter posts: saving one here writes
+    // your version to the database, and deleting one leaves a "deleted" marker so it stays hidden.
+    const N = window.HyardNews;
+    const nwGrid = $('nw-grid');
+    const nwEditor = $('nw-editor');
+    const nwStatus = $('nw-status');
+    let posts = [];
+    let starters = [];
+    let nwCover = null; // { file, url } picked now, or { remove: true }
+    let nwImages = []; // pictures in the text: { path, url }
+    let nwFolder = '';
+    let savedRange = null;
+    const POST_STATUS = { published: 'Published', draft: 'Draft' };
+    const coverHtml = (c) => (c && c.url ? `<img src="${esc(c.url)}" alt="">` : '<svg aria-hidden="true"><use href="#globe"/></svg><span class="mono muted">No cover yet</span>');
+    const nwCard = (p) => `
+      <article class="ev-card nw-card${p.status === 'draft' ? ' is-past' : ''}" data-post="${esc(p.id)}" tabindex="0" role="button" aria-label="Edit ${esc(p.title)}">
+        <div class="ev-pic">${coverHtml(p.cover)}</div>
+        <div class="ev-card-body">
+          <p class="mono muted">${esc(N.fmt(p.date))}</p>
+          <h3 class="display ev-card-title">${esc(p.title)}</h3>
+          <p class="mono muted nw-card-text">${esc(N.summary(p, 120))}</p>
+          <div class="ev-card-foot"><span class="nw-pills">${p.pinned ? pill('Featured', 'on') : ''}${pill(POST_STATUS[p.status] || 'Published', p.status === 'draft' ? 'off' : '')}</span><span class="mono svc-admin-edit">Edit <svg aria-hidden="true"><use href="#i-arrow"/></svg></span></div>
+        </div>
+      </article>`;
+    const nwAdd = '<button type="button" class="ev-card ev-new" data-new-post><span class="display">+</span><span class="mono">Add a post</span></button>';
+    const TOOLS = [
+      ['h2', 'Heading', 'H'], ['h3', 'Subheading', 'h'], ['p', 'Paragraph', '¶'], ['bold', 'Bold', 'B'], ['italic', 'Italic', 'I'],
+      ['quote', 'Quote', '“'], ['ul', 'Bulleted list', '•'], ['ol', 'Numbered list', '1.'], ['hr', 'Divider', '—'],
+      ['link', 'Link', 'Link'], ['page', 'Link to a Hyard page', 'Hyard page'], ['unlink', 'Remove link', 'Unlink'], ['image', 'Picture', 'Picture'],
+    ];
+    const nwForm = (p, isNew) => `
+      <form class="form ev-edit nw-edit" data-id="${esc(p.id || '')}" novalidate>
+        <button type="button" class="link-btn mono svc-back" data-back>← All posts</button>
+        <fieldset>
+          <legend class="display svc-edit-title">${isNew ? 'New post' : esc(p.title)}</legend>
+          <label class="field"><span class="field-label mono">Title</span><input type="text" name="title" value="${esc(p.title || '')}" required maxlength="140" placeholder="New single out now"></label>
+          <div class="field-row">
+            <label class="field"><span class="field-label mono">Date</span><input type="date" name="date" value="${esc(p.date || todayIso)}" required></label>
+            <label class="field"><span class="field-label mono">Status</span><select name="status">${Object.entries(POST_STATUS).map(([k, v]) => `<option value="${k}"${(p.status || 'published') === k ? ' selected' : ''}>${esc(v)}</option>`).join('')}</select></label>
+          </div>
+          <label class="field"><span class="field-label mono">Short summary <em class="muted">Shown on the cards and under the title. Optional: without it, the start of the text is used.</em></span><textarea name="excerpt" rows="2" maxlength="300">${esc(p.excerpt || '')}</textarea></label>
+          <div class="field">
+            <span class="field-label mono">Cover picture <em class="muted">JPG, PNG or WebP, up to 8 MB. Landscape or square works best.</em></span>
+            <div class="ev-pic-edit">
+              <div class="ev-pic" data-pic-preview>${coverHtml(p.cover)}</div>
+              <div class="quick">
+                <label class="more file-btn">${p.cover && p.cover.url ? 'Change cover' : 'Upload cover'}<input type="file" accept="image/jpeg,image/png,image/webp" data-cover hidden></label>
+                <button type="button" class="link-btn mono" data-rm-cover${p.cover && p.cover.url ? '' : ' hidden'}>Remove cover</button>
+              </div>
+              <label class="field"><span class="field-label mono">Cover description <em class="muted">For screen readers: what's in the picture</em></span><input type="text" name="coverAlt" value="${esc((p.cover && p.cover.alt) || '')}" maxlength="200"></label>
+            </div>
+          </div>
+          <div class="field">
+            <span class="field-label mono">Content</span>
+            <div class="rte">
+              <div class="rte-bar" role="toolbar" aria-label="Formatting">${TOOLS.map(([k, label, txt]) => `<button type="button" class="rte-btn mono${k === 'bold' ? ' is-b' : k === 'italic' ? ' is-i' : ''}" data-cmd="${k}" title="${esc(label)}" aria-label="${esc(label)}">${esc(txt)}</button>`).join('')}</div>
+              <div class="rte-pop" data-pop="link" hidden>
+                <label class="field"><span class="field-label mono">Link address <em class="muted">https://… or a hyardrecords.com address</em></span><input type="url" data-link-url placeholder="https://"></label>
+                <label class="field"><span class="field-label mono">Link text <em class="muted">Only when no text is selected</em></span><input type="text" data-link-text maxlength="200"></label>
+                <div class="quick"><button type="button" class="more" data-link-ok>Add link</button><button type="button" class="link-btn mono" data-pop-close>Cancel</button></div>
+              </div>
+              <div class="rte-pop" data-pop="page" hidden>
+                <label class="field"><span class="field-label mono">Link to a Hyard page <em class="muted">Pages, releases, artists, events, products and posts</em></span><input type="search" data-page-q placeholder="Search, e.g. Mass Hypnosis" autocomplete="off"></label>
+                <ul class="rte-pages" data-page-list role="listbox" aria-label="Hyard pages"></ul>
+                <div class="quick"><button type="button" class="link-btn mono" data-pop-close>Cancel</button></div>
+              </div>
+              <div class="rte-area post-body" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Post content" data-rte>${N.clean(p.body || '') || '<p><br></p>'}</div>
+              <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" data-rte-pic hidden>
+              <div class="rte-foot mono muted"><span data-words></span><span>Select text, then press Link or Hyard page to link it.</span></div>
+            </div>
+          </div>
+          <label class="check"><input type="checkbox" name="pinned"${p.pinned ? ' checked' : ''}><span class="check-box" aria-hidden="true"></span><span class="mono">Featured: pin to the top of the News page and the home page (only one post can be featured)</span></label>
+          <label class="check"><input type="checkbox" name="presave"${p.presave ? ' checked' : ''}><span class="check-box" aria-hidden="true"></span><span class="mono">Show the Pre-save button for Beginning and The End</span></label>
+        </fieldset>
+        <span class="drop-progress upload-bar" hidden aria-hidden="true"><span></span></span>
+        <div class="quick">
+          <button class="more" type="submit">${isNew ? 'Add post' : 'Save changes'}</button>
+          <button type="button" class="link-btn mono" data-back>Cancel</button>
+          ${isNew ? '' : `<a class="link-btn mono" href="post?p=${encodeURIComponent(p.id)}" target="_blank" rel="noopener">Preview</a>`}
+          ${isNew ? '' : '<button type="button" class="link-btn mono" data-delete-post>Delete post</button>'}
+        </div>
+        <p class="form-status mono muted" aria-live="polite"></p>
+      </form>`;
+
+    // Pages on the site the editor can link to
+    let pageIndex = [
+      ['Home', './', 'Page'], ['About the label', 'about', 'Page'], ['Artists', 'artists', 'Page'], ['Events', 'events', 'Page'],
+      ['News', 'news', 'Page'], ['Search releases', 'releases', 'Page'], ['Send your demo', 'contact', 'Page'], ['Contact', 'get-in-touch', 'Page'],
+      ['Press kit', 'press', 'Page'], ['Services', 'dashboard#services', 'Page'], ['Products', 'dashboard#products', 'Page'],
+      ['Log in / Sign up', 'account', 'Page'], ['Terms of service', 'terms', 'Page'], ['Privacy policy', 'privacy', 'Page'],
+    ].map(([name, href, kind]) => ({ name, href, kind }));
+    const extraPages = Promise.all([
+      fetch('data/releases.json', { cache: 'no-cache' }).then((r) => r.json()).catch(() => ({})),
+      fetch('data/artists.json', { cache: 'no-cache' }).then((r) => r.json()).catch(() => ({})),
+    ]).then(([rel, art]) => {
+      const names = (r) => (r.artists || []).map((a) => (typeof a === 'string' ? a : a.name)).filter(Boolean).join(', ');
+      pageIndex = pageIndex
+        .concat((art.artists || []).map((a) => ({ name: a.name, href: `artist-${a.slug}`, kind: 'Artist' })))
+        .concat((rel.releases || []).map((r) => ({ name: r.title, sub: [names(r), r.catalog].filter(Boolean).join(' · '), href: `release-${String(r.catalog).toLowerCase()}`, kind: 'Release' })));
+    });
+    const allPages = () => pageIndex
+      .concat(events.map((e) => ({ name: e.title, sub: e.date, href: 'events', kind: 'Event' })))
+      .concat(products.filter((x) => x.active !== false).map((x) => ({ name: x.title, sub: x.category, href: `product?p=${encodeURIComponent(x.id)}`, kind: 'Product' })))
+      .concat(posts.map((x) => ({ name: x.title, sub: x.date, href: N.url(x), kind: 'Post' })));
+
+    const updateWords = () => {
+      const area = nwEditor.querySelector('[data-rte]');
+      const n = N.text(area.innerHTML).split(' ').filter(Boolean).length;
+      nwEditor.querySelector('[data-words]').textContent = `${n} ${n === 1 ? 'word' : 'words'}`;
+    };
+    const showNwGrid = (msg) => {
+      nwEditor.hidden = true;
+      nwEditor.innerHTML = '';
+      nwGrid.hidden = false;
+      nwGrid.innerHTML = nwAdd + N.order(posts).map(nwCard).join('');
+      nwStatus.textContent = msg || '';
+    };
+    const openPost = (p, isNew) => {
+      nwCover = null;
+      nwImages = (p.images || []).slice();
+      nwFolder = p.folder || F.doc(F.collection(db, 'posts')).id;
+      savedRange = null;
+      nwGrid.hidden = true;
+      nwEditor.hidden = false;
+      nwEditor.innerHTML = nwForm(p, isNew);
+      nwStatus.textContent = '';
+      updateWords();
+      const top = $('a-news').getBoundingClientRect().top + window.scrollY - 110;
+      if (window.scrollY > top) window.scrollTo({ top });
+      nwEditor.querySelector('[name="title"]').focus({ preventScroll: true });
+    };
+    const loadPosts = async (msg) => {
+      if (!starters.length) starters = await N.starter();
+      const snap = await F.getDocs(F.collection(db, 'posts'));
+      const live = snap.docs.map((d) => ({ ...d.data(), id: d.id }));
+      const byId = new Map(starters.map((x) => [x.id, { ...x, starter: true }]));
+      live.forEach((x) => byId.set(x.id, x));
+      posts = [...byId.values()].filter((x) => x.status !== 'deleted');
+      $('adm-count-news').textContent = posts.filter((x) => x.status === 'draft').length || '';
+      showNwGrid(msg);
+    };
+    loadPosts().catch((err) => { nwStatus.textContent = H.message(err); });
+
+    const pickPost = (e) => {
+      if (e.target.closest('[data-new-post]')) { openPost({ status: 'published', date: todayIso }, true); return; }
+      const card = e.target.closest('[data-post]');
+      if (card) openPost(posts.find((x) => x.id === card.dataset.post), false);
+    };
+    nwGrid.addEventListener('click', pickPost);
+    nwGrid.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-post]')) { e.preventDefault(); pickPost(e); } });
+
+    // ---------- Editor ----------
+    const area = () => nwEditor.querySelector('[data-rte]');
+    const keepRange = () => {
+      const sel = window.getSelection();
+      if (sel.rangeCount && area() && area().contains(sel.getRangeAt(0).commonAncestorContainer)) savedRange = sel.getRangeAt(0).cloneRange();
+    };
+    const restoreRange = () => {
+      area().focus({ preventScroll: true });
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      if (savedRange) sel.addRange(savedRange);
+      else { const r = document.createRange(); r.selectNodeContents(area()); r.collapse(false); sel.addRange(r); }
+    };
+    const exec = (cmd, value) => { restoreRange(); document.execCommand(cmd, false, value); keepRange(); updateWords(); };
+    const closePops = () => nwEditor.querySelectorAll('.rte-pop').forEach((x) => { x.hidden = true; });
+    const openPop = (name) => {
+      closePops();
+      const pop = nwEditor.querySelector(`[data-pop="${name}"]`);
+      pop.hidden = false;
+      return pop;
+    };
+    const selectedText = () => (savedRange ? savedRange.toString() : '');
+    const insertLink = (href, text) => {
+      const clean = N.safeHref(href);
+      if (!clean) return false;
+      restoreRange();
+      const sel = window.getSelection();
+      if (sel.rangeCount && !sel.isCollapsed) {
+        document.execCommand('createLink', false, clean);
+      } else {
+        document.execCommand('insertHTML', false, `<a href="${esc(clean)}">${esc(text || clean)}</a>&nbsp;`);
+      }
+      keepRange();
+      updateWords();
+      return true;
+    };
+    const renderPages = (q) => {
+      const words = String(q || '').toLowerCase().split(/\s+/).filter(Boolean);
+      const list = allPages().filter((x) => words.every((w) => `${x.name} ${x.sub || ''} ${x.kind}`.toLowerCase().includes(w))).slice(0, 40);
+      nwEditor.querySelector('[data-page-list]').innerHTML = list.length
+        ? list.map((x) => `<li><button type="button" class="rte-page" data-href="${esc(x.href)}" data-name="${esc(x.name)}"><span class="mono muted">${esc(x.kind)}</span><span class="rte-page-name">${esc(x.name)}</span>${x.sub ? `<span class="mono muted">${esc(x.sub)}</span>` : ''}</button></li>`).join('')
+        : '<li class="mono muted rte-none">Nothing matches.</li>';
+    };
+
+    nwEditor.addEventListener('mousedown', (e) => { if (e.target.closest('.rte-btn')) e.preventDefault(); });
+    document.addEventListener('selectionchange', () => { if (!nwEditor.hidden && area()) keepRange(); });
+    nwEditor.addEventListener('input', (e) => { if (e.target.closest('[data-rte]')) updateWords(); if (e.target.matches('[data-page-q]')) renderPages(e.target.value); });
+    nwEditor.addEventListener('keydown', (e) => {
+      if (e.target.matches('[data-link-url], [data-link-text]') && e.key === 'Enter') { e.preventDefault(); nwEditor.querySelector('[data-link-ok]').click(); }
+      if (e.target.matches('[data-page-q]') && e.key === 'Enter') { e.preventDefault(); const first = nwEditor.querySelector('.rte-page'); if (first) first.click(); }
+      if (e.key === 'Escape' && e.target.closest('.rte-pop')) { closePops(); restoreRange(); }
+    });
+    // Pasted text keeps only the basic formatting the site shows
+    nwEditor.addEventListener('paste', (e) => {
+      if (!e.target.closest('[data-rte]')) return;
+      e.preventDefault();
+      const html = e.clipboardData.getData('text/html');
+      const text = e.clipboardData.getData('text/plain');
+      const out = html ? N.clean(html) : text.split(/\n\s*\n/).map((t) => `<p>${esc(t).replace(/\n/g, '<br>')}</p>`).join('');
+      document.execCommand('insertHTML', false, out);
+      updateWords();
+    });
+
+    const uploadImage = async (file, folderPath, bar, out) => {
+      const path = `${folderPath}/${Date.now()}-${file.name.replace(/[^\w.-]+/g, '_').slice(-60)}`;
+      bar.hidden = false;
+      await new Promise((resolve, reject) => {
+        const task = S.uploadBytesResumable(S.ref(storage, path), file, { contentType: file.type });
+        task.on('state_changed', (s) => { bar.firstElementChild.style.width = `${Math.round((s.bytesTransferred / s.totalBytes) * 100)}%`; }, reject, resolve);
+      });
+      bar.hidden = true;
+      if (out) out.textContent = '';
+      return { path, url: await S.getDownloadURL(S.ref(storage, path)) };
+    };
+    const goodPic = (f) => /^image\/(jpeg|png|webp|gif)$/.test(f.type) && f.size <= 8 * 1024 * 1024;
+
+    nwEditor.addEventListener('change', async (e) => {
+      const out = nwEditor.querySelector('.form-status');
+      const cov = e.target.closest('[data-cover]');
+      if (cov && cov.files[0]) {
+        const f = cov.files[0];
+        if (!goodPic(f) || f.type === 'image/gif') { out.textContent = 'Use a JPG, PNG or WebP picture under 8 MB.'; cov.value = ''; return; }
+        out.textContent = '';
+        nwCover = { file: f };
+        const prev = nwEditor.querySelector('[data-pic-preview]');
+        prev.innerHTML = '<img alt="">';
+        prev.firstChild.src = URL.createObjectURL(f);
+        nwEditor.querySelector('[data-rm-cover]').hidden = false;
+        return;
+      }
+      const pic = e.target.closest('[data-rte-pic]');
+      if (pic && pic.files[0]) {
+        const f = pic.files[0];
+        pic.value = '';
+        if (!goodPic(f)) { out.textContent = 'Use a JPG, PNG, WebP or GIF picture under 8 MB.'; return; }
+        out.textContent = 'Uploading the picture…';
+        try {
+          const img = await uploadImage(f, `posts/${nwFolder}`, nwEditor.querySelector('.upload-bar'), out);
+          nwImages.push(img);
+          restoreRange();
+          document.execCommand('insertHTML', false, `<figure><img src="${esc(img.url)}" alt=""><figcaption>Caption (optional)</figcaption></figure><p><br></p>`);
+          keepRange();
+          out.textContent = 'Picture added. Click the caption under it to write one, or delete it.';
+        } catch (err) {
+          nwEditor.querySelector('.upload-bar').hidden = true;
+          out.textContent = err && err.code === 'storage/unauthorized' ? 'That picture couldn\'t be uploaded. Use a JPG, PNG, WebP or GIF under 8 MB.' : H.message(err);
+        }
+      }
+    });
+
+    nwEditor.addEventListener('click', async (e) => {
+      if (e.target.closest('[data-back]')) { showNwGrid(); return; }
+      const out = nwEditor.querySelector('.form-status');
+      const tool = e.target.closest('[data-cmd]');
+      if (tool) {
+        const k = tool.dataset.cmd;
+        const BLOCK = { h2: 'H2', h3: 'H3', p: 'P', quote: 'BLOCKQUOTE' };
+        if (BLOCK[k]) exec('formatBlock', BLOCK[k]);
+        else if (k === 'bold') exec('bold');
+        else if (k === 'italic') exec('italic');
+        else if (k === 'ul') exec('insertUnorderedList');
+        else if (k === 'ol') exec('insertOrderedList');
+        else if (k === 'hr') exec('insertHorizontalRule');
+        else if (k === 'unlink') exec('unlink');
+        else if (k === 'image') { keepRange(); nwEditor.querySelector('[data-rte-pic]').click(); }
+        else if (k === 'link') {
+          keepRange();
+          const pop = openPop('link');
+          const t = selectedText();
+          pop.querySelector('[data-link-text]').value = t;
+          pop.querySelector('[data-link-text]').closest('.field').hidden = !!t;
+          pop.querySelector('[data-link-url]').value = '';
+          pop.querySelector('[data-link-url]').focus();
+        } else if (k === 'page') {
+          keepRange();
+          const pop = openPop('page');
+          await extraPages;
+          pop.querySelector('[data-page-q]').value = '';
+          renderPages('');
+          pop.querySelector('[data-page-q]').focus();
+        }
+        return;
+      }
+      if (e.target.closest('[data-pop-close]')) { closePops(); restoreRange(); return; }
+      if (e.target.closest('[data-link-ok]')) {
+        const pop = nwEditor.querySelector('[data-pop="link"]');
+        const href = pop.querySelector('[data-link-url]').value.trim();
+        const t = pop.querySelector('[data-link-text]').value.trim();
+        if (!insertLink(/^[\w.-]+\.[a-z]{2,}(\/|$)/i.test(href) ? `https://${href}` : href, t)) { out.textContent = 'Enter a full link starting with https://'; return; }
+        out.textContent = '';
+        closePops();
+        return;
+      }
+      const page = e.target.closest('.rte-page');
+      if (page) {
+        insertLink(page.dataset.href, page.dataset.name);
+        closePops();
+        out.textContent = `Linked to ${page.dataset.name}.`;
+        return;
+      }
+      if (e.target.closest('[data-rm-cover]')) {
+        nwCover = { remove: true };
+        nwEditor.querySelector('[data-pic-preview]').innerHTML = coverHtml(null);
+        nwEditor.querySelector('[data-cover]').value = '';
+        e.target.closest('[data-rm-cover]').hidden = true;
+        return;
+      }
+      if (e.target.closest('[data-delete-post]')) {
+        const f = e.target.closest('form');
+        const p = posts.find((x) => x.id === f.dataset.id);
+        if (!window.confirm(`Delete "${p.title}"? It disappears from the News page and the home page. This can't be undone.`)) return;
+        try {
+          await Promise.all([p.cover, ...(p.images || [])].filter((x) => x && x.path).map((x) => S.deleteObject(S.ref(storage, x.path)).catch(() => {})));
+          if (starters.some((x) => x.id === p.id)) await F.setDoc(F.doc(db, 'posts', p.id), { status: 'deleted', title: p.title, date: p.date, updatedAt: F.serverTimestamp() });
+          else await F.deleteDoc(F.doc(db, 'posts', p.id));
+          await loadPosts(`${p.title} deleted.`);
+        } catch (err) { out.textContent = H.message(err); }
+      }
+    });
+
+    nwEditor.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      const el = f.elements;
+      const out = f.querySelector('.form-status');
+      const title = el.title.value.trim();
+      if (!title) { out.textContent = 'Give the post a title.'; el.title.focus(); return; }
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(el.date.value)) { out.textContent = 'Pick the date of the post.'; el.date.focus(); return; }
+      // Tidy the content: drop empty or untouched captions, use captions as picture descriptions
+      const box = document.createElement('div');
+      box.innerHTML = area().innerHTML;
+      box.querySelectorAll('figure').forEach((fig) => {
+        const cap = fig.querySelector('figcaption');
+        const img = fig.querySelector('img');
+        if (!img) { fig.remove(); return; }
+        if (cap && (!cap.textContent.trim() || cap.textContent.trim() === 'Caption (optional)')) cap.remove();
+        else if (cap && !img.getAttribute('alt')) img.setAttribute('alt', cap.textContent.trim());
+      });
+      const body = N.clean(box.innerHTML);
+      if (!N.text(body) && !/<img/i.test(body)) { out.textContent = 'Write something in the content first.'; area().focus(); return; }
+      const old = posts.find((x) => x.id === f.dataset.id) || {};
+      let id = f.dataset.id;
+      if (!id) {
+        const base = slug(title).slice(0, 60).replace(/-$/, '') || 'post';
+        id = base;
+        for (let n = 2; posts.some((x) => x.id === id) || starters.some((x) => x.id === id); n += 1) id = `${base}-${n}`;
+      }
+      const ref = F.doc(db, 'posts', id);
+      const btn = f.querySelector('[type="submit"]');
+      const bar = f.querySelector('.upload-bar');
+      btn.disabled = true;
+      try {
+        let cover = old.cover ? { ...old.cover } : null;
+        if (nwCover && (nwCover.remove || nwCover.file) && cover) {
+          if (cover.path) await S.deleteObject(S.ref(storage, cover.path)).catch(() => {});
+          cover = null;
+        }
+        if (nwCover && nwCover.file) {
+          out.textContent = 'Uploading the cover…';
+          cover = await uploadImage(nwCover.file, `posts/${nwFolder}`, bar, out);
+        }
+        if (cover) cover.alt = el.coverAlt.value.trim();
+        // Pictures taken out of the text are deleted from storage
+        const images = nwImages.filter((x) => body.includes(x.url));
+        await Promise.all(nwImages.filter((x) => !images.includes(x) && x.path).map((x) => S.deleteObject(S.ref(storage, x.path)).catch(() => {})));
+        const pinned = el.pinned.checked;
+        await F.setDoc(ref, {
+          title,
+          date: el.date.value,
+          status: el.status.value,
+          excerpt: el.excerpt.value.trim(),
+          cover,
+          body,
+          images,
+          folder: nwFolder,
+          pinned,
+          presave: el.presave.checked,
+          createdAt: old.createdAt || F.serverTimestamp(),
+          updatedAt: F.serverTimestamp(),
+        });
+        // Only one featured post: unpin the others
+        if (pinned) {
+          await Promise.all(posts.filter((x) => x.id !== id && x.pinned).map((x) => {
+            const r = F.doc(db, 'posts', x.id);
+            if (x.starter) {
+              const { starter, ...rest } = x;
+              return F.setDoc(r, { ...rest, pinned: false, updatedAt: F.serverTimestamp() });
+            }
+            return F.updateDoc(r, { pinned: false, updatedAt: F.serverTimestamp() });
+          }));
+        }
+        const where = el.status.value === 'draft' ? 'It\'s a draft, so only you can see it.' : 'It shows on the News page straight away.';
+        await loadPosts(`${title} ${f.dataset.id ? 'saved' : 'added'}. ${where}`);
+      } catch (err) {
+        bar.hidden = true;
         out.textContent = err && err.code === 'storage/unauthorized' ? 'That picture couldn\'t be uploaded. Use a JPG, PNG or WebP under 8 MB.' : H.message(err);
         btn.disabled = false;
       }

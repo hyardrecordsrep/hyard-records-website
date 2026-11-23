@@ -32,6 +32,8 @@ Setup steps: `SETUP-ACCOUNTS.md`.
 ## 3. Fans and community
 
 - [ ] **Add your first events** on the admin page (Admin → Events) **(you)**
+- [ ] **Deploy the database and storage rules for News** so posts written in admin can be read and their pictures uploaded: `firebase deploy --only firestore:rules,storage` **(you)**
+- [ ] **Write your first news posts** in Admin → News; the Beginning and The End post is already pinned as Featured **(you)**
 
 ## 4. Later
 
@@ -41,6 +43,9 @@ Setup steps: `SETUP-ACCOUNTS.md`.
 
 ## Done
 
+- [x] Product pages (/product?p=…, logged-in only): picture gallery with full-screen view, preview player, full description, file details and buy button; Admin → Products takes up to 8 extra pictures
+- [x] News: page in the menu, News block on the home page in place of the old Beginning and The End block, an article page for every post, Beginning and The End post pinned as Featured with the Pre-save button
+- [x] Admin → News: add, edit and delete posts with a visual editor (headings, bold, quotes, lists, pictures, outside links and a "Link to a Hyard page" picker), cover picture, date, drafts and Featured
 - [x] Terms of service: section 10, Digital products (delivery, licence, no reselling, withdrawal)
 - [x] Products shop: Products tab on the dashboard with category filter and MP3 previews; Admin → Products to add title, category, price, description, image, preview and file
 - [x] Paid products are emailed from product@hyardrecords.com (thank you, receipt, download links, 10 downloads each) only after Stripe confirms the payment; every sale is emailed to blurfnes@hyardrecords.com

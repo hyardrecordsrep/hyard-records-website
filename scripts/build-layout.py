@@ -15,11 +15,12 @@ PAGES = {  # page -> menu item marked as current
     'privacy.html': 'privacy.html', 'legal.html': 'legal.html', '404.html': None, 'confirmed.html': None,
     'account.html': 'account.html', 'dashboard.html': 'account.html', 'cart.html': 'cart.html', 'order-confirmed.html': 'cart.html',
     'payment-failed.html': 'cart.html', 'admin.html': None, 'terms.html': None,
+    'news.html': 'news.html', 'post.html': 'news.html', 'product.html': 'account.html',
 }
-MENU = [('about.html', 'About the label'), ('artists.html', 'Artists'), ('events.html', 'Events'), ('#merch', 'Merch'), ('contact.html', 'Send your demo'),
+MENU = [('about.html', 'About the label'), ('artists.html', 'Artists'), ('events.html', 'Events'), ('news.html', 'News'), ('#merch', 'Merch'), ('contact.html', 'Send your demo'),
         ('account.html', 'Log in / Sign up'), ('privacy.html', 'Privacy policy'), ('legal.html', 'Legal notice'), ('cart.html', 'Cart')]
 EXPLORE = [('index.html', 'Home'), ('index.html#releases', 'Latest releases'), ('index.html#radio', 'Radio'),
-           ('releases.html', 'Search releases'), ('artists.html', 'Artists'), ('events.html', 'Events')]
+           ('releases.html', 'Search releases'), ('artists.html', 'Artists'), ('events.html', 'Events'), ('news.html', 'News')]
 LABEL = [('about.html', 'About the label'), ('contact.html', 'Send your demo'), ('get-in-touch.html', 'Contact'), ('privacy.html', 'Privacy policy'),
          ('legal.html', 'Legal notice'), ('terms.html', 'Terms of service'), ('press.html', 'Press kit'), ('sitemap.xml', 'Sitemap')]
 ACCOUNT = [('account.html', 'Log in / Sign up'), ('dashboard.html#services', 'Services'), ('dashboard.html#submit', 'Submit a demo'), ('cart.html', 'Cart')]

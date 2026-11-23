@@ -418,12 +418,14 @@
       return `
       <article class="prod" data-prod="${esc(p.id)}">
         <div class="ev-pic prod-pic">${p.image && p.image.url ? `<img src="${esc(p.image.url)}" alt="" loading="lazy">` : '<svg aria-hidden="true"><use href="#globe"/></svg>'}
+          <a class="prod-link" href="product?p=${encodeURIComponent(p.id)}" tabindex="-1" aria-hidden="true"></a>
           ${p.preview && p.preview.url ? `<button type="button" class="prod-play" data-play aria-pressed="false"><span class="prod-play-icon" aria-hidden="true"></span><span class="prod-play-label">Play preview</span></button>` : ''}
         </div>
         <div class="prod-body">
           ${p.category ? `<span class="mono muted prod-cat">${esc(p.category)}</span>` : ''}
-          <h3 class="display prod-title">${esc(p.title)}</h3>
+          <h3 class="display prod-title"><a href="product?p=${encodeURIComponent(p.id)}">${esc(p.title)}</a></h3>
           ${p.description ? `<p class="prod-desc">${esc(p.description)}</p>` : ''}
+          <a class="mono prod-more" href="product?p=${encodeURIComponent(p.id)}">Details and pictures</a>
           <div class="prod-foot">
             <span class="display prod-price">${esc(priced ? H.euro(p.price) : 'Price coming soon')}</span>
             ${bought ? '<a class="more" href="#orders">Bought · Download</a>'

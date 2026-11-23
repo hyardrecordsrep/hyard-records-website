@@ -75,71 +75,20 @@
   });
 })();
 
-// Pre-save box for the featured album (not connected to a mailing service yet)
+// News block: the featured (pinned) post big on the left, the next latest posts beside it
 (() => {
-  const dialog = document.getElementById('presave');
-  const opener = document.querySelector('.presave-open');
-  if (!dialog || !opener || typeof dialog.showModal !== 'function') return;
-  const formView = dialog.querySelector('.presave-form-view');
-  const done = dialog.querySelector('.presave-done');
-  const form = dialog.querySelector('.presave-form');
-  const input = form.querySelector('input');
-  const status = form.querySelector('.news-status');
-
-  const reset = () => {
-    formView.hidden = false;
-    done.hidden = true;
-    form.classList.remove('has-error');
-    status.textContent = '';
-  };
-  const close = () => {
-    dialog.classList.add('is-closing');
-    setTimeout(() => { dialog.classList.remove('is-closing'); dialog.close(); }, 260);
-  };
-
-  opener.addEventListener('click', () => {
-    reset();
-    dialog.showModal();
-    input.focus();
-  });
-  dialog.addEventListener('click', (e) => {
-    if (e.target.closest('[data-close-presave]')) { close(); return; }
-    // Clicks on the dimmed backdrop land on the dialog element but outside its box
-    const r = dialog.getBoundingClientRect();
-    const outside = e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
-    if (e.target === dialog && outside && e.detail > 0) close();
-  });
-  dialog.addEventListener('cancel', (e) => { e.preventDefault(); close(); });
-  dialog.addEventListener('close', () => opener.focus());
-  input.addEventListener('input', () => { form.classList.remove('has-error'); status.textContent = ''; });
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const v = input.value.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
-      form.classList.add('has-error');
-      status.textContent = v ? 'Enter an email like you@gmail.com.' : 'Enter your email first.';
-      input.focus();
-      return;
-    }
-    const btn = form.querySelector('button[type=submit]');
-    btn.disabled = true;
-    status.textContent = 'Signing you up…';
-    // Goes to the MailerLite pre-save form set in data/site.json
-    const result = window.hyardSubscribe ? await window.hyardSubscribe(v, 'presave') : 'not-live';
-    btn.disabled = false;
-    if (result === 'error') {
-      form.classList.add('has-error');
-      status.textContent = 'Something went wrong. Try again in a moment.';
-      return;
-    }
-    status.textContent = '';
-    input.value = '';
-    done.querySelector('.presave-confirm').hidden = result !== 'sent';
-    formView.hidden = true;
-    done.hidden = false;
-    done.querySelector('.more').focus();
-  });
+  const N = window.HyardNews;
+  const box = document.getElementById('nw-home');
+  if (!N || !box) return;
+  N.presave(document.body);
+  N.load().then((posts) => {
+    if (!posts.length) { box.closest('section').hidden = true; return; }
+    const featured = posts.find((p) => p.pinned) || posts[0];
+    const side = posts.filter((p) => p !== featured).slice(0, 3);
+    box.classList.toggle('has-side', side.length > 0);
+    box.innerHTML = N.featureCard(featured) + (side.length ? `<div class="nw-side">${side.map((p, i) => N.miniCard(p, i)).join('')}</div>` : '');
+    if (window.hyardObserve) window.hyardObserve();
+  }).catch((err) => console.warn('News did not load', err));
 })();
 
 // Hero: logo intro first, then fade to the latest release from the catalog (kept fresh by the Spotify sync)

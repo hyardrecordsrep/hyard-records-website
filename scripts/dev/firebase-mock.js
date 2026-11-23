@@ -114,17 +114,26 @@ const snapOf = (c, id) => {
   const d = state.col[c]?.[id];
   return { id, exists: () => !!d, data: () => (d ? revive(JSON.parse(JSON.stringify(d))) : undefined) };
 };
+const matchIds = (q) => {
+  let ids = Object.keys(state.col[q.name] || {});
+  (q.parts || []).forEach((p) => {
+    if (!p.where) return;
+    const [k, v, op] = p.where;
+    ids = ids.filter((id) => { const x = state.col[q.name][id][k]; return op === 'in' ? v.includes(x) : x === v; });
+  });
+  return ids;
+};
 const F = {
   getFirestore: () => ({}), connectFirestoreEmulator() {},
   collection: (_db, name) => ({ type: 'col', name }),
   doc: (a, b, c) => (a && a.type === 'col' ? { type: 'doc', col: a.name, id: rid() } : { type: 'doc', col: b, id: c }),
-  where: (field, op, value) => ({ where: [field, value] }),
+  where: (field, op, value) => ({ where: [field, value, op] }),
   orderBy: (field, dir) => ({ orderBy: [field, dir] }),
   query: (col, ...parts) => ({ ...col, parts }),
   serverTimestamp: () => SERVER_TS,
   arrayUnion: ARRAY_UNION,
   async getDoc(ref) { return snapOf(ref.col, ref.id); },
-  async getDocs(q) { const ids = Object.keys(state.col[q.name] || {}); return { docs: ids.map((id) => snapOf(q.name, id)), empty: !ids.length }; },
+  async getDocs(q) { const ids = matchIds(q); return { docs: ids.map((id) => snapOf(q.name, id)), empty: !ids.length }; },
   async setDoc(ref, data, opt) {
     state.col[ref.col] = state.col[ref.col] || {};
     const old = opt && opt.merge ? state.col[ref.col][ref.id] || {} : {};
@@ -135,8 +144,7 @@ const F = {
   onSnapshot(ref, next) {
     const run = () => {
       if (ref.type === 'doc') { next(snapOf(ref.col, ref.id)); return; }
-      let ids = Object.keys(state.col[ref.name] || {});
-      (ref.parts || []).forEach((p) => { if (p.where) ids = ids.filter((id) => state.col[ref.name][id][p.where[0]] === p.where[1]); });
+      let ids = matchIds(ref);
       const ob = (ref.parts || []).find((p) => p.orderBy);
       if (ob) ids.sort((a, b) => (state.col[ref.name][b][ob.orderBy[0]]?.seconds || 0) - (state.col[ref.name][a][ob.orderBy[0]]?.seconds || 0));
       next({ docs: ids.map((id) => snapOf(ref.name, id)) });
