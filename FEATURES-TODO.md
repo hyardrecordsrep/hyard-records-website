@@ -32,7 +32,6 @@ Setup steps: `SETUP-ACCOUNTS.md`.
 ## 3. Fans and community
 
 - [ ] **Add your first events** on the admin page (Admin → Events) **(you)**
-- [ ] **Deploy the database and storage rules for News** so posts written in admin can be read and their pictures uploaded: `firebase deploy --only firestore:rules,storage` **(you)**
 - [ ] **Write your first news posts** in Admin → News; the Beginning and The End post is already pinned as Featured **(you)**
 
 ## 4. Later
@@ -43,6 +42,7 @@ Setup steps: `SETUP-ACCOUNTS.md`.
 
 ## Done
 
+- [x] Database and storage rules for News deployed and checked live
 - [x] Store page in the menu (replaces Merch, Privacy policy and Legal notice there; those two stay in the footer): Services, Products and Merch ("Coming soon" on hover). Anyone can browse services and products and open product pages; buying needs an account. Services and Products left the dashboard
 - [x] News posts: cover as a faded banner behind the title (size and which part of the picture to show), and pictures in the text with a position (left, center, right, full width) and size, movable up and down
 - [x] Product pages (/product?p=…, logged-in only): picture gallery with full-screen view, preview player, full description, file details and buy button; Admin → Products takes up to 8 extra pictures
