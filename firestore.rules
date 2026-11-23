@@ -53,6 +53,13 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Products (drum kits, sample packs…): anyone can see them, only the label adds and edits them.
+    // The product file itself is private in Storage; buyers get it through the download function.
+    match /products/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // Events: anyone can read them (the Events page), only the label adds and edits them
     match /events/{id} {
       allow read: if true;

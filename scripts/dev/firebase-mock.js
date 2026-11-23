@@ -152,7 +152,7 @@ const S = {
   ref: (_s, path) => ({ path }),
   uploadBytesResumable(ref, file) {
     // Small pictures are kept as data URLs so event pictures still show after a reload
-    if (/^image\//.test(file.type || '') && file.size < 1500000) {
+    if (/^(image|audio)\//.test(file.type || '') && file.size < 1500000) {
       const r = new FileReader();
       r.onload = () => { state.files = state.files || {}; state.files[ref.path] = r.result; save(); };
       r.readAsDataURL(file);
@@ -191,6 +191,11 @@ const Fn = {
     if (name === 'createCheckoutSession') {
       const items = state.col.carts[uid]?.items || [];
       const lines = items.map((it) => {
+        if (it.productId) {
+          const p = (state.col.products || {})[it.productId];
+          if (!p || !p.price) throw Object.assign(new Error('One of the products in your cart is no longer available.'), { code: 'functions/failed-precondition' });
+          return { productId: it.productId, kind: 'product', notes: '', label: p.title, amount: p.price };
+        }
         const s = state.col.services[it.serviceId];
         if (it.option === 'track') {
           if (!s.pricePerTrack) throw Object.assign(new Error(`${s.name} doesn't have a price yet, so it can't be bought.`), { code: 'functions/failed-precondition' });
@@ -200,7 +205,7 @@ const Fn = {
         return { ...it, label: `${s.name} · ${p.name} package (${p.tracks} tracks)`, amount: p.price };
       });
       const id = rid();
-      state.col.orders[id] = { uid, email: state.authUsers[uid].email, items: lines, total: lines.reduce((n, l) => n + l.amount, 0), status: 'awaiting_payment', brief: '', uploads: [], deliverables: [], adminNote: '', createdAt: now() };
+      state.col.orders[id] = { uid, email: state.authUsers[uid].email, items: lines, total: lines.reduce((n, l) => n + l.amount, 0), status: 'awaiting_payment', hasServices: lines.some((l) => !l.productId), hasProducts: lines.some((l) => l.productId), brief: '', uploads: [], deliverables: [], adminNote: '', createdAt: now() };
       save();
       const outcome = localStorage.getItem('hyard-mock-pay') || 'paid';
       if (outcome === 'cancel') return { data: { url: `payment-failed?order=${id}&reason=cancelled` } };
@@ -208,6 +213,31 @@ const Fn = {
       state.col.orders[id].mockPayAt = Date.now() + 2500;
       save();
       return { data: { url: `order-confirmed?order=${id}` } };
+    }
+    if (name === 'adminStats') {
+      const daily = {};
+      const paid = Object.entries(state.col.orders).filter(([, o]) => ['paid', 'in_progress', 'delivered'].includes(o.status));
+      paid.forEach(([, o]) => {
+        const d = (o.paidAt || o.createdAt).toDate();
+        const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        daily[k] = daily[k] || { revenue: 0, sales: 0 };
+        daily[k].revenue += o.total; daily[k].sales += 1;
+      });
+      // a few made-up earlier days so the chart has something to show locally
+      [3, 6, 9, 12, 20, 40, 75, 130, 200].forEach((ago, i) => {
+        const d = new Date(Date.now() - ago * 86400000);
+        const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        daily[k] = { revenue: [35, 120, 19, 400, 24.99, 110, 300, 49, 950][i], sales: 1 };
+      });
+      const pop = {};
+      paid.forEach(([, o]) => (o.items || []).forEach((i) => {
+        const key = i.productId ? `p:${i.productId}` : `s:${i.serviceId}`;
+        const e = pop[key] || (pop[key] = { name: i.productId ? i.label : String(i.label).split(' · ')[0], kind: i.productId ? 'product' : 'service', sold: 0, revenue: 0 });
+        e.sold += 1; e.revenue += i.amount;
+      }));
+      const latest = paid.sort((a, b) => (b[1].paidAt || b[1].createdAt).seconds - (a[1].paidAt || a[1].createdAt).seconds).slice(0, 8)
+        .map(([oid, o]) => ({ amount: o.total, refunded: 0, created: (o.paidAt || o.createdAt).toDate().getTime(), email: o.email, name: 'Test Artist', items: o.items.map((i) => i.label), orderId: oid, paymentIntent: o.paymentIntent }));
+      return { data: { daily, latest, popular: Object.values(pop).sort((a, b) => b.sold - a.sold).slice(0, 6), balance: { available: 412.5, pending: 59 }, stripeBase: 'https://dashboard.stripe.com/test' } };
     }
     throw Object.assign(new Error('unknown function'), { code: 'functions/not-found' });
   },
@@ -220,7 +250,11 @@ export async function create(site) {
   setInterval(() => {
     const due = Object.entries(state.col.orders || {}).filter(([, o]) => o.mockPayAt && o.mockPayAt < Date.now());
     if (due.length) {
-      due.forEach(([, o]) => { delete o.mockPayAt; o.status = 'paid'; o.paidAt = now(); o.paymentIntent = 'pi_mock'; delete state.col.carts[o.uid]; });
+      due.forEach(([, o]) => {
+        const prods = (o.items || []).filter((i) => i.productId);
+        if (prods.length) o.downloads = prods.map((i) => ({ productId: i.productId, title: i.label, token: rid() + rid(), count: 0 }));
+      });
+      due.forEach(([, o]) => { delete o.mockPayAt; o.status = o.hasServices === false ? 'delivered' : 'paid'; o.paidAt = now(); o.paymentIntent = 'pi_mock'; delete state.col.carts[o.uid]; });
       save();
       return;
     }

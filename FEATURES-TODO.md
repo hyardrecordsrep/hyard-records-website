@@ -16,6 +16,8 @@ Legend: **(you)** needs something only you can provide or set up · **(me)** I c
 
 Setup steps: `SETUP-ACCOUNTS.md`.
 
+- [ ] **Products: add your first drum kits and sample packs** on the admin page (Admin → Products), then buy one yourself to check the email and download **(you)**
+- [ ] **Terms of service: a short section for digital products** (licence: what buyers may do with the sounds, no reselling; no withdrawal once downloaded) **(you + me)**
 - [ ] **Upgrade Google Cloud to a full account** before the 90-day free trial ends, or Google pauses logins and uploads **(you)**
 - [ ] **Before/after audio examples** on each service **(you + me)**
 - [ ] **Testimonials and credits list** from artists you've worked with **(you + me)**
@@ -40,6 +42,9 @@ Setup steps: `SETUP-ACCOUNTS.md`.
 
 ## Done
 
+- [x] Products shop: Products tab on the dashboard with category filter and MP3 previews; Admin → Products to add title, category, price, description, image, preview and file
+- [x] Paid products are emailed from product@hyardrecords.com (thank you, receipt, download links, 10 downloads each) only after Stripe confirms the payment; every sale is emailed to blurfnes@hyardrecords.com
+- [x] Admin → Overview (opens first): revenue chart, latest sales and most popular, linked to the Stripe dashboard
 - [x] Emails reach Outlook inboxes instead of Junk
 - [x] Real low-value purchase and refund tested end to end
 - [x] Artist and label bios in Croatian when the site is switched to HR (artist pages and press kit)

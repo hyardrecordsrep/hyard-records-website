@@ -1,4 +1,6 @@
 // Receipt email for paid orders, in English or Croatian (the language the buyer used on the site).
+// Orders with products (drum kits, sample packs…) get a "Thank you for your purchase" version with a
+// download button for each product.
 // The label gets its own version ("You received an order") with the buyer's details, what to do
 // next on the admin page, and a link straight to the orders list.
 // Styles are inline and the layout is tables, so it looks right in Gmail, Apple Mail and Outlook.
@@ -29,6 +31,16 @@ const T = {
     files: 'Files are deleted when the order is closed, so download them when they arrive.',
     questions: 'Questions about this order? Just reply to this email.',
     legal: 'Terms of service',
+    pSubject: (no) => `Thank you for your purchase ${no}`,
+    pTitle: 'Thank you for<br>your purchase',
+    pIntro: (name) => `${name ? `Hi ${name}, t` : 'T'}hank you for your purchase! Here's your receipt, and your download is ready below.`,
+    downloads: 'Your downloads',
+    download: 'Download',
+    pSteps: [
+      'Click Download next to each product to get the files.',
+      'The same links are on your order in the dashboard if you need them again.',
+      'Each link works up to 10 times. Reply to this email if you run out.',
+    ],
   },
   hr: {
     subject: (no) => `Vaš račun Hyard Records ${no}`,
@@ -55,6 +67,16 @@ const T = {
     files: 'Datoteke se brišu kad se narudžba zatvori, pa ih preuzmite čim stignu.',
     questions: 'Pitanja o narudžbi? Samo odgovorite na ovaj e-mail.',
     legal: 'Uvjeti korištenja',
+    pSubject: (no) => `Hvala na kupnji ${no}`,
+    pTitle: 'Hvala na<br>kupnji',
+    pIntro: (name) => `${name ? `Bok ${name}, h` : 'H'}vala na kupnji! Ovo je vaša potvrda, a preuzimanje vas čeka ispod.`,
+    downloads: 'Vaša preuzimanja',
+    download: 'Preuzmi',
+    pSteps: [
+      'Kliknite Preuzmi pokraj svakog proizvoda da biste dobili datoteke.',
+      'Iste poveznice nalaze se na vašoj narudžbi na nadzornoj ploči ako vam ponovno zatrebaju.',
+      'Svaka poveznica radi do 10 puta. Odgovorite na ovaj e-mail ako vam ponestane.',
+    ],
   },
 };
 
@@ -77,6 +99,10 @@ const LABEL = {
     'Once they have downloaded everything, close the order to delete the files.',
   ],
   footer: 'The customer got their own receipt. Reply to this email to write to them directly.',
+  pSubject: (no, total) => `You made a sale: ${no} · ${total}`,
+  pTitle: 'You made<br>a sale',
+  pIntro: (who, total, titles) => `${who} just bought ${titles} for ${total}. Their download link was emailed to them automatically.`,
+  pSteps: ['Nothing to do: the buyer already has their download link.', 'You can see the sale in the admin overview and in Stripe.'],
 };
 
 const MONTHS = {
@@ -130,13 +156,33 @@ const DISPLAY = "font:900 30px/1.1 'Arial Black',Helvetica,Arial,sans-serif;lett
 function buildReceipt(o) {
   const lang = o.lang === 'hr' && !o.forLabel ? 'hr' : 'en';
   const t = o.forLabel ? { ...T.en, ...LABEL } : T[lang];
+  const downloads = o.downloads || [];
+  const productsOnly = downloads.length > 0 && o.hasServices === false;
+  const productTitles = downloads.map((d) => d.title).join(', ');
   const site = o.site.replace(/\/$/, '');
   const total = euro(o.total, lang);
   const date = fmtDate(o.paidAt, lang);
   const orderUrl = o.forLabel ? `${site}/admin#a-orders` : `${site}/dashboard#orders`;
   const first = String(o.name || '').trim().split(/\s+/)[0];
   const who = String(o.name || '').trim() || o.email || 'A customer';
-  const intro = o.forLabel ? LABEL.intro(who, total) : t.intro(first);
+  let intro = o.forLabel ? LABEL.intro(who, total) : t.intro(first);
+  if (downloads.length) {
+    if (o.forLabel) intro = productsOnly ? LABEL.pIntro(who, total, productTitles) : `${LABEL.pIntro(who, total, productTitles)} The order also has a service, waiting for their files and brief.`;
+    else intro = productsOnly ? t.pIntro(first) : `${t.pIntro(first)} ${t.intro(first).replace(/^[^.]*\. /, '')}`;
+  }
+  const subject = downloads.length ? (o.forLabel ? LABEL.pSubject(o.orderNo, total) : t.pSubject(o.orderNo)) : t.subject(o.orderNo, total);
+  const heading = downloads.length ? (o.forLabel ? LABEL.pTitle : t.pTitle) : t.title;
+  const steps = productsOnly ? (o.forLabel ? LABEL.pSteps : t.pSteps) : downloads.length && !o.forLabel ? [...t.pSteps.slice(0, 1), ...t.steps] : t.steps;
+  const fromAddress = o.fromAddress || 'payments@hyardrecords.com';
+  const dlBlock = downloads.length && !o.forLabel ? `
+        <tr><td style="padding:32px 32px 0;">
+          <p style="margin:0 0 12px;color:#8a8a8a;${MONO}">${esc(t.downloads)}</p>
+          ${downloads.map((d) => `
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #2a2a2a;margin:0 0 10px;"><tr>
+            <td style="padding:14px 16px;color:#ffffff;${BODY}">${esc(d.title)}</td>
+            <td align="right" style="padding:10px 12px;white-space:nowrap;"><a href="${esc(d.url)}" style="display:inline-block;background:#ffffff;color:#000000;font:900 13px/1 'Arial Black',Helvetica,Arial,sans-serif;text-transform:uppercase;letter-spacing:.06em;text-decoration:none;padding:12px 18px;">${esc(t.download)}</a></td>
+          </tr></table>`).join('')}
+        </td></tr>` : '';
 
   const rows = o.items.map((it) => `
         <tr>
@@ -170,7 +216,7 @@ function buildReceipt(o) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
   <meta name="supported-color-schemes" content="dark">
-  <title>${esc(t.subject(o.orderNo, total))}</title>
+  <title>${esc(subject)}</title>
 </head>
 <body style="margin:0;padding:0;background:#1a1a1a;">
   <div style="display:none;max-height:0;overflow:hidden;opacity:0;">${esc(`${t.order} ${o.orderNo} · ${t.paid} ${total}`)}</div>
@@ -184,7 +230,7 @@ function buildReceipt(o) {
           <p style="margin:0;color:#8a8a8a;${MONO}letter-spacing:.2em;">${esc(t.kicker)}</p>
         </td></tr>
         <tr><td align="center" style="padding:14px 32px 0;">
-          <h1 style="margin:0;color:#ffffff;${DISPLAY}">${t.title}</h1>
+          <h1 style="margin:0;color:#ffffff;${DISPLAY}">${heading}</h1>
         </td></tr>
         <tr><td align="center" style="padding:20px 40px 0;">
           <p style="margin:0;color:#d6d6d6;${BODY}">${esc(intro)}</p>
@@ -213,13 +259,14 @@ function buildReceipt(o) {
           </table>
         </td></tr>
 
+${dlBlock}
         <tr><td align="center" style="padding:32px 32px 0;">
           <a href="${esc(orderUrl)}" style="display:inline-block;background:#ffffff;color:#000000;font:900 15px/1 'Arial Black',Helvetica,Arial,sans-serif;text-transform:uppercase;letter-spacing:.06em;text-decoration:none;padding:18px 34px;">${esc(t.button)}</a>
         </td></tr>
 
         <tr><td style="padding:36px 32px 0;">
           <p style="margin:0 0 12px;color:#8a8a8a;${MONO}">${esc(t.next)}</p>
-          ${t.steps.map((s, i) => `
+          ${steps.map((s, i) => `
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
             <td width="36" style="padding:6px 0;vertical-align:top;color:#ffffff;${MONO}">0${i + 1}</td>
             <td style="padding:6px 0;color:#d6d6d6;font:14px/1.6 Helvetica,Arial,sans-serif;">${esc(s)}</td>
@@ -227,7 +274,7 @@ function buildReceipt(o) {
         </td></tr>
 
         <tr><td style="padding:24px 32px 0;">
-          <p style="margin:0;color:#8a8a8a;font:13px/1.7 Helvetica,Arial,sans-serif;">${o.forLabel ? esc(LABEL.footer) : `${esc(t.credit)} ${esc(t.files)}<br>${esc(t.questions)}`}</p>
+          <p style="margin:0;color:#8a8a8a;font:13px/1.7 Helvetica,Arial,sans-serif;">${o.forLabel ? esc(LABEL.footer) : productsOnly ? esc(t.questions) : `${esc(t.credit)} ${esc(t.files)}<br>${esc(t.questions)}`}</p>
         </td></tr>
 
         <tr><td style="padding:36px 32px 0;"><div style="border-top:1px solid #2a2a2a;font-size:0;line-height:0;">&nbsp;</div></td></tr>
@@ -239,7 +286,7 @@ function buildReceipt(o) {
             <span style="color:#444;">&nbsp;·&nbsp;</span>
             <a href="${site}/terms" style="color:#ffffff;text-decoration:none;">${esc(t.legal)}</a>
           </p>
-          <p style="margin:0;color:#5f5f5f;font:11px/1.6 Helvetica,Arial,sans-serif;">Hyard Records · payments@hyardrecords.com · hyardrecords.com</p>
+          <p style="margin:0;color:#5f5f5f;font:11px/1.6 Helvetica,Arial,sans-serif;">Hyard Records · ${esc(fromAddress)} · hyardrecords.com</p>
         </td></tr>
       </table>
     </td></tr>
@@ -249,7 +296,7 @@ function buildReceipt(o) {
 
   // Plain-text version for mail apps that don't show HTML
   const text = [
-    `${t.kicker.toUpperCase()}`,
+    `${(downloads.length && !o.forLabel ? t.pTitle.replace('<br>', ' ') : t.kicker).toUpperCase()}`,
     '',
     intro,
     '',
@@ -263,18 +310,19 @@ function buildReceipt(o) {
     `${t.total}: ${total}`,
     o.footerNote || '',
     '',
+    ...(downloads.length && !o.forLabel ? [`${t.downloads}:`, ...downloads.map((d) => `${d.title}: ${d.url}`), ''] : []),
     `${t.button}: ${orderUrl}`,
     '',
     `${t.next}:`,
-    ...t.steps.map((s, i) => `${i + 1}. ${s}`),
+    ...steps.map((s, i) => `${i + 1}. ${s}`),
     '',
-    ...(o.forLabel ? [LABEL.footer] : [`${t.credit} ${t.files}`, t.questions]),
+    ...(o.forLabel ? [LABEL.footer] : productsOnly ? [t.questions] : [`${t.credit} ${t.files}`, t.questions]),
     '',
     'Hyard Records · hyardrecords.com',
   ].join('\n').replace(/\n{3,}/g, '\n\n').trim();
 
   return {
-    subject: t.subject(o.orderNo, total),
+    subject,
     html,
     text,
   };

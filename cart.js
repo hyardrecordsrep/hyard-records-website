@@ -13,8 +13,12 @@
     $('cart').hidden = false;
 
     let services = [];
+    let products = [];
     let items = [];
     const svcOf = (id) => services.find((s) => s.id === id);
+    const thingOf = (it) => (it.productId ? products.find((p) => p.id === it.productId) : svcOf(it.serviceId));
+    const hasServices = () => items.some((i) => !i.productId);
+    const hasProducts = () => items.some((i) => i.productId);
 
     const render = () => {
       $('cart-empty').hidden = items.length > 0;
@@ -22,9 +26,22 @@
       let total = 0;
       let unpriced = 0;
       $('cart-lines').innerHTML = items.map((it) => {
-        const svc = svcOf(it.serviceId);
+        const svc = thingOf(it);
         const price = SV.linePrice(svc, it);
         if (price == null) unpriced += 1; else total += price;
+        if (it.productId) {
+          return `
+          <li class="cart-line cart-line-product" data-id="${esc(it.id)}">
+            <div class="cart-line-main">
+              <h2 class="display cart-line-title">${esc(svc ? svc.title : 'Product no longer available')}</h2>
+              <p class="mono muted">${esc([svc && svc.category, 'Digital download, emailed after payment'].filter(Boolean).join(' · '))}</p>
+            </div>
+            <div class="cart-line-side">
+              <span class="display cart-line-price">${esc(price == null ? 'Not available' : H.euro(price))}</span>
+              <button type="button" class="link-btn mono" data-remove>Remove</button>
+            </div>
+          </li>`;
+        }
         return `
           <li class="cart-line" data-id="${esc(it.id)}">
             <div class="cart-line-main">
@@ -41,6 +58,8 @@
           </li>`;
       }).join('');
       $('sum-count').textContent = String(items.length);
+      $('agree-start-wrap').hidden = !hasServices();
+      $('agree-digital-wrap').hidden = !hasProducts();
       $('sum-total').textContent = unpriced ? 'Price coming soon' : H.euro(total);
       $('checkout').disabled = unpriced > 0 || items.length === 0;
       $('checkout-status').textContent = unpriced
@@ -49,8 +68,9 @@
     };
 
     try {
-      const [{ list }, cartItems] = await Promise.all([SV.load(fb), SV.getCart(fb, uid)]);
+      const [{ list }, cartItems, prods] = await Promise.all([SV.load(fb), SV.getCart(fb, uid), SV.loadProducts(fb)]);
       services = list;
+      products = prods;
       items = cartItems;
     } catch (err) {
       $('checkout-status').textContent = H.message(err);
@@ -91,13 +111,15 @@
       save(false);
     });
 
-    ['agree-terms', 'agree-start'].forEach((id) => $(id).addEventListener('change', () => { $('agree-error').textContent = ''; }));
+    ['agree-terms', 'agree-start', 'agree-digital'].forEach((id) => $(id).addEventListener('change', () => { $('agree-error').textContent = ''; }));
 
     $('checkout').addEventListener('click', async () => {
       const out = $('checkout-status');
-      if (!$('agree-terms').checked || !$('agree-start').checked) {
-        $('agree-error').textContent = 'Tick both boxes to continue.';
-        ($('agree-terms').checked ? $('agree-start') : $('agree-terms')).focus();
+      const needed = ['agree-terms', ...(hasServices() ? ['agree-start'] : []), ...(hasProducts() ? ['agree-digital'] : [])];
+      const missing = needed.find((id) => !$(id).checked);
+      if (missing) {
+        $('agree-error').textContent = needed.length > 1 ? 'Tick all the boxes to continue.' : 'Tick the box to continue.';
+        $(missing).focus();
         return;
       }
       await user.reload();

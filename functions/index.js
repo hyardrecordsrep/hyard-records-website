@@ -3,6 +3,8 @@
 //   createCheckoutSession  prices the signed-in artist's cart from Firestore and opens Stripe Checkout
 //   cancelCheckout         closes an unpaid order when the artist leaves the Stripe page
 //   stripeWebhook          Stripe tells us a payment succeeded, failed, expired or was refunded
+//   download               sends a buyer to the file of a product they paid for (link in their email)
+//   adminStats             revenue, latest sales and most popular items for the admin overview
 //   demoSubmitted          emails the label and the artist when a demo comes in
 //   demoUpdated            emails the artist when the label changes a demo's status
 //   claimAdmin             gives the label's own account(s) access to the admin page
@@ -13,13 +15,14 @@
 //   firebase functions:secrets:set STRIPE_WEBHOOK_SECRET
 //   firebase functions:secrets:set SMTP_PASSWORD      (Google app password of SMTP_USER, for receipts)
 // Settings (functions/.env): ADMIN_EMAILS, SITE_URL, SMTP_USER, RECEIPT_FROM, RECEIPT_COPY_TO, RECEIPT_NOTE,
-//   DEMO_FROM, DEMO_NOTIFY_TO
+//   DEMO_FROM, DEMO_NOTIFY_TO, PRODUCT_FROM, PRODUCT_NOTIFY_TO
 const { onCall, onRequest, HttpsError } = require('firebase-functions/v2/https');
 const { onDocumentCreated, onDocumentUpdated } = require('firebase-functions/v2/firestore');
 const { defineSecret, defineString } = require('firebase-functions/params');
 const { setGlobalOptions, logger } = require('firebase-functions/v2');
 const functionsV1 = require('firebase-functions/v1');
 const admin = require('firebase-admin');
+const crypto = require('crypto');
 const Stripe = require('stripe');
 const nodemailer = require('nodemailer');
 const { buildReceipt } = require('./receipt');
@@ -45,6 +48,12 @@ const RECEIPT_NOTE = defineString('RECEIPT_NOTE', { default: '' });
 // Demo emails: from DEMO_FROM (also a "Send mail as" address of SMTP_USER), label copy to DEMO_NOTIFY_TO
 const DEMO_FROM = defineString('DEMO_FROM', { default: 'product@hyardrecords.com' });
 const DEMO_NOTIFY_TO = defineString('DEMO_NOTIFY_TO', { default: '' });
+// Products (drum kits, sample packs…): the buyer's email with the download links comes from
+// PRODUCT_FROM, and PRODUCT_NOTIFY_TO gets told about every sale
+const PRODUCT_FROM = defineString('PRODUCT_FROM', { default: 'product@hyardrecords.com' });
+const PRODUCT_NOTIFY_TO = defineString('PRODUCT_NOTIFY_TO', { default: '' });
+const DOWNLOAD_LIMIT = 10; // times each bought product can be downloaded from its link
+const downloadUrl = (orderId, token) => `https://europe-west1-${process.env.GCLOUD_PROJECT || 'hyardrecords'}.cloudfunctions.net/download?o=${encodeURIComponent(orderId)}&t=${encodeURIComponent(token)}`;
 
 // One Gmail connection for all emails. Returns null (and logs) when the login isn't set up.
 const mailer = () => {
@@ -74,8 +83,14 @@ async function sendReceipt(ref, extra = {}) {
       await ref.update({ receiptSending: FieldValue.delete(), receiptError: 'not configured' });
       return;
     }
-    const from = RECEIPT_FROM.value() || SMTP_USER.value();
+    const downloads = (claimed.downloads || []).map((d) => ({ title: d.title, url: downloadUrl(ref.id, d.token) }));
+    const hasProducts = downloads.length > 0;
+    const hasServices = claimed.hasServices !== false;
+    const from = (hasProducts ? PRODUCT_FROM.value() : RECEIPT_FROM.value()) || SMTP_USER.value();
     const base = {
+      downloads,
+      hasServices,
+      fromAddress: from,
       orderNo: orderNumber(ref.id),
       orderId: ref.id,
       items: (claimed.items || []).map((i) => ({ label: i.label, amount: i.amount, notes: i.notes })),
@@ -93,10 +108,13 @@ async function sendReceipt(ref, extra = {}) {
       await transport.sendMail({ from: { name: 'Hyard Records', address: from }, replyTo: from, to: claimed.email, subject: r.subject, html: r.html, text: r.text });
       sent.push('buyer');
     }
-    const copyTo = RECEIPT_COPY_TO.value();
-    if (copyTo) {
+    const copyTo = [...new Set([
+      ...(hasServices ? [RECEIPT_COPY_TO.value()] : []),
+      ...(hasProducts ? [PRODUCT_NOTIFY_TO.value()] : []),
+    ].map((x) => String(x || '').trim().toLowerCase()).filter(Boolean))];
+    if (copyTo.length) {
       const r = buildReceipt({ ...base, forLabel: true });
-      await transport.sendMail({ from: { name: 'Hyard Records', address: from }, replyTo: claimed.email || from, to: copyTo, subject: r.subject, html: r.html, text: r.text });
+      await transport.sendMail({ from: { name: 'Hyard Records', address: from }, replyTo: claimed.email || from, to: copyTo.join(', '), subject: r.subject, html: r.html, text: r.text });
       sent.push('label');
     }
     await ref.update({ receiptSentAt: FieldValue.serverTimestamp(), receiptSending: FieldValue.delete(), receiptError: FieldValue.delete() });
@@ -112,7 +130,19 @@ const hasPrice = (v) => v !== null && v !== undefined && v !== '' && Number.isFi
 const cents = (euros) => Math.round(Number(euros) * 100);
 
 // Works out each cart line from the prices in Firestore (never from the browser)
-const priceCart = (items, services) => items.map((it) => {
+const priceCart = (items, services, products) => items.map((it) => {
+  if (it.productId) {
+    const p = products[it.productId];
+    if (!p || p.active === false || !p.file || !p.file.path) throw new HttpsError('failed-precondition', 'One of the products in your cart is no longer available. Remove it and try again.');
+    if (!hasPrice(p.price)) throw new HttpsError('failed-precondition', `${p.title} doesn't have a price yet, so it can't be bought.`);
+    const unit = cents(p.price);
+    return {
+      productId: it.productId, kind: 'product', notes: '',
+      label: p.title, category: p.category || '',
+      unitAmount: unit, quantity: 1, amount: unit / 100,
+      stripeName: `${p.title} (digital download)`,
+    };
+  }
   const svc = services[it.serviceId];
   if (!svc || svc.active === false) throw new HttpsError('failed-precondition', 'One of the services in your cart is no longer offered. Remove it and try again.');
   if (it.option === 'track') {
@@ -149,9 +179,15 @@ exports.createCheckoutSession = onCall({ secrets: [STRIPE_SECRET_KEY], enforceAp
   if (!items.length) throw new HttpsError('failed-precondition', 'Your cart is empty.');
   if (items.length > 20) throw new HttpsError('failed-precondition', 'Too many items in your cart.');
 
-  const servicesSnap = await db.collection('services').get();
+  const [servicesSnap, productsSnap] = await Promise.all([db.collection('services').get(), db.collection('products').get()]);
   const services = Object.fromEntries(servicesSnap.docs.map((d) => [d.id, d.data()]));
-  const lines = priceCart(items, services);
+  const products = Object.fromEntries(productsSnap.docs.map((d) => [d.id, d.data()]));
+  // Each product only once per order
+  const seen = new Set();
+  const unique = items.filter((it) => !it.productId || (!seen.has(it.productId) && seen.add(it.productId)));
+  const lines = priceCart(unique, services, products);
+  const hasProducts = lines.some((l) => l.productId);
+  const hasServices = lines.some((l) => !l.productId);
   const totalCents = lines.reduce((n, l) => n + l.unitAmount * l.quantity, 0);
   if (totalCents < 50) throw new HttpsError('failed-precondition', 'The total is too small to pay by card.');
 
@@ -175,7 +211,13 @@ exports.createCheckoutSession = onCall({ secrets: [STRIPE_SECRET_KEY], enforceAp
     success_url: `${site}/order-confirmed?order=${orderRef.id}`,
     cancel_url: `${site}/payment-failed?order=${orderRef.id}&reason=cancelled`,
     custom_text: {
-      submit: { message: 'You asked us to start within the 14-day withdrawal period. See the terms of service at hyardrecords.com/terms.' },
+      submit: {
+        message: [
+          hasServices ? 'You asked us to start within the 14-day withdrawal period.' : '',
+          hasProducts ? 'Digital downloads are emailed to you as soon as the payment goes through, and you agreed that this ends your right to withdraw from them.' : '',
+          'See the terms of service at hyardrecords.com/terms.',
+        ].filter(Boolean).join(' '),
+      },
     },
   });
 
@@ -186,8 +228,10 @@ exports.createCheckoutSession = onCall({ secrets: [STRIPE_SECRET_KEY], enforceAp
     total: totalCents / 100,
     currency: 'eur',
     status: 'awaiting_payment',
+    hasServices,
+    hasProducts,
     lang: req.data?.lang === 'hr' ? 'hr' : 'en',
-    consent: { terms: true, earlyStart: true, at: FieldValue.serverTimestamp() },
+    consent: { terms: true, earlyStart: hasServices, digitalDelivery: hasProducts, at: FieldValue.serverTimestamp() },
     stripeSessionId: session.id,
     checkoutUrl: session.url,
     expiresAt: Timestamp.fromMillis(expiresAt * 1000),
@@ -260,11 +304,15 @@ exports.stripeWebhook = onRequest({ secrets: [STRIPE_SECRET_KEY, STRIPE_WEBHOOK_
       case 'checkout.session.async_payment_succeeded': {
         if (obj.payment_status === 'paid' || event.type === 'checkout.session.async_payment_succeeded') {
           if (['awaiting_payment', 'payment_failed', 'cancelled'].includes(order.status)) {
+            const productLines = (order.items || []).filter((i) => i.productId);
             await ref.update({
-              status: 'paid', paidAt: now, updatedAt: now,
+              status: order.hasServices === false ? 'delivered' : 'paid', paidAt: now, updatedAt: now,
               paymentIntent: obj.payment_intent || null,
               amountPaid: (obj.amount_total || 0) / 100,
               checkoutUrl: FieldValue.delete(),
+              ...(productLines.length ? {
+                downloads: productLines.map((i) => ({ productId: i.productId, title: i.label, token: crypto.randomBytes(24).toString('hex'), count: 0 })),
+              } : {}),
             });
             await db.doc(`carts/${order.uid}`).delete().catch(() => {});
             await sendReceipt(ref, { amountPaid: (obj.amount_total || 0) / 100, name: obj.customer_details?.name || '' });
@@ -296,6 +344,141 @@ exports.stripeWebhook = onRequest({ secrets: [STRIPE_SECRET_KEY, STRIPE_WEBHOOK_
     logger.error('Webhook failed', err);
     res.status(500).send('Webhook handler failed');
   }
+});
+
+// ---------- Product downloads ----------
+// The link in the buyer's email (and on their order) lands here. We check the order is paid and the
+// link hasn't been used up, then send the browser to the file for 15 minutes.
+const page = (res, code, title, text) => {
+  const site = SITE_URL.value().replace(/\/$/, '');
+  res.status(code).set('Content-Type', 'text/html; charset=utf-8').send(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title} | Hyard Records</title></head>
+<body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#000;color:#fff;font:15px/1.7 Helvetica,Arial,sans-serif;text-align:center;padding:24px;box-sizing:border-box">
+<div style="max-width:460px"><p style="font:12px Menlo,monospace;letter-spacing:.2em;text-transform:uppercase;color:#8a8a8a">Hyard Records</p>
+<h1 style="font:900 30px/1.1 'Arial Black',Helvetica,sans-serif;text-transform:uppercase;margin:0 0 16px">${title}</h1><p style="color:#d6d6d6">${text}</p>
+<p><a href="${site}/dashboard#orders" style="color:#fff">Open your orders</a> · <a href="mailto:${PRODUCT_FROM.value()}" style="color:#fff">${PRODUCT_FROM.value()}</a></p></div></body></html>`);
+};
+
+exports.download = onRequest(async (req, res) => {
+  const orderId = String(req.query.o || '');
+  const token = String(req.query.t || '');
+  if (!/^[A-Za-z0-9]{10,40}$/.test(orderId) || !/^[a-f0-9]{48}$/.test(token)) {
+    page(res, 404, 'Link not found', 'This download link isn\'t right. Use the link in your email, or the Download button on your order.');
+    return;
+  }
+  const ref = db.doc(`orders/${orderId}`);
+  let item;
+  try {
+    item = await db.runTransaction(async (tx) => {
+      const snap = await tx.get(ref);
+      if (!snap.exists) return { error: 'missing' };
+      const o = snap.data();
+      const downloads = o.downloads || [];
+      const i = downloads.findIndex((d) => d.token === token);
+      if (i < 0) return { error: 'missing' };
+      if (!['paid', 'in_progress', 'delivered'].includes(o.status)) return { error: 'refunded' };
+      if ((downloads[i].count || 0) >= DOWNLOAD_LIMIT) return { error: 'used' };
+      downloads[i] = { ...downloads[i], count: (downloads[i].count || 0) + 1, lastAt: Timestamp.now() };
+      tx.update(ref, { downloads });
+      return downloads[i];
+    });
+  } catch (err) {
+    logger.error('Download check failed', { orderId, message: err.message });
+    page(res, 500, 'Try again', 'Something went wrong on our side. Try the link again in a minute.');
+    return;
+  }
+  if (item.error === 'missing') { page(res, 404, 'Link not found', 'This download link isn\'t right. Use the link in your email, or the Download button on your order.'); return; }
+  if (item.error === 'refunded') { page(res, 410, 'Link closed', 'This order was refunded or isn\'t paid, so its downloads are closed.'); return; }
+  if (item.error === 'used') { page(res, 410, 'Link used up', `This link has been used ${DOWNLOAD_LIMIT} times. Write to us and we'll send you a fresh one.`); return; }
+
+  const prod = await db.doc(`products/${item.productId}`).get();
+  const f = prod.exists && prod.data().file;
+  if (!f || !f.path) { page(res, 404, 'File missing', 'We can\'t find this product\'s file right now. Write to us and we\'ll sort it out.'); return; }
+  const file = admin.storage().bucket().file(f.path);
+  const name = String(f.name || f.path.split('/').pop()).replace(/["\\\r\n]/g, '');
+  let url;
+  try {
+    [url] = await file.getSignedUrl({ version: 'v4', action: 'read', expires: Date.now() + 15 * 60 * 1000, responseDisposition: `attachment; filename="${name}"` });
+  } catch (err) {
+    // No permission to sign URLs: fall back to the file's Firebase download token
+    logger.info('Signed URL not available, using a download token', { message: err.message });
+    try {
+      const [meta] = await file.getMetadata();
+      let tok = String((meta.metadata && meta.metadata.firebaseStorageDownloadTokens) || '').split(',')[0];
+      if (!tok) { tok = crypto.randomUUID(); await file.setMetadata({ metadata: { firebaseStorageDownloadTokens: tok } }); }
+      url = `https://firebasestorage.googleapis.com/v0/b/${file.bucket.name}/o/${encodeURIComponent(f.path)}?alt=media&token=${tok}`;
+    } catch (err2) {
+      logger.error('Download link failed', { orderId, message: err2.message });
+      page(res, 500, 'Try again', 'Something went wrong on our side. Try the link again in a minute.');
+      return;
+    }
+  }
+  logger.info('Download', { orderId, productId: item.productId, count: item.count });
+  res.redirect(302, url);
+});
+
+// ---------- Admin overview ----------
+// Revenue from Stripe (last 12 months, refunds taken off), the latest sales with what was bought,
+// and the most popular products and services from the paid orders.
+exports.adminStats = onCall({ secrets: [STRIPE_SECRET_KEY] }, async (req) => {
+  if (!req.auth || req.auth.token.admin !== true) throw new HttpsError('permission-denied', 'Admins only.');
+  const stripe = stripeClient();
+  const since = Math.floor(Date.now() / 1000) - 366 * 86400;
+  const charges = [];
+  for await (const c of stripe.charges.list({ created: { gte: since }, limit: 100 })) {
+    if (c.status === 'succeeded' && c.paid) charges.push(c);
+    if (charges.length >= 3000) break;
+  }
+  const day = (sec) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Zagreb', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(sec * 1000));
+  const daily = {};
+  charges.forEach((c) => {
+    const k = day(c.created);
+    const d = daily[k] || (daily[k] = { revenue: 0, sales: 0 });
+    d.revenue += (c.amount - (c.amount_refunded || 0)) / 100;
+    d.sales += 1;
+  });
+
+  const latestCharges = charges.slice(0, 8);
+  const pis = latestCharges.map((c) => c.payment_intent).filter(Boolean);
+  const byPi = {};
+  if (pis.length) {
+    const q = await db.collection('orders').where('paymentIntent', 'in', pis.slice(0, 10)).get();
+    q.forEach((d) => { byPi[d.data().paymentIntent] = { id: d.id, ...d.data() }; });
+  }
+  const latest = latestCharges.map((c) => {
+    const o = byPi[c.payment_intent];
+    return {
+      amount: c.amount / 100,
+      refunded: (c.amount_refunded || 0) / 100,
+      created: c.created * 1000,
+      email: (c.billing_details && c.billing_details.email) || c.receipt_email || (o && o.email) || '',
+      name: (c.billing_details && c.billing_details.name) || '',
+      items: o ? (o.items || []).map((i) => i.label) : [c.description || 'Payment'],
+      orderId: o ? o.id : null,
+      paymentIntent: c.payment_intent || null,
+    };
+  });
+
+  // Most popular: from paid orders (products and services)
+  const paid = await db.collection('orders').where('status', 'in', ['paid', 'in_progress', 'delivered']).get();
+  const pop = {};
+  paid.forEach((d) => (d.data().items || []).forEach((i) => {
+    const key = i.productId ? `p:${i.productId}` : `s:${i.serviceId}`;
+    const name = i.productId ? i.label : String(i.label || '').split(' · ')[0];
+    const e = pop[key] || (pop[key] = { name, kind: i.productId ? 'product' : 'service', sold: 0, revenue: 0 });
+    e.sold += 1;
+    e.revenue += Number(i.amount) || 0;
+  }));
+  const popular = Object.values(pop).sort((a, b) => b.sold - a.sold || b.revenue - a.revenue).slice(0, 6);
+
+  let balance = null;
+  try {
+    const b = await stripe.balance.retrieve();
+    const sum = (list) => (list || []).filter((x) => x.currency === 'eur').reduce((n, x) => n + x.amount, 0) / 100;
+    balance = { available: sum(b.available), pending: sum(b.pending) };
+  } catch (err) { logger.warn('Balance not read', { message: err.message }); }
+
+  const live = String(STRIPE_SECRET_KEY.value()).startsWith('sk_live');
+  return { daily, latest, popular, balance, stripeBase: live ? 'https://dashboard.stripe.com' : 'https://dashboard.stripe.com/test' };
 });
 
 // ---------- Demo emails ----------

@@ -114,15 +114,51 @@
 
     <div class="dash" id="adm" hidden>
       <nav class="dash-nav" aria-label="Admin">
+        <a href="#a-overview" data-tab="a-overview">Overview</a>
         <a href="#a-demos" data-tab="a-demos">Demos <span class="mono dash-count" id="adm-count-demos"></span></a>
         <a href="#a-orders" data-tab="a-orders">Orders <span class="mono dash-count" id="adm-count-orders"></span></a>
         <a href="#a-services" data-tab="a-services">Services and prices</a>
+        <a href="#a-products" data-tab="a-products">Products</a>
         <a href="#a-events" data-tab="a-events">Events <span class="mono dash-count" id="adm-count-events"></span></a>
         <button type="button" class="dash-logout" id="adm-logout">Log out</button>
       </nav>
 
       <div class="dash-body">
-        <section class="dash-panel" id="a-demos" data-panel aria-labelledby="h-a-demos">
+        <section class="dash-panel" id="a-overview" data-panel aria-labelledby="h-a-overview">
+          <div class="ov-head">
+            <h2 class="display dash-h" id="h-a-overview">Overview</h2>
+            <a class="more" id="ov-stripe" href="https://dashboard.stripe.com/payments" target="_blank" rel="noopener">Open Stripe</a>
+          </div>
+          <p class="form-status mono muted" id="ov-status" aria-live="polite">Loading sales from Stripe…</p>
+          <div class="ov-tiles" id="ov-tiles" hidden>
+            <a class="ov-tile" id="ov-tile-rev" target="_blank" rel="noopener"><span class="mono muted" id="ov-rev-label">Revenue, last 30 days</span><span class="display ov-num" id="ov-rev"></span></a>
+            <a class="ov-tile" id="ov-tile-sales" target="_blank" rel="noopener"><span class="mono muted">Sales</span><span class="display ov-num" id="ov-sales"></span></a>
+            <a class="ov-tile" id="ov-tile-bal" target="_blank" rel="noopener"><span class="mono muted">Stripe balance</span><span class="display ov-num" id="ov-bal"></span><span class="mono muted" id="ov-pending"></span></a>
+          </div>
+          <div class="ov-card" id="ov-chart-card" hidden>
+            <div class="ov-card-head">
+              <h3 class="mono" id="ov-chart-title">Revenue</h3>
+              <div class="filters ov-range" id="ov-range" role="group" aria-label="Time range">
+                <button class="filter" type="button" data-r="7" aria-pressed="false">7 days</button>
+                <button class="filter is-active" type="button" data-r="30" aria-pressed="true">30 days</button>
+                <button class="filter" type="button" data-r="365" aria-pressed="false">12 months</button>
+              </div>
+            </div>
+            <div class="ov-chart" id="ov-chart"></div>
+          </div>
+          <div class="ov-cols" id="ov-cols" hidden>
+            <div class="ov-card">
+              <div class="ov-card-head"><h3 class="mono">Latest sales</h3><a class="link-btn mono" id="ov-latest-all" target="_blank" rel="noopener">All in Stripe</a></div>
+              <ul class="ov-list" id="ov-latest"></ul>
+            </div>
+            <div class="ov-card">
+              <div class="ov-card-head"><h3 class="mono">Most popular</h3><a class="link-btn mono" id="ov-pop-all" target="_blank" rel="noopener">All in Stripe</a></div>
+              <ol class="ov-list ov-pop" id="ov-popular"></ol>
+            </div>
+          </div>
+        </section>
+
+        <section class="dash-panel" id="a-demos" data-panel hidden aria-labelledby="h-a-demos">
           <h2 class="display dash-h" id="h-a-demos">Demos</h2>
           <div class="filters" id="demo-filters" role="group" aria-label="Filter demos by status">
             <button class="filter is-active" type="button" data-f="open" aria-pressed="true">To review</button>
@@ -159,6 +195,14 @@
           <p class="form-status mono muted" id="svc-editor-status" aria-live="polite"></p>
           <div class="svc-grid" id="svc-grid"></div>
           <div id="svc-editor" hidden></div>
+        </section>
+
+        <section class="dash-panel" id="a-products" data-panel hidden aria-labelledby="h-a-products">
+          <h2 class="display dash-h" id="h-a-products">Products</h2>
+          <p class="mono muted dash-lead">Drum kits, sample packs and anything else people can download. This is how artists see them on their dashboard. Click a product to edit it, or add a new one. Buyers get the file by email from product@hyardrecords.com once Stripe confirms the payment.</p>
+          <p class="form-status mono muted" id="prod-editor-status" aria-live="polite"></p>
+          <div class="prod-grid" id="prod-grid"></div>
+          <div id="prod-editor" hidden></div>
         </section>
 
         <section class="dash-panel" id="a-events" data-panel hidden aria-labelledby="h-a-events">

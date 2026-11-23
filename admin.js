@@ -1,4 +1,5 @@
-// Label-only admin: review demos, move orders along, upload finished files, edit services and prices, add events.
+// Label-only admin: sales overview, review demos, move orders along, upload finished files, edit services,
+// products and prices, add events.
 // Access comes from the "admin" flag on the account, given by the claimAdmin server function to the
 // emails in functions/.env (ADMIN_EMAILS). The database rules check the same flag.
 (() => {
@@ -8,9 +9,9 @@
   const pill = (t, k) => `<span class="pill mono${k ? ` pill-${k}` : ''}">${esc(t)}</span>`;
   const shortId = (id) => `HYO-${String(id).slice(0, 6).toUpperCase()}`;
 
-  const TABS = ['a-demos', 'a-orders', 'a-services', 'a-events'];
+  const TABS = ['a-overview', 'a-demos', 'a-orders', 'a-services', 'a-products', 'a-events'];
   const showTab = () => {
-    const name = TABS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'a-demos';
+    const name = TABS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'a-overview';
     document.querySelectorAll('[data-panel]').forEach((p) => { p.hidden = p.id !== name; });
     document.querySelectorAll('.dash-nav [data-tab]').forEach((a) => {
       if (a.dataset.tab === name) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
@@ -389,6 +390,362 @@
         });
         await loadServices(f.dataset.id ? `${name} saved. It shows on the site straight away.` : `${name} added. It shows on the site straight away.`);
       } catch (err) { out.textContent = H.message(err); }
+    });
+
+    // ---------- Overview: revenue, latest sales, most popular (from Stripe via adminStats) ----------
+    const ov = { data: null, range: 30, base: 'https://dashboard.stripe.com' };
+    const isoDay = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const seriesFor = (range) => {
+      const daily = (ov.data && ov.data.daily) || {};
+      const out = [];
+      if (range === 365) {
+        const now = new Date();
+        for (let i = 11; i >= 0; i -= 1) {
+          const m = new Date(now.getFullYear(), now.getMonth() - i, 1);
+          const key = `${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, '0')}`;
+          let revenue = 0; let sales = 0;
+          Object.entries(daily).forEach(([k, v]) => { if (k.startsWith(key)) { revenue += v.revenue; sales += v.sales; } });
+          out.push({ label: m.toLocaleDateString('en-GB', { month: 'short' }), long: m.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }), revenue, sales });
+        }
+        return out;
+      }
+      for (let i = range - 1; i >= 0; i -= 1) {
+        const d = new Date();
+        d.setHours(12, 0, 0, 0);
+        d.setDate(d.getDate() - i);
+        const v = daily[isoDay(d)] || { revenue: 0, sales: 0 };
+        out.push({ label: d.toLocaleDateString('en-GB', range === 7 ? { weekday: 'short' } : { day: 'numeric', month: 'short' }), long: d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }), revenue: v.revenue, sales: v.sales });
+      }
+      return out;
+    };
+    const niceMax = (v) => {
+      if (v <= 0) return 100;
+      const p = 10 ** Math.floor(Math.log10(v));
+      const n = v / p;
+      return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10) * p;
+    };
+    const money0 = (n) => new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR', maximumFractionDigits: n >= 1000 ? 0 : 2 }).format(n);
+    const drawChart = () => {
+      const box = $('ov-chart');
+      const data = seriesFor(ov.range);
+      const W = Math.max(280, box.clientWidth || 640);
+      const CH = 240;
+      const padL = 56; const padR = 8; const padT = 12; const padB = 30;
+      const iw = W - padL - padR; const ih = CH - padT - padB;
+      const max = niceMax(Math.max(...data.map((d) => d.revenue)));
+      const slot = iw / data.length;
+      const bw = Math.max(2, Math.min(28, slot - 2));
+      const y = (v) => padT + ih - (v / max) * ih;
+      const ticks = [0, 0.25, 0.5, 0.75, 1].map((f) => max * f);
+      const every = Math.ceil(data.length / Math.max(2, Math.floor(iw / 64)));
+      const bar = (d, i) => {
+        const x = padL + slot * i + (slot - bw) / 2;
+        const top = y(d.revenue);
+        const h = padT + ih - top;
+        if (d.revenue <= 0) return '';
+        const r = Math.min(4, bw / 2, h);
+        return `<path class="ov-bar" d="M${x},${padT + ih} V${top + r} Q${x},${top} ${x + r},${top} H${x + bw - r} Q${x + bw},${top} ${x + bw},${top + r} V${padT + ih} Z"/>`;
+      };
+      box.innerHTML = `
+        <svg width="${W}" height="${CH}" viewBox="0 0 ${W} ${CH}" role="img" aria-label="Revenue per ${ov.range === 365 ? 'month' : 'day'}">
+          ${ticks.map((t) => `<line class="ov-grid${t === 0 ? ' is-base' : ''}" x1="${padL}" x2="${W - padR}" y1="${y(t)}" y2="${y(t)}"/><text class="ov-axis" x="${padL - 8}" y="${y(t) + 4}" text-anchor="end">${esc(money0(t))}</text>`).join('')}
+          ${data.map(bar).join('')}
+          ${data.map((d, i) => (i % every === 0) ? `<text class="ov-axis" x="${padL + slot * i + slot / 2}" y="${CH - 10}" text-anchor="middle">${esc(d.label)}</text>` : '').join('')}
+          ${data.map((d, i) => `<rect class="ov-hit" data-i="${i}" x="${padL + slot * i}" y="${padT}" width="${slot}" height="${ih}" tabindex="0" aria-label="${esc(`${d.long}: ${money0(d.revenue)}, ${d.sales} ${d.sales === 1 ? 'sale' : 'sales'}`)}"/>`).join('')}
+        </svg>
+        <div class="ov-tip" hidden></div>`;
+      const tip = box.querySelector('.ov-tip');
+      const show = (rect) => {
+        const d = data[Number(rect.dataset.i)];
+        box.querySelectorAll('.ov-hit').forEach((h) => h.classList.toggle('is-on', h === rect));
+        tip.innerHTML = `<span class="mono muted">${esc(d.long)}</span><strong class="display">${esc(money0(d.revenue))}</strong><span class="mono muted">${d.sales} ${d.sales === 1 ? 'sale' : 'sales'}</span>`;
+        tip.hidden = false;
+        const cx = Number(rect.getAttribute('x')) + slot / 2;
+        tip.style.left = `${Math.min(Math.max(cx, 70), W - 70)}px`;
+        tip.style.top = `${Math.max(0, y(d.revenue) - 8)}px`;
+      };
+      const hide = () => { tip.hidden = true; box.querySelectorAll('.ov-hit.is-on').forEach((h) => h.classList.remove('is-on')); };
+      box.querySelectorAll('.ov-hit').forEach((h) => {
+        h.addEventListener('mouseenter', () => show(h));
+        h.addEventListener('focus', () => show(h));
+        h.addEventListener('blur', hide);
+      });
+      box.querySelector('svg').addEventListener('mouseleave', hide);
+      const total = data.reduce((n, d) => n + d.revenue, 0);
+      const sales = data.reduce((n, d) => n + d.sales, 0);
+      const label = ov.range === 365 ? 'last 12 months' : `last ${ov.range} days`;
+      $('ov-rev-label').textContent = `Revenue, ${label}`;
+      $('ov-rev').textContent = H.euro(total);
+      $('ov-sales').textContent = String(sales);
+      $('ov-chart-title').textContent = `Revenue per ${ov.range === 365 ? 'month' : 'day'}`;
+    };
+    const renderOverview = () => {
+      const d = ov.data;
+      const base = d.stripeBase || ov.base;
+      $('ov-stripe').href = `${base}/payments`;
+      $('ov-tile-rev').href = `${base}/payments`;
+      $('ov-tile-sales').href = `${base}/payments`;
+      $('ov-tile-bal').href = `${base}/balance/overview`;
+      $('ov-latest-all').href = `${base}/payments`;
+      $('ov-pop-all').href = `${base}/payments`;
+      $('ov-bal').textContent = d.balance ? H.euro(d.balance.available) : '—';
+      $('ov-pending').textContent = d.balance ? `${H.euro(d.balance.pending)} on the way` : '';
+      $('ov-latest').innerHTML = (d.latest || []).length ? d.latest.map((s) => `
+        <li><a class="ov-row" href="${esc(s.paymentIntent ? `${base}/payments/${s.paymentIntent}` : `${base}/payments`)}" target="_blank" rel="noopener">
+          <span class="ov-row-main"><span class="ov-row-title">${esc((s.items || []).join(', '))}</span>
+          <span class="mono muted">${esc([s.name || s.email, new Date(s.created).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })].filter(Boolean).join(' · '))}</span></span>
+          <span class="ov-row-side"><span class="display">${esc(H.euro(s.amount))}</span>${s.refunded ? `<span class="mono muted">${esc(H.euro(s.refunded))} refunded</span>` : ''}</span>
+        </a></li>`).join('') : '<li class="mono muted ov-none">No sales yet.</li>';
+      $('ov-popular').innerHTML = (d.popular || []).length ? d.popular.map((p, i) => `
+        <li><a class="ov-row" href="${esc(`${base}/search?query=${encodeURIComponent(p.name)}`)}" target="_blank" rel="noopener">
+          <span class="mono muted ov-rank">0${i + 1}</span>
+          <span class="ov-row-main"><span class="ov-row-title">${esc(p.name)}</span><span class="mono muted">${esc(p.kind === 'product' ? 'Product' : 'Service')} · ${p.sold} sold</span></span>
+          <span class="ov-row-side"><span class="display">${esc(H.euro(p.revenue))}</span></span>
+        </a></li>`).join('') : '<li class="mono muted ov-none">Nothing sold yet.</li>';
+      ['ov-tiles', 'ov-chart-card', 'ov-cols'].forEach((id) => { $(id).hidden = false; });
+      drawChart();
+    };
+    const loadOverview = async () => {
+      try {
+        const res = await Fn.httpsCallable(functions, 'adminStats')();
+        ov.data = res.data || {};
+        $('ov-status').textContent = '';
+        renderOverview();
+      } catch (err) {
+        console.error('Overview', err);
+        $('ov-status').innerHTML = `Couldn't load sales from Stripe (${esc(H.message(err))}). <a href="https://dashboard.stripe.com/payments" target="_blank" rel="noopener">Open Stripe</a>`;
+      }
+    };
+    loadOverview();
+    filterGroup($('ov-range'), (r) => { ov.range = Number(r); if (ov.data) drawChart(); });
+    let ovResize = null;
+    window.addEventListener('resize', () => { clearTimeout(ovResize); ovResize = setTimeout(() => { if (ov.data && !$('a-overview').hidden) drawChart(); }, 150); });
+    window.addEventListener('hashchange', () => { if (ov.data && location.hash === '#a-overview') requestAnimationFrame(drawChart); });
+
+    // ---------- Products (drum kits, sample packs…) ----------
+    // Shown to artists on their dashboard. The picture and preview are public; the product file is
+    // private and only reaches buyers through the download link in their email.
+    const pGrid = $('prod-grid');
+    const pEditor = $('prod-editor');
+    const pStatus = $('prod-editor-status');
+    const DEFAULT_CATS = ['Drum kits', 'Sample packs', 'Presets', 'MIDI packs', 'Loops'];
+    let products = [];
+    let pend = {}; // files picked in the form: { image, preview, file } or { removeImage: true, removePreview: true }
+    const prodCard = (p) => `
+      <article class="prod prod-admin${p.active === false ? ' is-off' : ''}" data-prod="${esc(p.id)}" tabindex="0" role="button" aria-label="Edit ${esc(p.title)}">
+        <div class="ev-pic prod-pic">${p.image && p.image.url ? `<img src="${esc(p.image.url)}" alt="" loading="lazy">` : '<svg aria-hidden="true"><use href="#globe"/></svg><span class="mono muted">No picture yet</span>'}</div>
+        <div class="prod-body">
+          <div class="svc-admin-head">${p.category ? `<span class="mono muted prod-cat">${esc(p.category)}</span>` : '<span></span>'}${p.active === false ? pill('Hidden', 'off') : ''}</div>
+          <h3 class="display prod-title">${esc(p.title)}</h3>
+          ${p.description ? `<p class="prod-desc">${esc(p.description)}</p>` : ''}
+          <p class="mono muted">${esc([p.file && p.file.name ? `${p.file.name} · ${H.bytes(p.file.size || 0)}` : 'No file yet', p.preview && p.preview.url ? 'Preview' : 'No preview'].join(' · '))}</p>
+          <div class="prod-foot"><span class="display prod-price">${esc(priced(p.price))}</span><span class="mono svc-admin-edit">Edit <svg aria-hidden="true"><use href="#i-arrow"/></svg></span></div>
+        </div>
+      </article>`;
+    const prodAdd = '<button type="button" class="prod svc-new" data-new-prod><span class="display">+</span><span class="mono">Add a product</span></button>';
+    const fileRow = (key, label, hint, accept, current) => `
+      <div class="field">
+        <span class="field-label mono">${label} <em class="muted">${hint}</em></span>
+        <div class="quick prod-file">
+          <span class="mono" data-cur="${key}">${current ? esc(current) : '<span class="muted">Nothing uploaded</span>'}</span>
+          <label class="more file-btn">${current ? 'Replace' : 'Choose file'}<input type="file" accept="${accept}" data-pick="${key}" hidden></label>
+          ${key !== 'file' ? `<button type="button" class="link-btn mono" data-unpick="${key}"${current ? '' : ' hidden'}>Remove</button>` : ''}
+        </div>
+      </div>`;
+    const prodForm = (p, isNew) => `
+      <form class="form ev-edit" data-id="${esc(p.id || '')}" novalidate>
+        <button type="button" class="link-btn mono svc-back" data-back>← All products</button>
+        <fieldset>
+          <legend class="display svc-edit-title">${isNew ? 'New product' : esc(p.title)}</legend>
+          <label class="field"><span class="field-label mono">Title</span><input type="text" name="title" value="${esc(p.title || '')}" required maxlength="100" placeholder="Hyard Drum Kit Vol. 1"></label>
+          <div class="field-row field-row-3">
+            <label class="field"><span class="field-label mono">Category</span><input type="text" name="category" value="${esc(p.category || '')}" list="prod-cats" maxlength="40" placeholder="Drum kits"></label>
+            <label class="field"><span class="field-label mono">Price €</span><input type="text" inputmode="decimal" name="price" value="${esc(p.price ?? '')}" placeholder="empty = coming soon"></label>
+            <label class="field"><span class="field-label mono">Order on page</span><input type="text" inputmode="numeric" name="order" value="${esc(p.order ?? '')}"></label>
+          </div>
+          <datalist id="prod-cats">${[...new Set([...products.map((x) => x.category).filter(Boolean), ...DEFAULT_CATS])].map((c) => `<option value="${esc(c)}">`).join('')}</datalist>
+          <label class="field"><span class="field-label mono">Description</span><textarea name="description" rows="4" maxlength="2000" placeholder="What's inside: 120 one-shots, 40 loops, 140–150 BPM…">${esc(p.description || '')}</textarea></label>
+          <div class="field">
+            <span class="field-label mono">Image <em class="muted">JPG, PNG or WebP, up to 8 MB. Square works best.</em></span>
+            <div class="ev-pic-edit">
+              <div class="ev-pic prod-pic" data-pic-preview>${p.image && p.image.url ? `<img src="${esc(p.image.url)}" alt="">` : '<svg aria-hidden="true"><use href="#globe"/></svg><span class="mono muted">Picture placeholder</span>'}</div>
+              <div class="quick">
+                <label class="more file-btn">${p.image && p.image.url ? 'Change image' : 'Upload image'}<input type="file" accept="image/jpeg,image/png,image/webp" data-pick="image" hidden></label>
+                <button type="button" class="link-btn mono" data-unpick="image"${p.image && p.image.url ? '' : ' hidden'}>Remove image</button>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <span class="field-label mono">MP3 preview <em class="muted">A short demo artists can play before buying. MP3, up to 20 MB.</em></span>
+            <div class="quick prod-file">
+              <audio controls preload="none" data-audio${p.preview && p.preview.url ? ` src="${esc(p.preview.url)}"` : ' hidden'}></audio>
+              <span class="mono muted" data-cur="preview"${p.preview && p.preview.url ? ' hidden' : ''}>No preview yet</span>
+              <label class="more file-btn">${p.preview && p.preview.url ? 'Replace preview' : 'Upload preview'}<input type="file" accept="audio/mpeg,.mp3" data-pick="preview" hidden></label>
+              <button type="button" class="link-btn mono" data-unpick="preview"${p.preview && p.preview.url ? '' : ' hidden'}>Remove preview</button>
+            </div>
+          </div>
+          ${fileRow('file', 'Product file', 'What buyers download, usually a ZIP. Up to 2 GB. Only buyers can get it.', '.zip,.rar,.7z,application/zip,application/x-zip-compressed,application/octet-stream,*/*', p.file && p.file.name ? `${p.file.name} · ${H.bytes(p.file.size || 0)}` : '')}
+          <label class="check"><input type="checkbox" name="active"${p.active !== false ? ' checked' : ''}><span class="check-box" aria-hidden="true"></span><span class="mono">Show this product to artists</span></label>
+        </fieldset>
+        <span class="drop-progress upload-bar" hidden aria-hidden="true"><span></span></span>
+        <div class="quick">
+          <button class="more" type="submit">${isNew ? 'Add product' : 'Save changes'}</button>
+          <button type="button" class="link-btn mono" data-back>Cancel</button>
+          ${isNew ? '' : '<button type="button" class="link-btn mono" data-delete-prod>Delete product</button>'}
+        </div>
+        <p class="form-status mono muted" aria-live="polite"></p>
+      </form>`;
+    const showProdGrid = (msg) => {
+      pEditor.hidden = true;
+      pEditor.innerHTML = '';
+      pGrid.hidden = false;
+      pGrid.innerHTML = products.map(prodCard).join('') + prodAdd;
+      pStatus.textContent = msg || '';
+    };
+    const openProd = (p, isNew) => {
+      pend = {};
+      pGrid.hidden = true;
+      pEditor.hidden = false;
+      pEditor.innerHTML = prodForm(p, isNew);
+      pStatus.textContent = '';
+      const top = $('a-products').getBoundingClientRect().top + window.scrollY - 110;
+      if (window.scrollY > top) window.scrollTo({ top });
+      pEditor.querySelector('[name="title"]').focus({ preventScroll: true });
+    };
+    const loadProducts = async (msg) => {
+      const snap = await F.getDocs(F.collection(db, 'products'));
+      products = snap.docs.map((d) => ({ ...d.data(), id: d.id })).sort((a, b) => (a.order || 0) - (b.order || 0) || String(a.title).localeCompare(String(b.title)));
+      showProdGrid(msg);
+    };
+    loadProducts().catch((err) => { pStatus.textContent = H.message(err); });
+
+    const pickProd = (e) => {
+      if (e.target.closest('[data-new-prod]')) { openProd({ order: products.reduce((n, p) => Math.max(n, Number(p.order) || 0), 0) + 1 }, true); return; }
+      const card = e.target.closest('[data-prod]');
+      if (card) openProd(products.find((x) => x.id === card.dataset.prod), false);
+    };
+    pGrid.addEventListener('click', pickProd);
+    pGrid.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-prod]')) { e.preventDefault(); pickProd(e); } });
+    const LIMITS = {
+      image: { types: /^image\/(jpeg|png|webp)$/, max: 8 * 1024 * 1024, bad: 'Use a JPG, PNG or WebP image under 8 MB.' },
+      preview: { types: /^audio\/(mpeg|mp3)$/, max: 20 * 1024 * 1024, bad: 'Use an MP3 preview under 20 MB.' },
+      file: { types: /.*/, max: 2 * 1024 * 1024 * 1024, bad: 'The product file must be under 2 GB.' },
+    };
+    pEditor.addEventListener('change', (e) => {
+      const inp = e.target.closest('[data-pick]');
+      if (!inp || !inp.files[0]) return;
+      const key = inp.dataset.pick;
+      const f = inp.files[0];
+      const out = pEditor.querySelector('.form-status');
+      const type = f.type || (/\.mp3$/i.test(f.name) ? 'audio/mpeg' : '');
+      if (!LIMITS[key].types.test(type) || f.size > LIMITS[key].max) { out.textContent = LIMITS[key].bad; inp.value = ''; return; }
+      out.textContent = '';
+      pend[key] = f;
+      delete pend[`remove_${key}`];
+      const un = pEditor.querySelector(`[data-unpick="${key}"]`);
+      if (un) un.hidden = false;
+      if (key === 'image') {
+        const prev = pEditor.querySelector('[data-pic-preview]');
+        prev.innerHTML = '<img alt="">';
+        prev.firstChild.src = URL.createObjectURL(f);
+      } else if (key === 'preview') {
+        const a = pEditor.querySelector('[data-audio]');
+        a.src = URL.createObjectURL(f);
+        a.hidden = false;
+        pEditor.querySelector('[data-cur="preview"]').hidden = true;
+      } else {
+        pEditor.querySelector('[data-cur="file"]').textContent = `${f.name} · ${H.bytes(f.size)} (uploads when you save)`;
+      }
+    });
+    pEditor.addEventListener('click', async (e) => {
+      if (e.target.closest('[data-back]')) { showProdGrid(); return; }
+      const un = e.target.closest('[data-unpick]');
+      if (un) {
+        const key = un.dataset.unpick;
+        delete pend[key];
+        pend[`remove_${key}`] = true;
+        un.hidden = true;
+        if (key === 'image') pEditor.querySelector('[data-pic-preview]').innerHTML = '<svg aria-hidden="true"><use href="#globe"/></svg><span class="mono muted">Picture placeholder</span>';
+        if (key === 'preview') {
+          const a = pEditor.querySelector('[data-audio]');
+          a.pause(); a.removeAttribute('src'); a.hidden = true;
+          pEditor.querySelector('[data-cur="preview"]').hidden = false;
+        }
+        return;
+      }
+      if (e.target.closest('[data-delete-prod]')) {
+        const f = e.target.closest('form');
+        const p = products.find((x) => x.id === f.dataset.id);
+        if (!window.confirm(`Delete "${p.title}" and its files? People who already bought it can't download it any more. To hide it from the shop instead, untick "Show this product to artists".`)) return;
+        try {
+          await Promise.all([p.image, p.preview, p.file].filter((x) => x && x.path).map((x) => S.deleteObject(S.ref(storage, x.path)).catch(() => {})));
+          await F.deleteDoc(F.doc(db, 'products', p.id));
+          await loadProducts(`${p.title} deleted.`);
+        } catch (err) { f.querySelector('.form-status').textContent = H.message(err); }
+      }
+    });
+    pEditor.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      const el = f.elements;
+      const out = f.querySelector('.form-status');
+      const title = el.title.value.trim();
+      if (!title) { out.textContent = 'Give the product a title.'; el.title.focus(); return; }
+      const price = num(el.price.value);
+      if (price !== null && !(price >= 0.5)) { out.textContent = 'The price must be a number of at least 0.50, like 19 or 24.99.'; el.price.focus(); return; }
+      const old = products.find((x) => x.id === f.dataset.id) || {};
+      if (el.active.checked && !pend.file && !(old.file && old.file.path)) { out.textContent = 'Upload the product file before showing it to artists, or untick "Show this product to artists" to save it as a draft.'; return; }
+      const ref = f.dataset.id ? F.doc(db, 'products', f.dataset.id) : F.doc(F.collection(db, 'products'));
+      const btn = f.querySelector('[type="submit"]');
+      const bar = f.querySelector('.upload-bar');
+      btn.disabled = true;
+      try {
+        const kept = { image: old.image || null, preview: old.preview || null, file: old.file || null };
+        const uploads = ['image', 'preview', 'file'].filter((k) => pend[k]);
+        const totalBytes = uploads.reduce((n, k) => n + pend[k].size, 0) || 1;
+        let doneBytes = 0;
+        for (const k of ['image', 'preview', 'file']) {
+          if ((pend[k] || pend[`remove_${k}`]) && kept[k] && kept[k].path) {
+            await S.deleteObject(S.ref(storage, kept[k].path)).catch(() => {});
+            kept[k] = null;
+          }
+        }
+        for (const k of uploads) {
+          const file = pend[k];
+          const folder = k === 'file' ? 'files' : 'public';
+          const path = `products/${ref.id}/${folder}/${Date.now()}-${file.name.replace(/[^\w.-]+/g, '_').slice(-80)}`;
+          bar.hidden = false;
+          out.textContent = `Uploading ${k === 'file' ? 'the product file' : k === 'preview' ? 'the preview' : 'the image'}…`;
+          const type = file.type || (k === 'preview' ? 'audio/mpeg' : 'application/octet-stream');
+          await new Promise((resolve, reject) => {
+            const task = S.uploadBytesResumable(S.ref(storage, path), file, { contentType: type });
+            task.on('state_changed', (s) => { bar.firstElementChild.style.width = `${Math.round(((doneBytes + s.bytesTransferred) / totalBytes) * 100)}%`; }, reject, resolve);
+          });
+          doneBytes += file.size;
+          kept[k] = k === 'file'
+            ? { path, name: file.name, size: file.size }
+            : { path, url: await S.getDownloadURL(S.ref(storage, path)) };
+        }
+        bar.hidden = true;
+        await F.setDoc(ref, {
+          title,
+          category: el.category.value.trim(),
+          price,
+          order: Number(el.order.value) || 0,
+          description: el.description.value.trim(),
+          image: kept.image,
+          preview: kept.preview,
+          file: kept.file,
+          active: el.active.checked,
+          createdAt: old.createdAt || F.serverTimestamp(),
+          updatedAt: F.serverTimestamp(),
+        });
+        await loadProducts(f.dataset.id ? `${title} saved. Artists see it straight away.` : `${title} added. Artists see it straight away.`);
+      } catch (err) {
+        bar.hidden = true;
+        out.textContent = err && err.code === 'storage/unauthorized' ? 'That file couldn\'t be uploaded. Check its type and size.' : H.message(err);
+        btn.disabled = false;
+      }
     });
 
     // ---------- Events ----------

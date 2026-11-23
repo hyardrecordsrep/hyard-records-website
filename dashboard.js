@@ -1,4 +1,4 @@
-// Artist dashboard: overview, demo submission, demo status, services, orders, profile and security
+// Artist dashboard: overview, demo submission, demo status, services, products, orders, profile and security
 (() => {
   const H = window.HyardFirebase;
   const SV = window.HyardServices;
@@ -26,7 +26,7 @@
   document.addEventListener('input', (e) => { if (e.target.matches('.dash input, .dash textarea')) setError(e.target, ''); });
 
   // ---------- Tabs (the address hash picks the section) ----------
-  const TABS = ['overview', 'submit', 'demos', 'services', 'orders', 'profile', 'security'];
+  const TABS = ['overview', 'submit', 'demos', 'services', 'products', 'orders', 'profile', 'security'];
   const showTab = (focus) => {
     const name = TABS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'overview';
     document.querySelectorAll('[data-panel]').forEach((p) => { p.hidden = p.id !== name; });
@@ -392,11 +392,106 @@
     });
     SV.getCart(fb, uid).then((items) => { $('stat-cart').textContent = String(items.length); }).catch(() => {});
 
+    // ---------- Products (drum kits, sample packs…) ----------
+    const pGrid = $('prod-grid');
+    const pFilter = $('prod-filter');
+    let products = [];
+    let category = '';
+    let inCart = new Set();
+    let owned = new Set();
+    const preview = new Audio();
+    preview.preload = 'none';
+    let playing = null;
+    const setPlaying = (btn, on) => {
+      if (!btn) return;
+      btn.classList.toggle('is-playing', on);
+      btn.setAttribute('aria-pressed', String(on));
+      btn.querySelector('.prod-play-label').textContent = on ? 'Pause' : 'Play preview';
+    };
+    preview.addEventListener('ended', () => { setPlaying(playing, false); playing = null; });
+    preview.addEventListener('pause', () => setPlaying(playing, false));
+    preview.addEventListener('play', () => setPlaying(playing, true));
+    const prodCard = (p) => {
+      const bought = owned.has(p.id);
+      const added = inCart.has(p.id);
+      const priced = SV.hasPrice(p.price);
+      return `
+      <article class="prod" data-prod="${esc(p.id)}">
+        <div class="ev-pic prod-pic">${p.image && p.image.url ? `<img src="${esc(p.image.url)}" alt="" loading="lazy">` : '<svg aria-hidden="true"><use href="#globe"/></svg>'}
+          ${p.preview && p.preview.url ? `<button type="button" class="prod-play" data-play aria-pressed="false"><span class="prod-play-icon" aria-hidden="true"></span><span class="prod-play-label">Play preview</span></button>` : ''}
+        </div>
+        <div class="prod-body">
+          ${p.category ? `<span class="mono muted prod-cat">${esc(p.category)}</span>` : ''}
+          <h3 class="display prod-title">${esc(p.title)}</h3>
+          ${p.description ? `<p class="prod-desc">${esc(p.description)}</p>` : ''}
+          <div class="prod-foot">
+            <span class="display prod-price">${esc(priced ? H.euro(p.price) : 'Price coming soon')}</span>
+            ${bought ? '<a class="more" href="#orders">Bought · Download</a>'
+              : added ? '<a class="more" href="cart">In your cart</a>'
+              : `<button type="button" class="news-btn display prod-add"${priced ? '' : ' disabled'}>Add to cart <svg aria-hidden="true"><use href="#i-arrow"/></svg></button>`}
+          </div>
+        </div>
+      </article>`;
+    };
+    const renderProducts = () => {
+      const cats = [...new Set(products.map((p) => p.category).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+      if (category && !cats.includes(category)) category = '';
+      pFilter.hidden = cats.length < 2;
+      pFilter.innerHTML = ['', ...cats].map((c) => `<button class="filter${c === category ? ' is-active' : ''}" type="button" data-cat="${esc(c)}" aria-pressed="${c === category}">${esc(c || 'All')}</button>`).join('');
+      const list = products.filter((p) => !category || p.category === category);
+      if (playing && !document.body.contains(playing)) { preview.pause(); playing = null; }
+      pGrid.innerHTML = list.map(prodCard).join('');
+      $('prod-empty').hidden = products.length > 0;
+    };
+    Promise.all([SV.loadProducts(fb), SV.getCart(fb, uid).catch(() => [])]).then(([list, cart]) => {
+      products = list;
+      inCart = new Set(cart.filter((i) => i.productId).map((i) => i.productId));
+      renderProducts();
+    });
+    pFilter.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-cat]');
+      if (!b) return;
+      category = b.dataset.cat;
+      preview.pause();
+      renderProducts();
+    });
+    pGrid.addEventListener('click', async (e) => {
+      const card = e.target.closest('.prod');
+      if (!card) return;
+      const p = products.find((x) => x.id === card.dataset.prod);
+      const play = e.target.closest('[data-play]');
+      if (play) {
+        if (playing === play && !preview.paused) { preview.pause(); return; }
+        if (playing && playing !== play) setPlaying(playing, false);
+        playing = play;
+        if (preview.dataset.id !== p.id) { preview.src = p.preview.url; preview.dataset.id = p.id; }
+        preview.play().catch(() => {});
+        return;
+      }
+      const add = e.target.closest('.prod-add');
+      if (!add) return;
+      add.disabled = true;
+      try {
+        const items = await SV.addToCart(fb, uid, { productId: p.id });
+        inCart.add(p.id);
+        $('stat-cart').textContent = String(items.length);
+        $('prod-status').innerHTML = `${esc(p.title)} is in your cart. <a href="cart">Go to cart (${items.length})</a>`;
+        renderProducts();
+      } catch (err) {
+        add.disabled = false;
+        $('prod-status').textContent = err.code === 'cart/full' ? err.message : H.message(err);
+      }
+    });
+    const site = fb.site || {};
+    const projectId = (site.firebase && site.firebase.projectId) || 'hyardrecords';
+    const dlUrl = (o, d) => (fb.mock ? '#' : `https://europe-west1-${projectId}.cloudfunctions.net/download?o=${encodeURIComponent(o.id)}&t=${encodeURIComponent(d.token)}`);
+
     // ---------- Orders ----------
     const OPEN = ['awaiting_payment', 'paid', 'in_progress'];
     const orderKind = (s) => (s === 'delivered' ? 'on' : ['payment_failed', 'cancelled', 'refunded'].includes(s) ? 'off' : '');
     const orderItem = (o) => {
-      const working = ['paid', 'in_progress', 'delivered'].includes(o.status) && !o.filesDeletedAt;
+      const working = ['paid', 'in_progress', 'delivered'].includes(o.status) && !o.filesDeletedAt && o.hasServices !== false;
+      const canDownload = ['paid', 'in_progress', 'delivered'].includes(o.status) && (o.downloads || []).length;
       return `
       <li class="item" data-id="${esc(o.id)}">
         <div class="item-head">
@@ -407,6 +502,7 @@
         <ul class="item-lines">${(o.items || []).map((i) => `<li><span class="mono">${esc(i.label)}</span><span class="mono muted">${esc(H.euro(i.amount) || '')}</span></li>`).join('')}</ul>
         ${o.status === 'awaiting_payment' && o.checkoutUrl && o.expiresAt && o.expiresAt.seconds * 1000 > Date.now()
           ? `<a class="more" href="${esc(o.checkoutUrl)}">Finish payment</a>` : ''}
+        ${canDownload ? `<h4 class="mono muted">Your downloads</h4><ul class="item-files">${o.downloads.map((d) => `<li><span class="mono">${esc(d.title)}</span><span class="mono muted">${esc(`${Math.max(0, 10 - (d.count || 0))} of 10 left`)}</span><a class="link-btn mono" href="${esc(dlUrl(o, d))}">Download</a></li>`).join('')}</ul>` : ''}
         ${o.filesDeletedAt ? `<p class="mono muted">Order closed. Files deleted ${esc(H.fmtDate(o.filesDeletedAt))}.</p>` : ''}
         ${o.adminNote ? `<div class="item-note"><span class="mono muted">Note from the label</span><p>${esc(o.adminNote)}</p></div>` : ''}
         ${working ? `
@@ -430,6 +526,8 @@
       // Don't redraw while someone is typing a brief
       if (document.activeElement && document.activeElement.matches('[data-brief]')) return;
       $('order-list').innerHTML = orders.map(orderItem).join('');
+      owned = new Set(orders.filter((o) => ['paid', 'in_progress', 'delivered'].includes(o.status)).flatMap((o) => (o.downloads || []).map((d) => d.productId)));
+      if (products.length) renderProducts();
       $('orders-empty').hidden = orders.length > 0;
       const open = orders.filter((o) => OPEN.includes(o.status) && o.status !== 'awaiting_payment');
       $('count-orders').textContent = open.length || '';

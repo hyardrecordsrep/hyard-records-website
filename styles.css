@@ -1883,3 +1883,80 @@ body { transition: opacity 0.25s ease; }
   .ev.has-pic { grid-template-columns: 84px minmax(0, 1fr); }
   .ev-media { grid-column: 1 / -1; width: 100%; }
 }
+
+/* Products (dashboard shop and admin) */
+.check[hidden] { display: none; }
+.prod-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 18px; }
+.prod-grid[hidden] { display: none; }
+.prod { display: flex; flex-direction: column; border: 1px solid var(--line); min-width: 0; transition: border-color 0.3s; }
+.prod:hover { border-color: #444; }
+.prod-pic { aspect-ratio: 1; }
+.prod-body { display: flex; flex-direction: column; gap: 10px; padding: 18px; flex: 1 1 auto; }
+.prod-cat { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; }
+.prod-title { margin: 0; font-size: clamp(18px, 2.2vw, 24px); line-height: 1.15; }
+.prod-desc { margin: 0; font-size: 14px; line-height: 1.7; color: #d6d6d6; white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+.prod-body > .mono.muted:not(.prod-cat) { margin: 0; font-size: 12px; letter-spacing: 0.04em; overflow-wrap: anywhere; }
+.prod-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 14px; border-top: 1px solid var(--line); }
+.prod-price { font-size: clamp(18px, 2vw, 22px); }
+.prod-foot .news-btn { height: 44px; font-size: 13px; }
+.prod-foot .news-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.prod-foot .more { text-decoration: none; }
+.prod-play { position: absolute; left: 12px; bottom: 12px; display: inline-flex; align-items: center; gap: 10px; padding: 9px 14px 9px 11px; background: rgba(0, 0, 0, 0.82); color: var(--hyard-white); border: 1px solid var(--hyard-white); font: 400 11px var(--mono); text-transform: uppercase; letter-spacing: 0.14em; cursor: pointer; transition: background 0.3s, color 0.3s; }
+.prod-play:hover, .prod-play:focus-visible, .prod-play.is-playing { background: var(--hyard-white); color: var(--hyard-black); outline: 0; }
+.prod-play-icon { width: 0; height: 0; border-style: solid; border-width: 6px 0 6px 10px; border-color: transparent transparent transparent currentColor; }
+.prod-play.is-playing .prod-play-icon { width: 10px; height: 12px; border: 0; border-left: 3px solid currentColor; border-right: 3px solid currentColor; }
+.prod-admin { cursor: pointer; }
+.prod-admin:hover, .prod-admin:focus-visible { border-color: var(--hyard-white); outline: 0; }
+.prod-admin.is-off { opacity: 0.55; }
+.prod-admin.is-off:hover, .prod-admin.is-off:focus-visible { opacity: 1; }
+.prod-admin:hover .svc-admin-edit svg { transform: translate(3px, -3px); }
+.prod-admin .prod-foot .svc-admin-edit { margin: 0; padding: 0; border: 0; }
+.prod-file { align-items: center; }
+.prod-file audio { max-width: 100%; height: 40px; }
+.prod-file [hidden] { display: none; }
+
+/* Admin overview */
+.ov-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.ov-head .more { text-decoration: none; }
+.ov-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-bottom: 18px; }
+.ov-tiles[hidden], .ov-cols[hidden], .ov-card[hidden] { display: none; }
+.ov-tile { display: flex; flex-direction: column; gap: 10px; padding: 20px; border: 1px solid var(--line); color: var(--hyard-white); text-decoration: none; transition: border-color 0.3s; min-width: 0; }
+.ov-tile:hover, .ov-tile:focus-visible { border-color: var(--hyard-white); outline: 0; }
+.ov-tile .mono { font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; }
+.ov-num { font-size: clamp(26px, 3.4vw, 40px); line-height: 1; }
+.ov-card { padding: 20px; border: 1px solid var(--line); min-width: 0; }
+.ov-card + .ov-card, .ov-card + .ov-cols { margin-top: 18px; }
+.ov-card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.ov-card-head h3 { margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.16em; }
+.ov-range { margin: 0; }
+.ov-chart { position: relative; width: 100%; overflow: hidden; }
+.ov-chart svg { display: block; }
+.ov-bar { fill: var(--hyard-white); }
+.ov-grid { stroke: #222; stroke-width: 1; }
+.ov-grid.is-base { stroke: #555; }
+.ov-axis { fill: var(--hyard-ash, #8a8a8a); font: 400 10px var(--mono); letter-spacing: 0.06em; }
+.ov-hit { fill: transparent; cursor: default; outline: 0; }
+.ov-hit.is-on { fill: rgba(255, 255, 255, 0.06); }
+.ov-tip { position: absolute; transform: translate(-50%, -100%); display: flex; flex-direction: column; gap: 2px; padding: 8px 12px; background: var(--hyard-black); border: 1px solid var(--hyard-white); pointer-events: none; white-space: nowrap; z-index: 2; }
+.ov-tip[hidden] { display: none; }
+.ov-tip .mono { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; }
+.ov-tip strong { font-size: 18px; font-weight: inherit; }
+.ov-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 18px; }
+.ov-cols .ov-card + .ov-card { margin-top: 0; }
+.ov-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.ov-row { display: flex; align-items: center; gap: 14px; padding: 13px 4px; border-bottom: 1px solid var(--line); color: var(--hyard-white); text-decoration: none; transition: background 0.3s; }
+.ov-row:hover, .ov-row:focus-visible { background: var(--hyard-graphite); outline: 0; }
+.ov-row-main { display: flex; flex-direction: column; gap: 3px; flex: 1 1 auto; min-width: 0; }
+.ov-row-title { font-size: 14px; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ov-row-main .mono { font-size: 11px; letter-spacing: 0.06em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ov-row-side { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex: none; }
+.ov-row-side .display { font-size: 16px; }
+.ov-row-side .mono { font-size: 10px; }
+.ov-rank { font-size: 11px; flex: none; }
+.ov-none { padding: 14px 4px; }
+@media (max-width: 1100px) { .ov-cols { grid-template-columns: 1fr; } }
+@media (max-width: 720px) {
+  .ov-tiles { grid-template-columns: 1fr 1fr; }
+  .ov-tiles .ov-tile:first-child { grid-column: 1 / -1; }
+  .ov-card { padding: 14px; }
+}
