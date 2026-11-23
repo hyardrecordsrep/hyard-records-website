@@ -1,4 +1,4 @@
-// Artist dashboard: overview, demo submission, demo status, services, products, orders, profile and security
+// Artist dashboard: overview, demo submission, demo status, orders, profile and security
 (() => {
   const H = window.HyardFirebase;
   const SV = window.HyardServices;
@@ -26,7 +26,9 @@
   document.addEventListener('input', (e) => { if (e.target.matches('.dash input, .dash textarea')) setError(e.target, ''); });
 
   // ---------- Tabs (the address hash picks the section) ----------
-  const TABS = ['overview', 'submit', 'demos', 'services', 'products', 'orders', 'profile', 'security'];
+  const TABS = ['overview', 'submit', 'demos', 'orders', 'profile', 'security'];
+  // Services and products moved to the Store page: send old links there
+  if (/^#(services|products)$/.test(location.hash)) { location.replace(`store${location.hash}`); return; }
   const showTab = (focus) => {
     const name = TABS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'overview';
     document.querySelectorAll('[data-panel]').forEach((p) => { p.hidden = p.id !== name; });
@@ -58,7 +60,7 @@
     if (await H.isAdmin(user)) { H.setAdminHint(true); location.replace('admin'); return; }
     $('dash').hidden = false;
     showTab(false);
-    // Opened on a section (dashboard#services): line up the dashboard below the header
+    // Opened on a section (dashboard#orders): line up the dashboard below the header
     if (TABS.includes(location.hash.slice(1))) {
       requestAnimationFrame(() => window.scrollTo({ top: Math.max(0, $('dash').getBoundingClientRect().top + window.scrollY - 110) }));
     }
@@ -324,166 +326,9 @@
       }
     });
 
-    // ---------- Services ----------
-    const grid = $('svc-grid');
-    let services = [];
-    const optionPrice = (svc, opt, tracks) => SV.linePrice(svc, { option: opt, tracks });
-    const svcCard = (s) => {
-      const perTrack = SV.hasPrice(s.pricePerTrack) ? `${H.euro(s.pricePerTrack)} per track` : 'Price coming soon';
-      return `
-      <article class="svc" data-svc="${esc(s.id)}">
-        <h3 class="display svc-name">${esc(s.name)}</h3>
-        <p class="svc-summary">${esc(s.summary || '')}</p>
-        <ul class="svc-includes">${(s.includes || []).map((x) => `<li class="mono">${esc(x)}</li>`).join('')}</ul>
-        <p class="mono muted svc-meta">${esc([s.turnaround, s.revisions].filter(Boolean).join(' · '))}</p>
-        <fieldset class="svc-options">
-          <legend class="visually-hidden">Choose an option for ${esc(s.name)}</legend>
-          <label class="svc-opt">
-            <input type="radio" name="opt-${esc(s.id)}" value="track" checked>
-            <span class="svc-opt-box"><span class="mono">Per track</span><span class="mono muted">${esc(perTrack)}</span></span>
-          </label>
-          ${(s.packages || []).map((p) => `
-          <label class="svc-opt">
-            <input type="radio" name="opt-${esc(s.id)}" value="${esc(p.id)}">
-            <span class="svc-opt-box"><span class="mono">${esc(p.name)} package · ${esc(p.tracks)} tracks</span><span class="mono muted">${esc(SV.hasPrice(p.price) ? H.euro(p.price) : 'Price coming soon')}</span></span>
-          </label>`).join('')}
-        </fieldset>
-        <div class="svc-foot">
-          <label class="svc-tracks"><span class="mono muted">Tracks</span><input type="number" min="1" max="30" value="1" inputmode="numeric"></label>
-          <span class="display svc-total" aria-live="polite"></span>
-          <button type="button" class="news-btn display svc-add">Add to cart <svg aria-hidden="true"><use href="#i-arrow"/></svg></button>
-        </div>
-      </article>`;
-    };
-    const updateCard = (card) => {
-      const s = services.find((x) => x.id === card.dataset.svc);
-      const opt = card.querySelector('input[type=radio]:checked').value;
-      const tracksBox = card.querySelector('.svc-tracks');
-      tracksBox.hidden = opt !== 'track';
-      const n = Math.min(30, Math.max(1, Number(tracksBox.querySelector('input').value) || 1));
-      const price = optionPrice(s, opt, n);
-      card.querySelector('.svc-total').textContent = price == null ? 'Price coming soon' : H.euro(price);
-      const add = card.querySelector('.svc-add');
-      add.disabled = price == null;
-      add.title = price == null ? 'Bookings open once prices are set' : '';
-    };
-    SV.load(fb).then(({ list }) => {
-      services = list;
-      grid.innerHTML = list.map(svcCard).join('');
-      grid.querySelectorAll('.svc').forEach(updateCard);
-      if (!list.some((s) => SV.hasPrice(s.pricePerTrack) || (s.packages || []).some((p) => SV.hasPrice(p.price)))) {
-        $('svc-status').textContent = 'Prices are coming soon. Bookings open as soon as they are set.';
-      }
-    });
-    grid.addEventListener('input', (e) => { const c = e.target.closest('.svc'); if (c) updateCard(c); });
-    grid.addEventListener('click', async (e) => {
-      const btn = e.target.closest('.svc-add');
-      if (!btn) return;
-      const card = btn.closest('.svc');
-      const opt = card.querySelector('input[type=radio]:checked').value;
-      const tracks = Number(card.querySelector('.svc-tracks input').value) || 1;
-      btn.disabled = true;
-      try {
-        const items = await SV.addToCart(fb, uid, { serviceId: card.dataset.svc, option: opt, tracks });
-        $('stat-cart').textContent = String(items.length);
-        $('svc-status').innerHTML = `Added to your cart. <a href="cart">Go to cart (${items.length})</a>`;
-      } catch (err) { $('svc-status').textContent = err.code === 'cart/full' ? err.message : H.message(err); }
-      btn.disabled = false;
-    });
+    // ---------- Cart count (services and products are bought on the Store page) ----------
     SV.getCart(fb, uid).then((items) => { $('stat-cart').textContent = String(items.length); }).catch(() => {});
 
-    // ---------- Products (drum kits, sample packs…) ----------
-    const pGrid = $('prod-grid');
-    const pFilter = $('prod-filter');
-    let products = [];
-    let category = '';
-    let inCart = new Set();
-    let owned = new Set();
-    const preview = new Audio();
-    preview.preload = 'none';
-    let playing = null;
-    const setPlaying = (btn, on) => {
-      if (!btn) return;
-      btn.classList.toggle('is-playing', on);
-      btn.setAttribute('aria-pressed', String(on));
-      btn.querySelector('.prod-play-label').textContent = on ? 'Pause' : 'Play preview';
-    };
-    preview.addEventListener('ended', () => { setPlaying(playing, false); playing = null; });
-    preview.addEventListener('pause', () => setPlaying(playing, false));
-    preview.addEventListener('play', () => setPlaying(playing, true));
-    const prodCard = (p) => {
-      const bought = owned.has(p.id);
-      const added = inCart.has(p.id);
-      const priced = SV.hasPrice(p.price);
-      return `
-      <article class="prod" data-prod="${esc(p.id)}">
-        <div class="ev-pic prod-pic">${p.image && p.image.url ? `<img src="${esc(p.image.url)}" alt="" loading="lazy">` : '<svg aria-hidden="true"><use href="#globe"/></svg>'}
-          <a class="prod-link" href="product?p=${encodeURIComponent(p.id)}" tabindex="-1" aria-hidden="true"></a>
-          ${p.preview && p.preview.url ? `<button type="button" class="prod-play" data-play aria-pressed="false"><span class="prod-play-icon" aria-hidden="true"></span><span class="prod-play-label">Play preview</span></button>` : ''}
-        </div>
-        <div class="prod-body">
-          ${p.category ? `<span class="mono muted prod-cat">${esc(p.category)}</span>` : ''}
-          <h3 class="display prod-title"><a href="product?p=${encodeURIComponent(p.id)}">${esc(p.title)}</a></h3>
-          ${p.description ? `<p class="prod-desc">${esc(p.description)}</p>` : ''}
-          <a class="mono prod-more" href="product?p=${encodeURIComponent(p.id)}">Details and pictures</a>
-          <div class="prod-foot">
-            <span class="display prod-price">${esc(priced ? H.euro(p.price) : 'Price coming soon')}</span>
-            ${bought ? '<a class="more" href="#orders">Bought · Download</a>'
-              : added ? '<a class="more" href="cart">In your cart</a>'
-              : `<button type="button" class="news-btn display prod-add"${priced ? '' : ' disabled'}>Add to cart <svg aria-hidden="true"><use href="#i-arrow"/></svg></button>`}
-          </div>
-        </div>
-      </article>`;
-    };
-    const renderProducts = () => {
-      const cats = [...new Set(products.map((p) => p.category).filter(Boolean))].sort((a, b) => a.localeCompare(b));
-      if (category && !cats.includes(category)) category = '';
-      pFilter.hidden = cats.length < 2;
-      pFilter.innerHTML = ['', ...cats].map((c) => `<button class="filter${c === category ? ' is-active' : ''}" type="button" data-cat="${esc(c)}" aria-pressed="${c === category}">${esc(c || 'All')}</button>`).join('');
-      const list = products.filter((p) => !category || p.category === category);
-      if (playing && !document.body.contains(playing)) { preview.pause(); playing = null; }
-      pGrid.innerHTML = list.map(prodCard).join('');
-      $('prod-empty').hidden = products.length > 0;
-    };
-    Promise.all([SV.loadProducts(fb), SV.getCart(fb, uid).catch(() => [])]).then(([list, cart]) => {
-      products = list;
-      inCart = new Set(cart.filter((i) => i.productId).map((i) => i.productId));
-      renderProducts();
-    });
-    pFilter.addEventListener('click', (e) => {
-      const b = e.target.closest('[data-cat]');
-      if (!b) return;
-      category = b.dataset.cat;
-      preview.pause();
-      renderProducts();
-    });
-    pGrid.addEventListener('click', async (e) => {
-      const card = e.target.closest('.prod');
-      if (!card) return;
-      const p = products.find((x) => x.id === card.dataset.prod);
-      const play = e.target.closest('[data-play]');
-      if (play) {
-        if (playing === play && !preview.paused) { preview.pause(); return; }
-        if (playing && playing !== play) setPlaying(playing, false);
-        playing = play;
-        if (preview.dataset.id !== p.id) { preview.src = p.preview.url; preview.dataset.id = p.id; }
-        preview.play().catch(() => {});
-        return;
-      }
-      const add = e.target.closest('.prod-add');
-      if (!add) return;
-      add.disabled = true;
-      try {
-        const items = await SV.addToCart(fb, uid, { productId: p.id });
-        inCart.add(p.id);
-        $('stat-cart').textContent = String(items.length);
-        $('prod-status').innerHTML = `${esc(p.title)} is in your cart. <a href="cart">Go to cart (${items.length})</a>`;
-        renderProducts();
-      } catch (err) {
-        add.disabled = false;
-        $('prod-status').textContent = err.code === 'cart/full' ? err.message : H.message(err);
-      }
-    });
     const site = fb.site || {};
     const projectId = (site.firebase && site.firebase.projectId) || 'hyardrecords';
     const dlUrl = (o, d) => (fb.mock ? '#' : `https://europe-west1-${projectId}.cloudfunctions.net/download?o=${encodeURIComponent(o.id)}&t=${encodeURIComponent(d.token)}`);
@@ -528,8 +373,6 @@
       // Don't redraw while someone is typing a brief
       if (document.activeElement && document.activeElement.matches('[data-brief]')) return;
       $('order-list').innerHTML = orders.map(orderItem).join('');
-      owned = new Set(orders.filter((o) => ['paid', 'in_progress', 'delivered'].includes(o.status)).flatMap((o) => (o.downloads || []).map((d) => d.productId)));
-      if (products.length) renderProducts();
       $('orders-empty').hidden = orders.length > 0;
       const open = orders.filter((o) => OPEN.includes(o.status) && o.status !== 'awaiting_payment');
       $('count-orders').textContent = open.length || '';

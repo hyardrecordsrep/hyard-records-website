@@ -1,5 +1,5 @@
 // Product page (/product?p={id}): pictures, full description, preview player and the buy button.
-// Only for logged-in artists, like the Products tab on the dashboard.
+// Anyone can look; buying needs an account, so signed-out visitors get "Log in to buy".
 (() => {
   const H = window.HyardFirebase;
   const SV = window.HyardServices;
@@ -19,10 +19,11 @@
   };
 
   H.ready.then(async (fb0) => {
-    if (!fb0.configured) { missing('Accounts aren\'t set up yet.'); return; }
-    const { fb, user } = await H.requireUser();
+    if (!fb0.configured) { missing('The store opens soon.'); return; }
+    const fb = fb0;
+    const user = await H.userReady;
     const { F, db } = fb;
-    const uid = user.uid;
+    const uid = user ? user.uid : null;
 
     let p = null;
     try {
@@ -156,13 +157,19 @@
     let inCart = false;
     let owned = false;
     const renderBuy = () => {
+      if (!uid) {
+        const next = encodeURIComponent(`product?p=${p.id}`);
+        $('pp-buy').innerHTML = `<a class="news-btn display" href="account?mode=signup&next=${next}">Log in to buy <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          <p class="mono muted pp-buy-note">Make an account or <a href="account?next=${next}">log in</a> to add this to your cart.</p>`;
+        return;
+      }
       $('pp-buy').innerHTML = owned
         ? '<a class="news-btn display" href="dashboard#orders">Bought · Download <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>'
         : inCart
           ? '<a class="news-btn display" href="cart">In your cart · Checkout <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>'
           : `<button type="button" class="news-btn display" id="pp-add"${priced ? '' : ' disabled'}>Add to cart <svg aria-hidden="true"><use href="#i-arrow"/></svg></button>`;
     };
-    const [cart, orders] = await Promise.all([
+    const [cart, orders] = !uid ? [[], []] : await Promise.all([
       SV.getCart(fb, uid).catch(() => []),
       F.getDocs(F.query(F.collection(db, 'orders'), F.where('uid', '==', uid))).then((s) => s.docs.map((d) => d.data())).catch(() => []),
     ]);
@@ -171,7 +178,7 @@
     renderBuy();
     $('pp-buy').addEventListener('click', async (e) => {
       const add = e.target.closest('#pp-add');
-      if (!add) return;
+      if (!add || !uid) return;
       add.disabled = true;
       try {
         const items = await SV.addToCart(fb, uid, { productId: p.id });

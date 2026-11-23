@@ -52,9 +52,26 @@
     $('post-date-foot').textContent = `Posted ${N.fmt(p.date)}`;
     const c = N.cover(p);
     if (c) {
-      $('post-cover-img').src = c.url;
-      $('post-cover-img').alt = c.alt || '';
-      $('post-cover').hidden = false;
+      // Cover: a faded banner behind the title, a picture under the title, or only on the cards
+      const style = ['banner', 'inline', 'none'].includes(p.coverStyle) ? p.coverStyle : 'banner';
+      const size = ['s', 'm', 'l', 'xl'].includes(p.coverSize) ? p.coverSize : 'l';
+      const focus = ['top', 'center', 'bottom'].includes(p.coverFocus) ? p.coverFocus : 'center';
+      if (style === 'banner') {
+        const b = $('post-banner');
+        $('post-banner-img').src = c.url;
+        b.dataset.size = size;
+        b.dataset.focus = focus;
+        b.hidden = false;
+        document.body.classList.add('has-post-banner');
+        document.body.dataset.bannerSize = size;
+        requestAnimationFrame(() => b.classList.add('in'));
+      } else if (style === 'inline') {
+        $('post-cover-img').src = c.url;
+        $('post-cover-img').alt = c.alt || '';
+        $('post-cover').dataset.size = size;
+        $('post-cover').dataset.focus = focus;
+        $('post-cover').hidden = false;
+      }
       setMeta('meta[property="og:image"]', 'content', /^https?:/.test(c.url) ? c.url : `https://hyardrecords.com/${c.url}`);
       setMeta('meta[name="twitter:image"]', 'content', /^https?:/.test(c.url) ? c.url : `https://hyardrecords.com/${c.url}`);
     }

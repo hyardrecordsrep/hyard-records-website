@@ -1037,6 +1037,12 @@
     let nwFolder = '';
     let savedRange = null;
     const POST_STATUS = { published: 'Published', draft: 'Draft' };
+    const COVER_STYLE = { banner: 'Banner behind the title, fading into black', inline: 'Picture under the title', none: 'Only on the cards' };
+    const COVER_SIZE = { s: 'Small', m: 'Medium', l: 'Large', xl: 'Full screen' };
+    const COVER_FOCUS = { top: 'Top', center: 'Middle', bottom: 'Bottom' };
+    const FIG_POS = { left: 'Left', center: 'Center', right: 'Right', wide: 'Full width' };
+    const FIG_SIZE = { s: 'Small', m: 'Medium', l: 'Large' };
+    let selFig = null;
     const coverHtml = (c) => (c && c.url ? `<img src="${esc(c.url)}" alt="">` : '<svg aria-hidden="true"><use href="#globe"/></svg><span class="mono muted">No cover yet</span>');
     const nwCard = (p) => `
       <article class="ev-card nw-card${p.status === 'draft' ? ' is-past' : ''}" data-post="${esc(p.id)}" tabindex="0" role="button" aria-label="Edit ${esc(p.title)}">
@@ -1075,6 +1081,16 @@
               </div>
               <label class="field"><span class="field-label mono">Cover description <em class="muted">For screen readers: what's in the picture</em></span><input type="text" name="coverAlt" value="${esc((p.cover && p.cover.alt) || '')}" maxlength="200"></label>
             </div>
+            <div class="field-row field-row-3 nw-cover-opts">
+              <label class="field"><span class="field-label mono">On the article page</span><select name="coverStyle">${Object.entries(COVER_STYLE).map(([k, v]) => `<option value="${k}"${(p.coverStyle || 'banner') === k ? ' selected' : ''}>${esc(v)}</option>`).join('')}</select></label>
+              <label class="field"><span class="field-label mono">Size</span><select name="coverSize">${Object.entries(COVER_SIZE).map(([k, v]) => `<option value="${k}"${(p.coverSize || 'l') === k ? ' selected' : ''}>${esc(v)}</option>`).join('')}</select></label>
+              <label class="field"><span class="field-label mono">Show which part</span><select name="coverFocus">${Object.entries(COVER_FOCUS).map(([k, v]) => `<option value="${k}"${(p.coverFocus || 'center') === k ? ' selected' : ''}>${esc(v)}</option>`).join('')}</select></label>
+            </div>
+            <div class="nw-banner-prev" data-banner-prev aria-hidden="true">
+              <div class="nw-banner-prev-pic"></div>
+              <span class="display nw-banner-prev-title"></span>
+              <span class="mono muted nw-banner-prev-label">Preview of the top of the article</span>
+            </div>
           </div>
           <div class="field">
             <span class="field-label mono">Content</span>
@@ -1091,6 +1107,14 @@
                 <div class="quick"><button type="button" class="link-btn mono" data-pop-close>Cancel</button></div>
               </div>
               <div class="rte-area post-body" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Post content" data-rte>${N.clean(p.body || '') || '<p><br></p>'}</div>
+              <div class="rte-figbar" data-figbar hidden role="toolbar" aria-label="Picture">
+                <span class="mono muted">Position</span>${Object.entries(FIG_POS).map(([k, v]) => `<button type="button" class="rte-btn mono" data-fig-pos="${k}" aria-pressed="false">${esc(v)}</button>`).join('')}
+                <span class="mono muted">Size</span>${Object.entries(FIG_SIZE).map(([k, v]) => `<button type="button" class="rte-btn mono" data-fig-size="${k}" aria-pressed="false">${esc(v)}</button>`).join('')}
+                <span class="rte-figbar-sep"></span>
+                <button type="button" class="rte-btn mono" data-fig-move="-1" aria-label="Move picture up">↑ Up</button>
+                <button type="button" class="rte-btn mono" data-fig-move="1" aria-label="Move picture down">↓ Down</button>
+                <button type="button" class="rte-btn mono" data-fig-rm>Remove</button>
+              </div>
               <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" data-rte-pic hidden>
               <div class="rte-foot mono muted"><span data-words></span><span>Select text, then press Link or Hyard page to link it.</span></div>
             </div>
@@ -1112,7 +1136,7 @@
     let pageIndex = [
       ['Home', './', 'Page'], ['About the label', 'about', 'Page'], ['Artists', 'artists', 'Page'], ['Events', 'events', 'Page'],
       ['News', 'news', 'Page'], ['Search releases', 'releases', 'Page'], ['Send your demo', 'contact', 'Page'], ['Contact', 'get-in-touch', 'Page'],
-      ['Press kit', 'press', 'Page'], ['Services', 'dashboard#services', 'Page'], ['Products', 'dashboard#products', 'Page'],
+      ['Press kit', 'press', 'Page'], ['Store', 'store', 'Page'], ['Services', 'store#services', 'Page'], ['Products', 'store#products', 'Page'],
       ['Log in / Sign up', 'account', 'Page'], ['Terms of service', 'terms', 'Page'], ['Privacy policy', 'privacy', 'Page'],
     ].map(([name, href, kind]) => ({ name, href, kind }));
     const extraPages = Promise.all([
@@ -1150,10 +1174,70 @@
       nwEditor.hidden = false;
       nwEditor.innerHTML = nwForm(p, isNew);
       nwStatus.textContent = '';
+      selFig = null;
+      prepFigures();
+      updateBannerPrev();
       updateWords();
       const top = $('a-news').getBoundingClientRect().top + window.scrollY - 110;
       if (window.scrollY > top) window.scrollTo({ top });
       nwEditor.querySelector('[name="title"]').focus({ preventScroll: true });
+    };
+    // Pictures in the text: the picture itself can't be typed into, its caption can
+    const prepFigures = () => {
+      const a = nwEditor.querySelector('[data-rte]');
+      if (!a) return;
+      a.querySelectorAll('figure').forEach((fig) => {
+        // A picture inside a paragraph moves out to its own block
+        let top = fig;
+        while (top.parentElement && top.parentElement !== a) top = top.parentElement;
+        if (top !== fig) top.after(fig);
+        fig.setAttribute('contenteditable', 'false');
+        if (![...fig.classList].some((c) => c.startsWith('pos-'))) fig.classList.add('pos-center');
+        if (![...fig.classList].some((c) => c.startsWith('size-'))) fig.classList.add('size-l');
+        const cap = fig.querySelector('figcaption');
+        if (cap) cap.setAttribute('contenteditable', 'true');
+      });
+    };
+    const figBar = () => nwEditor.querySelector('[data-figbar]');
+    const placeFigBar = () => {
+      const bar = figBar();
+      if (!bar) return;
+      if (!selFig || !nwEditor.contains(selFig)) { bar.hidden = true; selFig = null; return; }
+      bar.hidden = false;
+      const rte = nwEditor.querySelector('.rte');
+      bar.style.top = `${selFig.getBoundingClientRect().top - rte.getBoundingClientRect().top - bar.offsetHeight - 8}px`;
+      const pos = (([...selFig.classList].find((c) => c.startsWith('pos-')) || 'pos-center').slice(4));
+      const size = (([...selFig.classList].find((c) => c.startsWith('size-')) || 'size-l').slice(5));
+      bar.querySelectorAll('[data-fig-pos]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.figPos === pos)));
+      bar.querySelectorAll('[data-fig-size]').forEach((b) => { b.setAttribute('aria-pressed', String(b.dataset.figSize === size)); b.disabled = pos === 'wide'; });
+    };
+    const selectFig = (fig) => {
+      nwEditor.querySelectorAll('[data-rte] figure.is-selected').forEach((f) => f.classList.remove('is-selected'));
+      selFig = fig;
+      if (fig) fig.classList.add('is-selected');
+      placeFigBar();
+    };
+    const setFigClass = (prefix, value) => {
+      if (!selFig) return;
+      [...selFig.classList].filter((c) => c.startsWith(prefix)).forEach((c) => selFig.classList.remove(c));
+      selFig.classList.add(`${prefix}${value}`);
+      placeFigBar();
+    };
+    // Live preview of the banner at the top of the article
+    const updateBannerPrev = () => {
+      const box = nwEditor.querySelector('[data-banner-prev]');
+      if (!box) return;
+      const f = nwEditor.querySelector('form').elements;
+      const img = nwEditor.querySelector('[data-pic-preview] img');
+      const style = f.coverStyle.value;
+      box.hidden = !img || style === 'none';
+      box.dataset.style = style;
+      box.dataset.size = f.coverSize.value;
+      box.dataset.focus = f.coverFocus.value;
+      box.querySelector('.nw-banner-prev-pic').innerHTML = img ? `<img src="${esc(img.src)}" alt="">` : '';
+      box.querySelector('.nw-banner-prev-title').textContent = f.title.value.trim() || 'Post title';
+      f.coverSize.closest('.field').hidden = style === 'none';
+      f.coverFocus.closest('.field').hidden = style === 'none';
     };
     const loadPosts = async (msg) => {
       if (!starters.length) starters = await N.starter();
@@ -1221,11 +1305,17 @@
 
     nwEditor.addEventListener('mousedown', (e) => { if (e.target.closest('.rte-btn')) e.preventDefault(); });
     document.addEventListener('selectionchange', () => { if (!nwEditor.hidden && area()) keepRange(); });
-    nwEditor.addEventListener('input', (e) => { if (e.target.closest('[data-rte]')) updateWords(); if (e.target.matches('[data-page-q]')) renderPages(e.target.value); });
+    window.addEventListener('resize', () => { if (selFig) placeFigBar(); });
+    nwEditor.addEventListener('input', (e) => { if (e.target.matches('[name="title"]')) updateBannerPrev(); if (e.target.closest('[data-rte]')) { updateWords(); placeFigBar(); } if (e.target.matches('[data-page-q]')) renderPages(e.target.value); });
     nwEditor.addEventListener('keydown', (e) => {
       if (e.target.matches('[data-link-url], [data-link-text]') && e.key === 'Enter') { e.preventDefault(); nwEditor.querySelector('[data-link-ok]').click(); }
       if (e.target.matches('[data-page-q]') && e.key === 'Enter') { e.preventDefault(); const first = nwEditor.querySelector('.rte-page'); if (first) first.click(); }
       if (e.key === 'Escape' && e.target.closest('.rte-pop')) { closePops(); restoreRange(); }
+      // A selected picture can be removed with Backspace or Delete
+      if (selFig && (e.key === 'Backspace' || e.key === 'Delete') && e.target.closest('[data-rte]') && !e.target.closest('figcaption') && window.getSelection().isCollapsed) {
+        const sel = window.getSelection();
+        if (!sel.rangeCount || !e.target.closest('[data-rte]').contains(sel.anchorNode) || sel.anchorNode === selFig || selFig.contains(sel.anchorNode)) { e.preventDefault(); selFig.remove(); selectFig(null); updateWords(); }
+      }
     });
     // Pasted text keeps only the basic formatting the site shows
     nwEditor.addEventListener('paste', (e) => {
@@ -1252,6 +1342,7 @@
     const goodPic = (f) => /^image\/(jpeg|png|webp|gif)$/.test(f.type) && f.size <= 8 * 1024 * 1024;
 
     nwEditor.addEventListener('change', async (e) => {
+      if (e.target.matches('[name="coverStyle"], [name="coverSize"], [name="coverFocus"]')) { updateBannerPrev(); return; }
       const out = nwEditor.querySelector('.form-status');
       const cov = e.target.closest('[data-cover]');
       if (cov && cov.files[0]) {
@@ -1263,6 +1354,7 @@
         prev.innerHTML = '<img alt="">';
         prev.firstChild.src = URL.createObjectURL(f);
         nwEditor.querySelector('[data-rm-cover]').hidden = false;
+        updateBannerPrev();
         return;
       }
       const pic = e.target.closest('[data-rte-pic]');
@@ -1275,9 +1367,10 @@
           const img = await uploadImage(f, `posts/${nwFolder}`, nwEditor.querySelector('.upload-bar'), out);
           nwImages.push(img);
           restoreRange();
-          document.execCommand('insertHTML', false, `<figure><img src="${esc(img.url)}" alt=""><figcaption>Caption (optional)</figcaption></figure><p><br></p>`);
+          document.execCommand('insertHTML', false, `<figure class="pos-center size-l"><img src="${esc(img.url)}" alt=""><figcaption>Caption (optional)</figcaption></figure><p><br></p>`);
           keepRange();
-          out.textContent = 'Picture added. Click the caption under it to write one, or delete it.';
+          prepFigures();
+          out.textContent = 'Picture added. Click it to choose its position and size, and click the caption under it to write one.';
         } catch (err) {
           nwEditor.querySelector('.upload-bar').hidden = true;
           out.textContent = err && err.code === 'storage/unauthorized' ? 'That picture couldn\'t be uploaded. Use a JPG, PNG, WebP or GIF under 8 MB.' : H.message(err);
@@ -1288,6 +1381,25 @@
     nwEditor.addEventListener('click', async (e) => {
       if (e.target.closest('[data-back]')) { showNwGrid(); return; }
       const out = nwEditor.querySelector('.form-status');
+      const fp = e.target.closest('[data-fig-pos]');
+      if (fp) { setFigClass('pos-', fp.dataset.figPos); return; }
+      const fs = e.target.closest('[data-fig-size]');
+      if (fs) { setFigClass('size-', fs.dataset.figSize); return; }
+      const fm = e.target.closest('[data-fig-move]');
+      if (fm && selFig) {
+        const dir = Number(fm.dataset.figMove);
+        const sib = dir < 0 ? selFig.previousElementSibling : selFig.nextElementSibling;
+        if (sib) { if (dir < 0) sib.before(selFig); else sib.after(selFig); }
+        placeFigBar();
+        selFig.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        return;
+      }
+      if (e.target.closest('[data-fig-rm]') && selFig) { selFig.remove(); selectFig(null); updateWords(); return; }
+      if (e.target.closest('[data-rte]')) {
+        const fig = e.target.closest('figure');
+        if (fig && !e.target.closest('figcaption')) { selectFig(fig); return; }
+        if (!fig) selectFig(null);
+      }
       const tool = e.target.closest('[data-cmd]');
       if (tool) {
         const k = tool.dataset.cmd;
@@ -1340,6 +1452,7 @@
         nwEditor.querySelector('[data-pic-preview]').innerHTML = coverHtml(null);
         nwEditor.querySelector('[data-cover]').value = '';
         e.target.closest('[data-rm-cover]').hidden = true;
+        updateBannerPrev();
         return;
       }
       if (e.target.closest('[data-delete-post]')) {
@@ -1366,6 +1479,7 @@
       // Tidy the content: drop empty or untouched captions, use captions as picture descriptions
       const box = document.createElement('div');
       box.innerHTML = area().innerHTML;
+      box.querySelectorAll('figure').forEach((fig) => fig.classList.remove('is-selected'));
       box.querySelectorAll('figure').forEach((fig) => {
         const cap = fig.querySelector('figcaption');
         const img = fig.querySelector('img');
@@ -1412,6 +1526,9 @@
           folder: nwFolder,
           pinned,
           presave: el.presave.checked,
+          coverStyle: el.coverStyle.value,
+          coverSize: el.coverSize.value,
+          coverFocus: el.coverFocus.value,
           createdAt: old.createdAt || F.serverTimestamp(),
           updatedAt: F.serverTimestamp(),
         });

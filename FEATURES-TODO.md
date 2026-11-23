@@ -37,12 +37,14 @@ Setup steps: `SETUP-ACCOUNTS.md`.
 
 ## 4. Later
 
-- [ ] **Open the merch store** when products are ready; the menu already shows "Merch · Coming soon" **(you + me)**
+- [ ] **Open the merch store** when products are ready; the Store page already has a Merch tile that says "Coming soon" **(you + me)**
 
 ---
 
 ## Done
 
+- [x] Store page in the menu (replaces Merch, Privacy policy and Legal notice there; those two stay in the footer): Services, Products and Merch ("Coming soon" on hover). Anyone can browse services and products and open product pages; buying needs an account. Services and Products left the dashboard
+- [x] News posts: cover as a faded banner behind the title (size and which part of the picture to show), and pictures in the text with a position (left, center, right, full width) and size, movable up and down
 - [x] Product pages (/product?p=…, logged-in only): picture gallery with full-screen view, preview player, full description, file details and buy button; Admin → Products takes up to 8 extra pictures
 - [x] News: page in the menu, News block on the home page in place of the old Beginning and The End block, an article page for every post, Beginning and The End post pinned as Featured with the Pre-save button
 - [x] Admin → News: add, edit and delete posts with a visual editor (headings, bold, quotes, lists, pictures, outside links and a "Link to a Hyard page" picker), cover picture, date, drafts and Featured

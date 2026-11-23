@@ -76,6 +76,8 @@
   const RENAME = { B: 'STRONG', I: 'EM', H1: 'H2', H4: 'H3', H5: 'H3', H6: 'H3', DIV: 'P' };
   const DROP = new Set(['SCRIPT', 'STYLE', 'IFRAME', 'OBJECT', 'EMBED', 'NOSCRIPT', 'TEMPLATE', 'SVG', 'MATH', 'FORM', 'INPUT', 'BUTTON', 'SELECT', 'TEXTAREA', 'LINK', 'META', 'HEAD', 'TITLE', 'VIDEO', 'AUDIO', 'CANVAS']);
   const SITE = /^https?:\/\/(www\.)?hyardrecords\.com(\/|$)/i;
+  // Picture position and size chosen in the editor, kept as classes on <figure>
+  const FIG_CLASSES = new Set(['pos-left', 'pos-center', 'pos-right', 'pos-wide', 'size-s', 'size-m', 'size-l']);
   const internal = (href) => /^(\.\/|#|[a-z0-9-]+(\.html)?([?#][^\s]*)?$)/i.test(href);
   const safeHref = (raw) => {
     let h = String(raw || '').trim();
@@ -117,6 +119,10 @@
           if (!s) { el.remove(); return; }
           keep.src = s;
           keep.alt = el.getAttribute('alt') || '';
+        }
+        if (el.tagName === 'FIGURE') {
+          const cls = String(el.getAttribute('class') || '').split(/\s+/).filter((c) => FIG_CLASSES.has(c));
+          if (cls.length) keep.class = cls.join(' ');
         }
         [...el.attributes].forEach((a) => el.removeAttribute(a.name));
         Object.entries(keep).forEach(([k, v]) => el.setAttribute(k, v));

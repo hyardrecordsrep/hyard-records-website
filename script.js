@@ -78,7 +78,7 @@
     const page = admin ? 'admin' : signedIn ? 'dashboard' : 'account';
     const label = admin ? 'Admin' : signedIn ? 'Dashboard' : 'Log in / Sign up';
     const ACC = /(account|dashboard|admin)$/;
-    const ARTIST_ONLY = /(dashboard#services|dashboard#submit|cart)$/;
+    const ARTIST_ONLY = /(dashboard#submit|cart)$/;
     // Footer "For artists" links: the account link follows the sign-in, artist-only links hide for the label
     $$('.footer-col a').forEach((a) => {
       const h = a.getAttribute('href') || '';
@@ -86,7 +86,7 @@
       if (ARTIST_ONLY.test(h)) a.hidden = admin;
     });
     $$('.menu-link').forEach((a) => {
-      if (/(dashboard#services|dashboard#submit)$/.test(a.getAttribute('href') || '')) a.hidden = admin;
+      if (/(dashboard#submit)$/.test(a.getAttribute('href') || '')) a.hidden = admin;
     });
     $$('[data-account-link]').forEach((a) => {
       const num = a.querySelector('.mono');

@@ -90,7 +90,7 @@ for a in artists:
     open(artist_file(a), 'w').write(page)
 
 # Sitemap
-static = ['', 'about', 'news', 'artists', 'events', 'releases', 'contact', 'get-in-touch', 'press', 'privacy', 'legal', 'terms']
+static = ['', 'about', 'news', 'store', 'artists', 'events', 'releases', 'contact', 'get-in-touch', 'press', 'privacy', 'legal', 'terms']
 today = date.today().isoformat()
 news_posts = [p for p in json.load(open('data/news.json')).get('posts', []) if p.get('status', 'published') == 'published']
 urls = [f'{SITE}/{p}' for p in static] + [f"{SITE}/post?p={p['id']}" for p in news_posts] + [f'{SITE}/{url_of(artist_file(a))}' for a in artists] + [f'{SITE}/{url_of(release_file(r))}' for r in releases]
