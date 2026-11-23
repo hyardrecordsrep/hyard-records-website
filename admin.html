@@ -117,6 +117,7 @@
         <a href="#a-demos" data-tab="a-demos">Demos <span class="mono dash-count" id="adm-count-demos"></span></a>
         <a href="#a-orders" data-tab="a-orders">Orders <span class="mono dash-count" id="adm-count-orders"></span></a>
         <a href="#a-services" data-tab="a-services">Services and prices</a>
+        <a href="#a-events" data-tab="a-events">Events <span class="mono dash-count" id="adm-count-events"></span></a>
         <button type="button" class="dash-logout" id="adm-logout">Log out</button>
       </nav>
 
@@ -150,13 +151,22 @@
 
         <section class="dash-panel" id="a-services" data-panel hidden aria-labelledby="h-a-services">
           <h2 class="display dash-h" id="h-a-services">Services and prices</h2>
-          <p class="mono muted dash-lead">Prices in euros. Leave a price empty to show "Price coming soon" (it can't be bought until it has a price). Changes show on the site straight away.</p>
+          <p class="mono muted dash-lead">This is how artists see your services. Click a service to edit it, or add a new one. Prices are in euros; a service without a price shows "Price coming soon" and can't be bought yet. Changes show on the site straight away.</p>
           <div class="notice-inline" id="svc-seed" hidden>
             <p class="mono muted">No services in the database yet. Load the four default services (production, mixing, mastering, all three) to start.</p>
             <button class="more" type="button" id="svc-seed-btn">Load default services</button>
           </div>
-          <div id="svc-editor"></div>
           <p class="form-status mono muted" id="svc-editor-status" aria-live="polite"></p>
+          <div class="svc-grid" id="svc-grid"></div>
+          <div id="svc-editor" hidden></div>
+        </section>
+
+        <section class="dash-panel" id="a-events" data-panel hidden aria-labelledby="h-a-events">
+          <h2 class="display dash-h" id="h-a-events">Events</h2>
+          <p class="mono muted dash-lead">Events you add here show on the Events page straight away. Past events move to the archive by themselves. Click an event to edit it.</p>
+          <p class="form-status mono muted" id="ev-status" aria-live="polite"></p>
+          <div class="ev-grid" id="ev-grid"></div>
+          <div id="ev-editor" hidden></div>
         </section>
       </div>
     </div>

@@ -151,6 +151,12 @@ const S = {
   getStorage: () => ({}), connectStorageEmulator() {},
   ref: (_s, path) => ({ path }),
   uploadBytesResumable(ref, file) {
+    // Small pictures are kept as data URLs so event pictures still show after a reload
+    if (/^image\//.test(file.type || '') && file.size < 1500000) {
+      const r = new FileReader();
+      r.onload = () => { state.files = state.files || {}; state.files[ref.path] = r.result; save(); };
+      r.readAsDataURL(file);
+    }
     return {
       on(_e, progress, error, done) {
         let sent = 0;
@@ -163,8 +169,12 @@ const S = {
       },
     };
   },
-  async getDownloadURL() { return 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA='; },
-  async deleteObject() {},
+  async getDownloadURL(ref) {
+    await new Promise((r) => setTimeout(r, 300));
+    if (state.files && state.files[ref.path]) return state.files[ref.path];
+    return 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
+  },
+  async deleteObject(ref) { if (state.files) { delete state.files[ref.path]; save(); } },
 };
 
 // ---------- Functions ----------

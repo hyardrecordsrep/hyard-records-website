@@ -38,8 +38,8 @@
       e.time ? `DTSTART:${start}` : `DTSTART;VALUE=DATE:${start}`,
       e.time ? `DTEND:${end}` : `DTEND;VALUE=DATE:${end}`,
       `SUMMARY:${clean(e.title)}`,
-      `LOCATION:${clean([e.venue, e.city, e.country].filter(Boolean).join(', '))}`,
-      `DESCRIPTION:${clean([e.note, e.ticketUrl].filter(Boolean).join(' — '))}`,
+      `LOCATION:${clean(e.location || [e.venue, e.city, e.country].filter(Boolean).join(', '))}`,
+      `DESCRIPTION:${clean([e.description || e.note, e.ticketUrl].filter(Boolean).join(' — '))}`,
       'END:VEVENT', 'END:VCALENDAR',
     ].join('\r\n');
     const a = document.createElement('a');
@@ -59,26 +59,31 @@
     const names = (e.artists || []).map((slug) => {
       const a = roster.find((x) => x.slug === slug);
       return a ? `<a href="artist-${slug}">${esc(a.name)}</a>` : esc(slug);
-    }).join(' <span class="muted">·</span> ');
-    const where = [e.venue, [e.city, e.country].filter(Boolean).join(', ')].filter(Boolean).join(' — ');
+    }).concat(e.otherArtists ? [esc(e.otherArtists)] : []).join(' <span class="muted">·</span> ');
+    const where = e.location || [e.venue, [e.city, e.country].filter(Boolean).join(', ')].filter(Boolean).join(' — ');
+    const desc = e.description || e.note || '';
+    const media = e.image && e.image.url
+      ? `<img src="${esc(e.image.url)}" alt="" loading="lazy">`
+      : '<svg aria-hidden="true"><use href="#globe"/></svg>';
     const status = STATUS[e.status] || '';
     const ticket = !past && e.ticketUrl && e.status !== 'sold-out'
       ? `<a class="news-btn display ev-ticket" href="${esc(e.ticketUrl)}" target="_blank" rel="noopener">${e.status === 'free' ? 'Details' : 'Tickets'} <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>` : '';
     const info = e.infoUrl ? `<a class="more ev-info" href="${esc(e.infoUrl)}" target="_blank" rel="noopener">More info</a>` : '';
     const cal = past ? '' : `<button class="more ev-cal" type="button" data-cal="${all.indexOf(e)}">Add to calendar</button>`;
     return `
-      <li class="ev${past ? ' is-past' : ''}" data-slide="up" style="--d:${(i % 6) * 70}ms">
+      <li class="ev has-pic${past ? ' is-past' : ''}" data-slide="up" style="--d:${(i % 6) * 70}ms">
         <div class="ev-date">
           <span class="display ev-day">${p.day}</span>
           <span class="mono ev-month">${esc(p.month)} ${p.year}</span>
           <span class="mono muted ev-weekday">${esc(p.weekday)}${e.time ? ` · ${esc(e.time)}` : ''}</span>
         </div>
+        <div class="ev-pic ev-media">${media}</div>
         <div class="ev-main">
           ${status ? `<span class="mono ev-status ev-${esc(e.status)}">${esc(status)}</span>` : ''}
           <h3 class="display ev-title">${esc(e.title)}</h3>
           ${where ? `<p class="mono ev-where">${esc(where)}</p>` : ''}
           ${names ? `<p class="mono muted ev-artists">${names}</p>` : ''}
-          ${e.note ? `<p class="mono muted ev-note">${esc(e.note)}</p>` : ''}
+          ${desc ? `<p class="ev-desc">${esc(desc)}</p>` : ''}
         </div>
         <div class="ev-actions">${ticket}${info}${cal}</div>
       </li>`;
@@ -103,9 +108,18 @@
     if (cal) ics(all[Number(cal.dataset.cal)]);
   });
 
-  Promise.all([getJson('data/events.json'), getJson('data/artists.json')])
-    .then(([ev, ar]) => {
-      all = (ev.events || []).filter((e) => e && /^\d{4}-\d{2}-\d{2}$/.test(e.date || ''));
+  // Events added on the admin page (Firestore "events"), plus any written into data/events.json
+  const fromAdmin = () => (window.HyardFirebase ? window.HyardFirebase.ready : Promise.resolve({}))
+    .then(async (fb) => {
+      if (!fb.configured) return [];
+      const snap = await fb.F.getDocs(fb.F.collection(fb.db, 'events'));
+      return snap.docs.map((d) => ({ ...d.data(), id: d.id }));
+    })
+    .catch((err) => { console.warn('Events from admin did not load', err); return []; });
+
+  Promise.all([getJson('data/events.json'), getJson('data/artists.json'), fromAdmin()])
+    .then(([ev, ar, live]) => {
+      all = [...(ev.events || []), ...live].filter((e) => e && /^\d{4}-\d{2}-\d{2}$/.test(e.date || ''));
       roster = ar.artists || [];
 
       // Artist filter, only when there's more than one artist with events

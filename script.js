@@ -471,3 +471,36 @@
     });
   }
 })();
+
+// ---------- Sign-up banner ----------
+// Slides up from the bottom 5 seconds after someone arrives, for visitors who aren't signed in.
+// Closing it keeps it away for 7 days. Not shown on the account, dashboard, cart and admin pages.
+(() => {
+  const SKIP = /\/(account|dashboard|admin|cart|order-confirmed|payment-failed)(\.html)?$/;
+  const KEY = 'hyard-signup-banner';
+  const get = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
+  const set = (k, v) => { try { localStorage.setItem(k, v); } catch { /* private mode */ } };
+  if (SKIP.test(location.pathname) || get('hyard-signed-in') === '1') return;
+  if (Number(get(KEY)) > Date.now()) return;
+
+  setTimeout(() => {
+    if (get('hyard-signed-in') === '1') return;
+    const bar = document.createElement('aside');
+    bar.className = 'signup-banner';
+    bar.setAttribute('aria-label', 'Create an account');
+    bar.innerHTML = `
+      <svg class="signup-banner-globe" aria-hidden="true"><use href="#globe"/></svg>
+      <p class="mono signup-banner-text">Make an account to purchase services and products and send demos</p>
+      <a class="news-btn display signup-banner-btn" href="account?mode=signup">Sign up <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      <button type="button" class="signup-banner-close" aria-label="Close"><svg aria-hidden="true"><use href="#i-x"/></svg></button>`;
+    document.body.appendChild(bar);
+    requestAnimationFrame(() => requestAnimationFrame(() => bar.classList.add('is-in')));
+    const close = () => {
+      set(KEY, String(Date.now() + 7 * 86400000));
+      bar.classList.remove('is-in');
+      setTimeout(() => bar.remove(), 600);
+    };
+    bar.querySelector('.signup-banner-close').addEventListener('click', close);
+    bar.querySelector('.signup-banner-btn').addEventListener('click', () => set(KEY, String(Date.now() + 7 * 86400000)));
+  }, 5000);
+})();

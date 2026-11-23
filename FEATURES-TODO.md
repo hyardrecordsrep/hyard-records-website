@@ -30,7 +30,7 @@ Setup steps: `SETUP-ACCOUNTS.md`.
 
 ## 3. Fans and community
 
-- [ ] **Add your first events** to `data/events.json` (or send me the details) **(you)**
+- [ ] **Add your first events** on the admin page (Admin → Events) **(you)**
 
 ## 4. Later
 
@@ -56,6 +56,9 @@ Setup steps: `SETUP-ACCOUNTS.md`.
 - [x] About the label page and demo guidelines (text approved)
 - [x] Radio: "Now featured" track (auto newest, or your pick in `data/radio.json`), "Fresh on Hyard" newest tracks, Hyard Radio playlist + "Listen to radio" button
 - [x] Events page in the menu: upcoming and past events, artist filter, tickets and add-to-calendar (fed from `data/events.json`)
+- [x] Admin → Events: add, edit and delete events with location, description, artists and a picture
+- [x] Admin → Services: services shown as cards, click to edit, add and delete services
+- [x] Sign-up banner 5 seconds after arriving, for visitors who are not signed in
 - [x] Send your demo page: demo guidelines plus a link to send demos from an artist account
 - [x] Press kit page (footer only): logos, artist photos, bios with copy buttons, fact sheet, one-click zip
 - [x] Merch in the menu with "Coming soon"
