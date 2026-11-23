@@ -42,7 +42,7 @@ Strictly monochrome. No accent colors.
 - Rave Saint
 - Nick.
 
-Sound: techno / rave.
+Sound: dark electronic.
 
 ## Release tiles
 

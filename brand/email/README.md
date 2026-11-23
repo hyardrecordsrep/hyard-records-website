@@ -52,7 +52,7 @@ Blocks, top to bottom:
    - Instagram: `https://www.instagram.com/hyardrecords/`
    - SoundCloud: `https://soundcloud.com/hyardrecords`
    - Spotify: `https://open.spotify.com/playlist/0gdYCFCfcTTYMiKOccVvGl`
-9. **Footer text:** "Hyard Records · Independent techno and rave label · Est 2024" plus your postal address (MailerLite adds it automatically from your account details). 11 px, `#5F5F5F`.
+9. **Footer text:** "Hyard Records · Independent dark electronic label · Est 2024" plus your postal address (MailerLite adds it automatically from your account details). 11 px, `#5F5F5F`.
 
 ### Pre-save email (Beginning and The End)
 

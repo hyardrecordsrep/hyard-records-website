@@ -28,7 +28,7 @@
 <line x1="40" y1="410" x2="640" y2="410" stroke="#222"/>
 <text class="m" x="40" y="440" fill="#777" font-size="11" letter-spacing="2">roster</text>
 <g class="x" fill="#fff" font-size="30"><text x="40" y="490">RAVE SAINT</text><text x="40" y="536">NICK.</text></g>
-<text class="m" x="40" y="580" fill="#777" font-size="11">techno / rave</text>
+<text class="m" x="40" y="580" fill="#777" font-size="11">dark electronic</text>
 <rect x="400" y="432" width="240" height="152" fill="#fff"/>
 <g fill="none" stroke="#000" stroke-width="1.2"><circle cx="600" cy="560" r="80" stroke-width="2"/><g transform="rotate(-28 600 560)"><ellipse cx="600" cy="560" rx="80" ry="24"/><ellipse cx="600" cy="560" rx="80" ry="50"/><ellipse cx="600" cy="560" rx="26" ry="80"/><ellipse cx="600" cy="560" rx="56" ry="80"/></g></g>
 <text class="m" x="416" y="456" fill="#000" font-size="11" letter-spacing="2">HYD-001</text>
