@@ -2281,3 +2281,6 @@ body[data-banner-size="xl"] { --bh: calc(100vh - 70px); }
 .post-lead { max-width: none; }
 .post-body { max-width: var(--post-col); }
 .post-foot { max-width: var(--post-col); }
+
+/* Post: a line between the title and summary and the article itself */
+.post-head { padding-bottom: clamp(28px, 4vw, 44px); border-bottom: 1px solid #3a3a3a; }

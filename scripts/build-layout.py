@@ -112,3 +112,20 @@ for page, current in PAGES.items():
 # Release and artist pages are copies of release.html / artist.html, so refresh them too
 import subprocess, sys
 subprocess.run([sys.executable, os.path.join(ROOT, 'scripts', 'build-pages.py')], check=True)
+
+# Cache busting: every page asks for styles.css and its scripts with a version taken from the file's
+# contents, so browsers load the new file straight after an update instead of a cached old one.
+import glob, hashlib
+def version(name):
+    path = os.path.join(ROOT, name)
+    return hashlib.md5(open(path, 'rb').read()).hexdigest()[:8] if os.path.exists(path) else None
+def stamp(m):
+    attr, slash, name = m.group(1), m.group(2), m.group(3)
+    v = version(name)
+    return f'{attr}="{slash}{name}?v={v}"' if v else m.group(0)
+for page in glob.glob(os.path.join(ROOT, '*.html')):
+    s = open(page).read()
+    t = re.sub(r'(href|src)="(/?)([\w-]+\.(?:css|js))(?:\?v=\w+)?"', stamp, s)
+    if t != s:
+        open(page, 'w').write(t)
+print('versioned styles and scripts')
