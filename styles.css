@@ -2284,3 +2284,11 @@ body[data-banner-size="xl"] { --bh: calc(100vh - 70px); }
 
 /* Post: a line between the title and summary and the article itself */
 .post-head { padding-bottom: clamp(28px, 4vw, 44px); border-bottom: 1px solid #3a3a3a; }
+
+/* My orders: downloads, with Windows and Mac buttons for plugins */
+.item-files .dl-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 18px; }
+.dl-links { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.dl-btn { height: 42px; padding: 0 18px; font-size: 13px; text-decoration: none; }
+.dl-left { font-size: 11px; }
+.item-files a.dl-btn { color: var(--hyard-black); }
+.item-files a.dl-btn:hover { color: var(--hyard-white); }

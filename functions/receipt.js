@@ -36,9 +36,12 @@ const T = {
     pIntro: (name) => `${name ? `Hi ${name}, t` : 'T'}hank you for your purchase! Here's your receipt, and your download is ready below.`,
     downloads: 'Your downloads',
     download: 'Download',
+    pButton: 'Go to My orders',
+    platforms: { win: 'Windows', mac: 'Mac' },
+    pluginStep: 'Plugins come in a Windows and a Mac version: pick the one for your computer.',
     pSteps: [
       'Click Download next to each product to get the files.',
-      'The same links are on your order in the dashboard if you need them again.',
+      'The same links are in My orders on your dashboard if you need them again.',
       'Each link works up to 10 times. Reply to this email if you run out.',
     ],
   },
@@ -72,9 +75,12 @@ const T = {
     pIntro: (name) => `${name ? `Bok ${name}, h` : 'H'}vala na kupnji! Ovo je vaša potvrda, a preuzimanje vas čeka ispod.`,
     downloads: 'Vaša preuzimanja',
     download: 'Preuzmi',
+    pButton: 'Idi na Moje narudžbe',
+    platforms: { win: 'Windows', mac: 'Mac' },
+    pluginStep: 'Pluginovi dolaze u verziji za Windows i za Mac: odaberite onu za svoje računalo.',
     pSteps: [
       'Kliknite Preuzmi pokraj svakog proizvoda da biste dobili datoteke.',
-      'Iste poveznice nalaze se na vašoj narudžbi na nadzornoj ploči ako vam ponovno zatrebaju.',
+      'Iste poveznice nalaze se u Mojim narudžbama na nadzornoj ploči ako vam ponovno zatrebaju.',
       'Svaka poveznica radi do 10 puta. Odgovorite na ovaj e-mail ako vam ponestane.',
     ],
   },
@@ -158,7 +164,16 @@ function buildReceipt(o) {
   const t = o.forLabel ? { ...T.en, ...LABEL } : T[lang];
   const downloads = o.downloads || [];
   const productsOnly = downloads.length > 0 && o.hasServices === false;
-  const productTitles = downloads.map((d) => d.title).join(', ');
+  const productTitles = [...new Set(downloads.map((d) => d.title))].join(', ');
+  const hasPlugin = downloads.some((d) => d.platform);
+  // Downloads grouped per product: plugins get a Windows and a Mac button
+  const groups = [];
+  downloads.forEach((d) => {
+    const key = d.productId || d.title;
+    let g = groups.find((x) => x.key === key);
+    if (!g) { g = { key, title: d.title, links: [] }; groups.push(g); }
+    g.links.push(d);
+  });
   const site = o.site.replace(/\/$/, '');
   const total = euro(o.total, lang);
   const date = fmtDate(o.paidAt, lang);
@@ -172,15 +187,17 @@ function buildReceipt(o) {
   }
   const subject = downloads.length ? (o.forLabel ? LABEL.pSubject(o.orderNo, total) : t.pSubject(o.orderNo)) : t.subject(o.orderNo, total);
   const heading = downloads.length ? (o.forLabel ? LABEL.pTitle : t.pTitle) : t.title;
-  const steps = productsOnly ? (o.forLabel ? LABEL.pSteps : t.pSteps) : downloads.length && !o.forLabel ? [...t.pSteps.slice(0, 1), ...t.steps] : t.steps;
+  let steps = productsOnly ? (o.forLabel ? LABEL.pSteps : t.pSteps) : downloads.length && !o.forLabel ? [...t.pSteps.slice(0, 1), ...t.steps] : t.steps;
+  if (hasPlugin && !o.forLabel) steps = downloads.every((d) => d.platform) ? [t.pluginStep, ...steps.slice(1)] : [steps[0], t.pluginStep, ...steps.slice(1)];
+  const buttonText = downloads.length && !o.forLabel ? t.pButton : t.button;
   const fromAddress = o.fromAddress || 'payments@hyardrecords.com';
   const dlBlock = downloads.length && !o.forLabel ? `
         <tr><td style="padding:32px 32px 0;">
           <p style="margin:0 0 12px;color:#8a8a8a;${MONO}">${esc(t.downloads)}</p>
-          ${downloads.map((d) => `
+          ${groups.map((g) => `
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #2a2a2a;margin:0 0 10px;"><tr>
-            <td style="padding:14px 16px;color:#ffffff;${BODY}">${esc(d.title)}</td>
-            <td align="right" style="padding:10px 12px;white-space:nowrap;"><a href="${esc(d.url)}" style="display:inline-block;background:#ffffff;color:#000000;font:900 13px/1 'Arial Black',Helvetica,Arial,sans-serif;text-transform:uppercase;letter-spacing:.06em;text-decoration:none;padding:12px 18px;">${esc(t.download)}</a></td>
+            <td style="padding:14px 16px;color:#ffffff;${BODY}">${esc(g.title)}</td>
+            <td align="right" style="padding:10px 12px;white-space:nowrap;">${g.links.map((d) => `<a href="${esc(d.url)}" style="display:inline-block;margin:2px 0 2px 6px;background:#ffffff;color:#000000;font:900 13px/1 'Arial Black',Helvetica,Arial,sans-serif;text-transform:uppercase;letter-spacing:.06em;text-decoration:none;padding:12px 18px;">${esc(d.platform ? t.platforms[d.platform] : t.download)}</a>`).join('')}</td>
           </tr></table>`).join('')}
         </td></tr>` : '';
 
@@ -261,7 +278,7 @@ function buildReceipt(o) {
 
 ${dlBlock}
         <tr><td align="center" style="padding:32px 32px 0;">
-          <a href="${esc(orderUrl)}" style="display:inline-block;background:#ffffff;color:#000000;font:900 15px/1 'Arial Black',Helvetica,Arial,sans-serif;text-transform:uppercase;letter-spacing:.06em;text-decoration:none;padding:18px 34px;">${esc(t.button)}</a>
+          <a href="${esc(orderUrl)}" style="display:inline-block;background:#ffffff;color:#000000;font:900 15px/1 'Arial Black',Helvetica,Arial,sans-serif;text-transform:uppercase;letter-spacing:.06em;text-decoration:none;padding:18px 34px;">${esc(buttonText)}</a>
         </td></tr>
 
         <tr><td style="padding:36px 32px 0;">
@@ -310,8 +327,8 @@ ${dlBlock}
     `${t.total}: ${total}`,
     o.footerNote || '',
     '',
-    ...(downloads.length && !o.forLabel ? [`${t.downloads}:`, ...downloads.map((d) => `${d.title}: ${d.url}`), ''] : []),
-    `${t.button}: ${orderUrl}`,
+    ...(downloads.length && !o.forLabel ? [`${t.downloads}:`, ...downloads.map((d) => `${d.title}${d.platform ? ` (${t.platforms[d.platform]})` : ''}: ${d.url}`), ''] : []),
+    `${buttonText}: ${orderUrl}`,
     '',
     `${t.next}:`,
     ...steps.map((s, i) => `${i + 1}. ${s}`),

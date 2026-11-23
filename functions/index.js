@@ -53,6 +53,10 @@ const DEMO_NOTIFY_TO = defineString('DEMO_NOTIFY_TO', { default: '' });
 const PRODUCT_FROM = defineString('PRODUCT_FROM', { default: 'product@hyardrecords.com' });
 const PRODUCT_NOTIFY_TO = defineString('PRODUCT_NOTIFY_TO', { default: '' });
 const DOWNLOAD_LIMIT = 10; // times each bought product can be downloaded from its link
+// Plugins have a Windows and a Mac file (fileWin, fileMac); other products have one file
+const productFiles = (p) => (p && p.plugin
+  ? [['win', p.fileWin], ['mac', p.fileMac]].filter(([, f]) => f && f.path)
+  : (p && p.file && p.file.path ? [[null, p.file]] : []));
 const downloadUrl = (orderId, token) => `https://europe-west1-${process.env.GCLOUD_PROJECT || 'hyardrecords'}.cloudfunctions.net/download?o=${encodeURIComponent(orderId)}&t=${encodeURIComponent(token)}`;
 
 // One Gmail connection for all emails. Returns null (and logs) when the login isn't set up.
@@ -83,7 +87,7 @@ async function sendReceipt(ref, extra = {}) {
       await ref.update({ receiptSending: FieldValue.delete(), receiptError: 'not configured' });
       return;
     }
-    const downloads = (claimed.downloads || []).map((d) => ({ title: d.title, url: downloadUrl(ref.id, d.token) }));
+    const downloads = (claimed.downloads || []).map((d) => ({ productId: d.productId, title: d.title, platform: d.platform || null, url: downloadUrl(ref.id, d.token) }));
     const hasProducts = downloads.length > 0;
     const hasServices = claimed.hasServices !== false;
     const from = (hasProducts ? PRODUCT_FROM.value() : RECEIPT_FROM.value()) || SMTP_USER.value();
@@ -133,7 +137,7 @@ const cents = (euros) => Math.round(Number(euros) * 100);
 const priceCart = (items, services, products) => items.map((it) => {
   if (it.productId) {
     const p = products[it.productId];
-    if (!p || p.active === false || !p.file || !p.file.path) throw new HttpsError('failed-precondition', 'One of the products in your cart is no longer available. Remove it and try again.');
+    if (!p || p.active === false || !productFiles(p).length) throw new HttpsError('failed-precondition', 'One of the products in your cart is no longer available. Remove it and try again.');
     if (!hasPrice(p.price)) throw new HttpsError('failed-precondition', `${p.title} doesn't have a price yet, so it can't be bought.`);
     const unit = cents(p.price);
     return {
@@ -305,13 +309,21 @@ exports.stripeWebhook = onRequest({ secrets: [STRIPE_SECRET_KEY, STRIPE_WEBHOOK_
         if (obj.payment_status === 'paid' || event.type === 'checkout.session.async_payment_succeeded') {
           if (['awaiting_payment', 'payment_failed', 'cancelled'].includes(order.status)) {
             const productLines = (order.items || []).filter((i) => i.productId);
+            // One download per product, or one per platform (Windows, Mac) for plugins
+            const prodDocs = await Promise.all(productLines.map((i) => db.doc(`products/${i.productId}`).get()));
+            const downloads = productLines.flatMap((i, k) => {
+              const files = productFiles(prodDocs[k].exists ? prodDocs[k].data() : null);
+              return (files.length ? files : [[null, null]]).map(([platform]) => ({
+                productId: i.productId, title: i.label, ...(platform ? { platform } : {}), token: crypto.randomBytes(24).toString('hex'), count: 0,
+              }));
+            });
             await ref.update({
               status: order.hasServices === false ? 'delivered' : 'paid', paidAt: now, updatedAt: now,
               paymentIntent: obj.payment_intent || null,
               amountPaid: (obj.amount_total || 0) / 100,
               checkoutUrl: FieldValue.delete(),
               ...(productLines.length ? {
-                downloads: productLines.map((i) => ({ productId: i.productId, title: i.label, token: crypto.randomBytes(24).toString('hex'), count: 0 })),
+                downloads,
               } : {}),
             });
             await db.doc(`carts/${order.uid}`).delete().catch(() => {});
@@ -391,7 +403,8 @@ exports.download = onRequest(async (req, res) => {
   if (item.error === 'used') { page(res, 410, 'Link used up', `This link has been used ${DOWNLOAD_LIMIT} times. Write to us and we'll send you a fresh one.`); return; }
 
   const prod = await db.doc(`products/${item.productId}`).get();
-  const f = prod.exists && prod.data().file;
+  const pd = prod.exists ? prod.data() : {};
+  const f = item.platform === 'win' ? pd.fileWin : item.platform === 'mac' ? pd.fileMac : pd.file;
   if (!f || !f.path) { page(res, 404, 'File missing', 'We can\'t find this product\'s file right now. Write to us and we\'ll sort it out.'); return; }
   const file = admin.storage().bucket().file(f.path);
   const name = String(f.name || f.path.split('/').pop()).replace(/["\\\r\n]/g, '');
@@ -412,7 +425,7 @@ exports.download = onRequest(async (req, res) => {
       return;
     }
   }
-  logger.info('Download', { orderId, productId: item.productId, count: item.count });
+  logger.info('Download', { orderId, productId: item.productId, platform: item.platform || null, count: item.count });
   res.redirect(302, url);
 });
 

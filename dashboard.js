@@ -334,6 +334,18 @@
     const dlUrl = (o, d) => (fb.mock ? '#' : `https://europe-west1-${projectId}.cloudfunctions.net/download?o=${encodeURIComponent(o.id)}&t=${encodeURIComponent(d.token)}`);
 
     // ---------- Orders ----------
+    // Downloads grouped per product: plugins have a Windows and a Mac button
+    const PLATFORM = { win: 'Windows', mac: 'Mac' };
+    const downloadGroups = (o) => {
+      const groups = [];
+      (o.downloads || []).forEach((d) => {
+        const key = d.productId || d.title;
+        let g = groups.find((x) => x.key === key);
+        if (!g) { g = { key, title: d.title, links: [] }; groups.push(g); }
+        g.links.push(d);
+      });
+      return groups;
+    };
     const OPEN = ['awaiting_payment', 'paid', 'in_progress'];
     const orderKind = (s) => (s === 'delivered' ? 'on' : ['payment_failed', 'cancelled', 'refunded'].includes(s) ? 'off' : '');
     const orderItem = (o) => {
@@ -349,7 +361,7 @@
         <ul class="item-lines">${(o.items || []).map((i) => `<li><span class="mono">${esc(i.label)}</span><span class="mono muted">${esc(H.euro(i.amount) || '')}</span></li>`).join('')}</ul>
         ${o.status === 'awaiting_payment' && o.checkoutUrl && o.expiresAt && o.expiresAt.seconds * 1000 > Date.now()
           ? `<a class="more" href="${esc(o.checkoutUrl)}">Finish payment</a>` : ''}
-        ${canDownload ? `<h4 class="mono muted">Your downloads</h4><ul class="item-files">${o.downloads.map((d) => `<li><span class="mono">${esc(d.title)}</span><span class="mono muted">${esc(`${Math.max(0, 10 - (d.count || 0))} of 10 left`)}</span><a class="link-btn mono" href="${esc(dlUrl(o, d))}">Download</a></li>`).join('')}</ul>` : ''}
+        ${canDownload ? `<h4 class="mono muted">Your downloads</h4><ul class="item-files">${downloadGroups(o).map((g) => `<li class="dl-row"><span class="mono">${esc(g.title)}</span><span class="dl-links">${g.links.map((d) => `<a class="${d.platform ? 'news-btn display dl-btn' : 'link-btn mono'}" href="${esc(dlUrl(o, d))}">${d.platform ? `${esc(PLATFORM[d.platform])} <svg aria-hidden="true"><use href="#i-arrow"/></svg>` : 'Download'}</a><span class="mono muted dl-left">${esc(`${Math.max(0, 10 - (d.count || 0))} of 10 left`)}</span>`).join('')}</span></li>`).join('')}</ul>` : ''}
         ${o.filesDeletedAt ? `<p class="mono muted">Order closed. Files deleted ${esc(H.fmtDate(o.filesDeletedAt))}.</p>` : ''}
         ${o.adminNote ? `<div class="item-note"><span class="mono muted">Note from the label</span><p>${esc(o.adminNote)}</p></div>` : ''}
         ${working ? `

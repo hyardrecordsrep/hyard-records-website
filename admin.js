@@ -528,7 +528,11 @@
     const pGrid = $('prod-grid');
     const pEditor = $('prod-editor');
     const pStatus = $('prod-editor-status');
-    const DEFAULT_CATS = ['Drum kits', 'Sample packs', 'Presets', 'MIDI packs', 'Loops'];
+    const DEFAULT_CATS = ['Drum kits', 'Sample packs', 'Plugins', 'Presets', 'MIDI packs', 'Loops'];
+    // Plugins (category "Plugins") get a Windows and a Mac file instead of one product file
+    const isPluginCat = (c) => /^plugins?$/i.test(String(c || '').trim());
+    const FILE_KEYS = ['file', 'fileWin', 'fileMac'];
+    const fileLabel = (f) => (f && f.name ? `${f.name} · ${H.bytes(f.size || 0)}` : '');
     let products = [];
     let pend = {}; // files picked in the form: { image, preview, file } or { removeImage: true, removePreview: true }
     let gal = []; // extra pictures in the form: { path, url } already saved, or { file, url } picked now
@@ -561,7 +565,7 @@
           <div class="svc-admin-head">${p.category ? `<span class="mono muted prod-cat">${esc(p.category)}</span>` : '<span></span>'}${p.active === false ? pill('Hidden', 'off') : ''}</div>
           <h3 class="display prod-title">${esc(p.title)}</h3>
           ${p.description ? `<p class="prod-desc">${esc(p.description)}</p>` : ''}
-          <p class="mono muted">${esc([p.file && p.file.name ? `${p.file.name} · ${H.bytes(p.file.size || 0)}` : 'No file yet', p.preview && p.preview.url ? 'Preview' : 'No preview', picCount(p)].join(' · '))}</p>
+          <p class="mono muted">${esc([p.plugin ? [p.fileWin && p.fileWin.path ? 'Windows' : null, p.fileMac && p.fileMac.path ? 'Mac' : null].filter(Boolean).join(' + ') || 'No files yet' : p.file && p.file.name ? `${p.file.name} · ${H.bytes(p.file.size || 0)}` : 'No file yet', p.preview && p.preview.url ? 'Preview' : 'No preview', picCount(p)].join(' · '))}</p>
           <div class="prod-foot"><span class="display prod-price">${esc(priced(p.price))}</span><span class="mono svc-admin-edit">Edit <svg aria-hidden="true"><use href="#i-arrow"/></svg></span></div>
         </div>
       </article>`;
@@ -615,7 +619,14 @@
               <button type="button" class="link-btn mono" data-unpick="preview"${p.preview && p.preview.url ? '' : ' hidden'}>Remove preview</button>
             </div>
           </div>
-          ${fileRow('file', 'Product file', 'What buyers download, usually a ZIP. Up to 2 GB. Only buyers can get it.', '.zip,.rar,.7z,application/zip,application/x-zip-compressed,application/octet-stream,*/*', p.file && p.file.name ? `${p.file.name} · ${H.bytes(p.file.size || 0)}` : '')}
+          <div data-files="single"${isPluginCat(p.category) ? ' hidden' : ''}>
+            ${fileRow('file', 'Product file', 'What buyers download, usually a ZIP. Up to 2 GB. Only buyers can get it.', '.zip,.rar,.7z,application/zip,application/x-zip-compressed,application/octet-stream,*/*', fileLabel(p.file))}
+          </div>
+          <div data-files="plugin"${isPluginCat(p.category) ? '' : ' hidden'}>
+            <p class="mono muted nw-card-text">Plugin: buyers get a Windows and a Mac download button.</p>
+            ${fileRow('fileWin', 'Windows version', 'Installer or ZIP for Windows. Up to 2 GB.', '.zip,.exe,.msi,.rar,.7z,application/zip,application/octet-stream,*/*', fileLabel(p.fileWin))}
+            ${fileRow('fileMac', 'Mac version', 'Installer or ZIP for Mac. Up to 2 GB.', '.zip,.pkg,.dmg,.rar,.7z,application/zip,application/octet-stream,*/*', fileLabel(p.fileMac))}
+          </div>
           <label class="check"><input type="checkbox" name="active"${p.active !== false ? ' checked' : ''}><span class="check-box" aria-hidden="true"></span><span class="mono">Show this product to artists</span></label>
         </fieldset>
         <span class="drop-progress upload-bar" hidden aria-hidden="true"><span></span></span>
@@ -665,7 +676,15 @@
       image: { types: /^image\/(jpeg|png|webp)$/, max: 8 * 1024 * 1024, bad: 'Use a JPG, PNG or WebP image under 8 MB.' },
       preview: { types: /^audio\/(mpeg|mp3)$/, max: 20 * 1024 * 1024, bad: 'Use an MP3 preview under 20 MB.' },
       file: { types: /.*/, max: 2 * 1024 * 1024 * 1024, bad: 'The product file must be under 2 GB.' },
+      fileWin: { types: /.*/, max: 2 * 1024 * 1024 * 1024, bad: 'The product file must be under 2 GB.' },
+      fileMac: { types: /.*/, max: 2 * 1024 * 1024 * 1024, bad: 'The product file must be under 2 GB.' },
     };
+    pEditor.addEventListener('input', (e) => {
+      if (!e.target.matches('[name="category"]')) return;
+      const plugin = isPluginCat(e.target.value);
+      pEditor.querySelector('[data-files="single"]').hidden = plugin;
+      pEditor.querySelector('[data-files="plugin"]').hidden = !plugin;
+    });
     pEditor.addEventListener('change', (e) => {
       const gp = e.target.closest('[data-gal-pick]');
       if (gp) {
@@ -701,7 +720,7 @@
         a.hidden = false;
         pEditor.querySelector('[data-cur="preview"]').hidden = true;
       } else {
-        pEditor.querySelector('[data-cur="file"]').textContent = `${f.name} · ${H.bytes(f.size)} (uploads when you save)`;
+        pEditor.querySelector(`[data-cur="${key}"]`).textContent = `${f.name} · ${H.bytes(f.size)} (uploads when you save)`;
       }
     });
     pEditor.addEventListener('click', async (e) => {
@@ -727,6 +746,7 @@
         delete pend[key];
         pend[`remove_${key}`] = true;
         un.hidden = true;
+        if (FILE_KEYS.includes(key)) pEditor.querySelector(`[data-cur="${key}"]`).innerHTML = '<span class="muted">Nothing uploaded</span>';
         if (key === 'image') pEditor.querySelector('[data-pic-preview]').innerHTML = '<svg aria-hidden="true"><use href="#globe"/></svg><span class="mono muted">Picture placeholder</span>';
         if (key === 'preview') {
           const a = pEditor.querySelector('[data-audio]');
@@ -740,7 +760,7 @@
         const p = products.find((x) => x.id === f.dataset.id);
         if (!window.confirm(`Delete "${p.title}" and its files? People who already bought it can't download it any more. To hide it from the shop instead, untick "Show this product to artists".`)) return;
         try {
-          await Promise.all([p.image, p.preview, p.file, ...(p.gallery || [])].filter((x) => x && x.path).map((x) => S.deleteObject(S.ref(storage, x.path)).catch(() => {})));
+          await Promise.all([p.image, p.preview, p.file, p.fileWin, p.fileMac, ...(p.gallery || [])].filter((x) => x && x.path).map((x) => S.deleteObject(S.ref(storage, x.path)).catch(() => {})));
           await F.deleteDoc(F.doc(db, 'products', p.id));
           await loadProducts(`${p.title} deleted.`);
         } catch (err) { f.querySelector('.form-status').textContent = H.message(err); }
@@ -756,18 +776,21 @@
       const price = num(el.price.value);
       if (price !== null && !(price >= 0.5)) { out.textContent = 'The price must be a number of at least 0.50, like 19 or 24.99.'; el.price.focus(); return; }
       const old = products.find((x) => x.id === f.dataset.id) || {};
-      if (el.active.checked && !pend.file && !(old.file && old.file.path)) { out.textContent = 'Upload the product file before showing it to artists, or untick "Show this product to artists" to save it as a draft.'; return; }
+      const plugin = isPluginCat(el.category.value);
+      const has = (k) => !!pend[k] || (!pend[`remove_${k}`] && !!(old[k] && old[k].path));
+      if (el.active.checked && !plugin && !has('file')) { out.textContent = 'Upload the product file before showing it to artists, or untick "Show this product to artists" to save it as a draft.'; return; }
+      if (el.active.checked && plugin && !has('fileWin') && !has('fileMac')) { out.textContent = 'Upload the Windows or the Mac version (or both) before showing the plugin to artists, or untick "Show this product to artists" to save it as a draft.'; return; }
       const ref = f.dataset.id ? F.doc(db, 'products', f.dataset.id) : F.doc(F.collection(db, 'products'));
       const btn = f.querySelector('[type="submit"]');
       const bar = f.querySelector('.upload-bar');
       btn.disabled = true;
       try {
-        const kept = { image: old.image || null, preview: old.preview || null, file: old.file || null };
-        const uploads = ['image', 'preview', 'file'].filter((k) => pend[k]);
+        const kept = { image: old.image || null, preview: old.preview || null, file: old.file || null, fileWin: old.fileWin || null, fileMac: old.fileMac || null };
+        const uploads = ['image', 'preview', ...(plugin ? ['fileWin', 'fileMac'] : ['file'])].filter((k) => pend[k]);
         const galNew = gal.filter((g) => g.file);
         const totalBytes = uploads.reduce((n, k) => n + pend[k].size, 0) + galNew.reduce((n, g) => n + g.file.size, 0) || 1;
         let doneBytes = 0;
-        for (const k of ['image', 'preview', 'file']) {
+        for (const k of ['image', 'preview', ...FILE_KEYS]) {
           if ((pend[k] || pend[`remove_${k}`]) && kept[k] && kept[k].path) {
             await S.deleteObject(S.ref(storage, kept[k].path)).catch(() => {});
             kept[k] = null;
@@ -775,17 +798,17 @@
         }
         for (const k of uploads) {
           const file = pend[k];
-          const folder = k === 'file' ? 'files' : 'public';
+          const folder = FILE_KEYS.includes(k) ? 'files' : 'public';
           const path = `products/${ref.id}/${folder}/${Date.now()}-${file.name.replace(/[^\w.-]+/g, '_').slice(-80)}`;
           bar.hidden = false;
-          out.textContent = `Uploading ${k === 'file' ? 'the product file' : k === 'preview' ? 'the preview' : 'the image'}…`;
+          out.textContent = `Uploading ${k === 'fileWin' ? 'the Windows version' : k === 'fileMac' ? 'the Mac version' : k === 'file' ? 'the product file' : k === 'preview' ? 'the preview' : 'the image'}…`;
           const type = file.type || (k === 'preview' ? 'audio/mpeg' : 'application/octet-stream');
           await new Promise((resolve, reject) => {
             const task = S.uploadBytesResumable(S.ref(storage, path), file, { contentType: type });
             task.on('state_changed', (s) => { bar.firstElementChild.style.width = `${Math.round(((doneBytes + s.bytesTransferred) / totalBytes) * 100)}%`; }, reject, resolve);
           });
           doneBytes += file.size;
-          kept[k] = k === 'file'
+          kept[k] = FILE_KEYS.includes(k)
             ? { path, name: file.name, size: file.size }
             : { path, url: await S.getDownloadURL(S.ref(storage, path)) };
         }
@@ -813,7 +836,10 @@
           image: kept.image,
           gallery,
           preview: kept.preview,
-          file: kept.file,
+          file: plugin ? null : kept.file,
+          fileWin: plugin ? kept.fileWin : null,
+          fileMac: plugin ? kept.fileMac : null,
+          plugin,
           active: el.active.checked,
           createdAt: old.createdAt || F.serverTimestamp(),
           updatedAt: F.serverTimestamp(),

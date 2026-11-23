@@ -260,7 +260,13 @@ export async function create(site) {
     if (due.length) {
       due.forEach(([, o]) => {
         const prods = (o.items || []).filter((i) => i.productId);
-        if (prods.length) o.downloads = prods.map((i) => ({ productId: i.productId, title: i.label, token: rid() + rid(), count: 0 }));
+        if (prods.length) {
+          o.downloads = prods.flatMap((i) => {
+            const p = (state.col.products || {})[i.productId] || {};
+            const plats = p.plugin ? ['win', 'mac'].filter((k) => p[k === 'win' ? 'fileWin' : 'fileMac']) : [null];
+            return (plats.length ? plats : [null]).map((platform) => ({ productId: i.productId, title: i.label, ...(platform ? { platform } : {}), token: rid() + rid(), count: 0 }));
+          });
+        }
       });
       due.forEach(([, o]) => { delete o.mockPayAt; o.status = o.hasServices === false ? 'delivered' : 'paid'; o.paidAt = now(); o.paymentIntent = 'pi_mock'; delete state.col.carts[o.uid]; });
       save();

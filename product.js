@@ -144,11 +144,14 @@
       $('pp-desc-wrap').hidden = false;
     }
     const ext = p.file && p.file.name ? (p.file.name.split('.').pop() || '').toUpperCase() : '';
+    const plats = p.plugin ? [p.fileWin && p.fileWin.path ? 'Windows' : null, p.fileMac && p.fileMac.path ? 'Mac' : null].filter(Boolean) : [];
     const facts = [
-      ['Format', ext ? `${ext} download` : 'Download'],
-      p.file && p.file.size ? ['Size', H.bytes(p.file.size)] : null,
+      p.plugin ? ['Works on', plats.join(' and ') || 'Coming soon'] : ['Format', ext ? `${ext} download` : 'Download'],
+      p.plugin
+        ? (plats.length ? ['Download', `${plats.join(' and ')} ${plats.length > 1 ? 'versions' : 'version'}`] : null)
+        : (p.file && p.file.size ? ['Size', H.bytes(p.file.size)] : null),
       ['Delivery', 'Download link by email straight after payment'],
-      ['Licence', 'Use the sounds in your own music, royalty-free'],
+      ['Licence', p.plugin ? 'Personal licence for your own productions' : 'Use the sounds in your own music, royalty-free'],
     ].filter(Boolean);
     $('pp-facts').innerHTML = facts.map(([k, v]) => `<div><dt class="mono muted">${esc(k)}</dt><dd class="mono">${esc(v)}</dd></div>`).join('')
       + '<div><dt class="mono muted">Terms</dt><dd class="mono"><a href="terms#digital">Digital products terms</a></dd></div>';
