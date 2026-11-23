@@ -477,7 +477,8 @@ exports.adminStats = onCall({ secrets: [STRIPE_SECRET_KEY] }, async (req) => {
     balance = { available: sum(b.available), pending: sum(b.pending) };
   } catch (err) { logger.warn('Balance not read', { message: err.message }); }
 
-  const live = String(STRIPE_SECRET_KEY.value()).startsWith('sk_live');
+  // Live keys start with sk_live_ or rk_live_ (restricted); a charge also says which mode it came from
+  const live = charges.length ? charges[0].livemode === true : /^(sk|rk)_live_/.test(String(STRIPE_SECRET_KEY.value()));
   return { daily, latest, popular, balance, stripeBase: live ? 'https://dashboard.stripe.com' : 'https://dashboard.stripe.com/test' };
 });
 
