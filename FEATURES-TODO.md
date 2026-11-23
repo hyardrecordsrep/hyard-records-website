@@ -32,7 +32,6 @@ Setup steps: `SETUP-ACCOUNTS.md`.
 ## 3. Fans and community
 
 - [ ] **Add your first events** on the admin page (Admin → Events) **(you)**
-- [ ] **Deploy the server functions for plugin downloads**: `firebase deploy --only functions` **(you)**
 - [ ] **Write your first news posts** in Admin → News; the Beginning and The End post is already pinned as Featured **(you)**
 
 ## 4. Later
@@ -43,7 +42,7 @@ Setup steps: `SETUP-ACCOUNTS.md`.
 
 ## Done
 
-- [x] Plugins: a Plugins category with a Windows and a Mac file; buyers get a Windows and a Mac download button in the email and in My orders
+- [x] Plugins (server functions deployed): a Plugins category with a Windows and a Mac file; buyers get a Windows and a Mac download button in the email and in My orders
 - [x] Database and storage rules for News deployed and checked live
 - [x] Store page in the menu (replaces Merch, Privacy policy and Legal notice there; those two stay in the footer): Services, Products and Merch ("Coming soon" on hover). Anyone can browse services and products and open product pages; buying needs an account. Services and Products left the dashboard
 - [x] News posts: cover as a faded banner behind the title (size and which part of the picture to show), and pictures in the text with a position (left, center, right, full width) and size, movable up and down
