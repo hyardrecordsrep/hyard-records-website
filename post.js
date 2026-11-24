@@ -41,7 +41,9 @@
     setMeta('meta[property="og:description"]', 'content', desc);
     setMeta('meta[name="twitter:description"]', 'content', desc);
     setMeta('meta[property="og:url"]', 'content', link);
-    setMeta('link[rel="canonical"]', 'href', link);
+    let canon = document.querySelector('link[rel="canonical"]');
+    if (!canon) { canon = document.createElement('link'); canon.rel = 'canonical'; document.head.appendChild(canon); }
+    canon.href = link;
     setMeta('meta[property="og:type"]', 'content', 'article');
 
     const kicker = [p.preview ? `Preview · ${p.status === 'draft' ? 'Draft' : 'Not public'}` : null, p.pinned ? 'Featured' : 'News', N.fmt(p.date)].filter(Boolean).join(' · ');
@@ -101,10 +103,18 @@
     try { await navigator.clipboard.writeText(link); out.textContent = 'Link copied.'; } catch { out.textContent = link; }
   });
 
+  const noindex = () => {
+    const m = document.createElement('meta');
+    m.name = 'robots';
+    m.content = 'noindex';
+    document.head.appendChild(m);
+  };
+
   N.load().then(async (posts) => {
     let p = posts.find((x) => x.id === id);
     if (!p) p = await draftForAdmin().catch(() => null);
     if (!p || (p.status === 'deleted')) {
+      noindex();
       $('post-loading').hidden = true;
       $('post-missing').hidden = false;
       return;

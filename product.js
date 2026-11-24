@@ -7,7 +7,59 @@
   const esc = H.esc;
   const id = new URLSearchParams(location.search).get('p') || '';
 
+  // Search engines: each product page names its own address, title, picture and price
+  const head = (tag, attrs) => {
+    const sel = `${tag}${Object.entries(attrs).filter(([k]) => k !== 'content' && k !== 'href').map(([k, v]) => `[${k}="${v}"]`).join('')}`;
+    let el = document.head.querySelector(sel);
+    if (!el) { el = document.createElement(tag); document.head.appendChild(el); }
+    Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+  };
+  const abs = (u) => (/^https?:/.test(u) ? u : `https://hyardrecords.com/${u}`);
+  const describe = (p, pics) => {
+    const link = `https://hyardrecords.com/product?p=${encodeURIComponent(p.id)}`;
+    const text = String(p.description || '').replace(/\s+/g, ' ').trim();
+    const desc = text ? (text.length > 160 ? `${text.slice(0, 157).replace(/\s+\S*$/, '')}…` : text) : `${p.title} from Hyard Records.`;
+    const title = `${p.title} — Hyard Records`;
+    head('link', { rel: 'canonical', href: link });
+    head('meta', { name: 'description', content: desc });
+    head('meta', { property: 'og:title', content: title });
+    head('meta', { name: 'twitter:title', content: title });
+    head('meta', { property: 'og:description', content: desc });
+    head('meta', { name: 'twitter:description', content: desc });
+    head('meta', { property: 'og:url', content: link });
+    head('meta', { property: 'og:type', content: 'product' });
+    if (pics.length) {
+      head('meta', { property: 'og:image', content: abs(pics[0].url) });
+      head('meta', { name: 'twitter:image', content: abs(pics[0].url) });
+    }
+    const data = {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: p.title,
+      description: text || desc,
+      url: link,
+      brand: { '@type': 'Brand', name: 'Hyard Records' },
+      ...(pics.length ? { image: pics.map((x) => abs(x.url)) } : {}),
+      ...(p.category ? { category: p.category } : {}),
+      ...(SV.hasPrice(p.price) ? {
+        offers: {
+          '@type': 'Offer',
+          url: link,
+          price: Number(p.price).toFixed(2),
+          priceCurrency: 'EUR',
+          availability: 'https://schema.org/InStock',
+          seller: { '@type': 'Organization', name: 'Hyard Records' },
+        },
+      } : {}),
+    };
+    const s = document.createElement('script');
+    s.type = 'application/ld+json';
+    s.textContent = JSON.stringify(data);
+    document.head.appendChild(s);
+  };
+
   const missing = (text) => {
+    head('meta', { name: 'robots', content: 'noindex' });
     $('pp-loading').hidden = true;
     $('pp-missing').hidden = false;
     if (text) $('pp-missing-text').textContent = text;
@@ -43,6 +95,7 @@
 
     // ---------- Pictures ----------
     const pics = [p.image, ...(p.gallery || [])].filter((x) => x && x.url);
+    describe(p, pics);
     let at = 0;
     const show = (i) => {
       at = (i + pics.length) % pics.length;

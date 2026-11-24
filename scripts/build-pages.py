@@ -93,7 +93,41 @@ for a in artists:
 static = ['', 'about', 'news', 'store', 'artists', 'events', 'releases', 'contact', 'get-in-touch', 'press', 'privacy', 'legal', 'terms']
 today = date.today().isoformat()
 news_posts = [p for p in json.load(open('data/news.json')).get('posts', []) if p.get('status', 'published') == 'published']
-urls = [f'{SITE}/{p}' for p in static] + [f"{SITE}/post?p={p['id']}" for p in news_posts] + [f'{SITE}/{url_of(artist_file(a))}' for a in artists] + [f'{SITE}/{url_of(release_file(r))}' for r in releases]
+
+# Live products and posts come from the public database, so search engines find them too
+def firestore(coll):
+    import urllib.request
+    out, token = [], ''
+    while True:
+        u = f'https://firestore.googleapis.com/v1/projects/hyardrecords/databases/(default)/documents/{coll}?pageSize=300' + (f'&pageToken={token}' if token else '')
+        try:
+            d = json.load(urllib.request.urlopen(u, timeout=20))
+        except Exception as err:
+            print(f'Could not read {coll} from the database ({err}); the sitemap leaves them out')
+            return []
+        out += d.get('documents', [])
+        token = d.get('nextPageToken')
+        if not token:
+            return out
+def field(doc, k):
+    v = doc.get('fields', {}).get(k, {})
+    return next(iter(v.values()), None) if v else None
+products = [d['name'].rsplit('/', 1)[1] for d in firestore('products') if field(d, 'active') is not False]
+def public_posts():
+    import urllib.request
+    q = {'structuredQuery': {'from': [{'collectionId': 'posts'}], 'where': {'fieldFilter': {'field': {'fieldPath': 'status'}, 'op': 'IN',
+         'value': {'arrayValue': {'values': [{'stringValue': 'published'}, {'stringValue': 'deleted'}]}}}}}}
+    req = urllib.request.Request('https://firestore.googleapis.com/v1/projects/hyardrecords/databases/(default)/documents:runQuery',
+                                 data=json.dumps(q).encode(), headers={'Content-Type': 'application/json'})
+    try:
+        return [r['document'] for r in json.load(urllib.request.urlopen(req, timeout=20)) if 'document' in r]
+    except Exception as err:
+        print(f'Could not read posts from the database ({err}); the sitemap uses data/news.json only')
+        return []
+db_posts = {d['name'].rsplit('/', 1)[1]: field(d, 'status') for d in public_posts()}
+post_ids = [p['id'] for p in news_posts if db_posts.get(p['id'], 'published') == 'published']
+post_ids += [i for i, st in db_posts.items() if st == 'published' and i not in post_ids]
+urls = [f'{SITE}/{p}' for p in static] + [f"{SITE}/post?p={i}" for i in post_ids] + [f"{SITE}/product?p={i}" for i in products] + [f'{SITE}/{url_of(artist_file(a))}' for a in artists] + [f'{SITE}/{url_of(release_file(r))}' for r in releases]
 open('sitemap.xml', 'w').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                + ''.join(f'  <url><loc>{u}</loc><lastmod>{today}</lastmod></url>\n' for u in urls) + '</urlset>\n')
 print(f'{len(releases)} release pages, {len(artists)} artist pages, sitemap with {len(urls)} URLs')
