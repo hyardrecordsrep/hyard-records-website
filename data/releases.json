@@ -1,8 +1,38 @@
 {
   "label": "Hyard Records",
-  "syncedAt": "2026-11-26T05:27:27.986Z",
+  "syncedAt": "2026-11-27T05:27:02.329Z",
   "source": "spotify",
   "releases": [
+    {
+      "catalog": "HYD-030",
+      "spotifyId": "1zckTERtrf8pQ2omdgz3MR",
+      "title": "One More Time",
+      "type": "Single",
+      "artists": [
+        "Blurfnes"
+      ],
+      "artistIds": [
+        "4wik1BSfL1Vh3rOHdGxsCt"
+      ],
+      "releaseDate": "2026-11-27",
+      "label": "Hyard Records",
+      "cover": "assets/covers/spotify/1zckTERtrf8pQ2omdgz3MR-300.jpg",
+      "coverLarge": "assets/covers/spotify/1zckTERtrf8pQ2omdgz3MR-640.jpg",
+      "url": "https://open.spotify.com/album/1zckTERtrf8pQ2omdgz3MR",
+      "upc": "859751945333",
+      "tracks": [
+        {
+          "number": 1,
+          "title": "One More Time",
+          "artists": [
+            "Blurfnes"
+          ],
+          "durationMs": 217440,
+          "spotifyId": "4QwM4VSFV123xZCkflU4qE",
+          "url": "https://open.spotify.com/track/4QwM4VSFV123xZCkflU4qE"
+        }
+      ]
+    },
     {
       "catalog": "HYD-003",
       "spotifyId": "4o08pRb2nnGtCVa3xEqood",
